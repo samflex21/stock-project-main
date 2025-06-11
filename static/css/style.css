@@ -1,0 +1,77 @@
+/* Main styling for Stock Management Dashboard */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    font-weight: 500;
+}
+
+.chart-container {
+    padding: 1rem 0;
+}
+
+/* Table styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+/* Dashboard-specific styles */
+.dashboard-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Dashboard card colors */
+.card-strategic .card-header {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.card-tactical .card-header {
+    background-color: #198754;
+    color: white;
+}
+
+.card-analytical .card-header {
+    background-color: #0dcaf0;
+    color: white;
+}
+
+/* Filter styles */
+.filter-section {
+    background-color: #f1f3f5;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Badge styling */
+.badge {
+    padding: 0.5em 0.8em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 300px !important;
+    }
+}

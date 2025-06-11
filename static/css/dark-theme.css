@@ -1,0 +1,569 @@
+/* Dark theme stylesheet with gray background */
+html, body {
+    background-color: #303030 !important;
+    color: #f0f0f0;
+    font-family: 'Quicksand', sans-serif;
+    line-height: 1.6;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Comprehensive background color overrides */
+.container, .container-fluid, main, .wrapper, .content-wrapper, .dashboard-content,
+.row, div[class^="col-"], .card, .card-body, .card-header, .card-footer,
+#main-content, section, article, aside, header, footer, nav, div, span,
+.page-wrapper, .dashboard-wrapper, .content, .page-content,
+.tab-content, .tab-pane, .panel, .panel-body, .panel-heading {
+    background-color: #303030 !important;
+}
+
+/* Force main wrapper backgrounds */
+body > div, main > div, body > main, #root, #app, .app-container, .page-container {
+    background-color: #303030 !important;
+}
+
+/* Handle Bootstrap classes */
+.bg-white, .bg-light, .bg-body, .bg-body-tertiary {
+    background-color: #303030 !important;
+}
+
+/* Form elements - these often have white backgrounds in Bootstrap */
+input, select, textarea, .form-control, .form-select, .form-check-input,
+.input-group, .input-group-text, button, .btn, .dropdown-menu, .dropdown-item {
+    background-color: #404040 !important;
+    color: #f0f0f0 !important;
+    border-color: #555 !important;
+}
+
+/* Fix for form focus states */
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+    background-color: #404040 !important;
+    color: #f0f0f0 !important;
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+}
+
+p, span, div, table, th, td {
+    color: #f0f0f0;
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: #252525 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.8rem 1rem;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: #a0a0b0 !important;
+    transition: all 0.3s ease;
+    margin: 0 5px;
+    padding: 8px 15px !important;
+    border-radius: 6px;
+}
+
+.nav-link:hover {
+    color: #ffffff !important;
+    background-color: rgba(164, 74, 255, 0.1);
+}
+
+.navbar-nav .nav-link.active {
+    color: #a44aff !important;
+    font-weight: 600;
+    background-color: rgba(164, 74, 255, 0.15);
+}
+
+/* Cards */
+.card {
+    background-color: #3a3a3a;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #404040;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.card-body {
+    padding: 20px;
+    background-color: #3a3a3a;
+}
+
+/* Card title and display-4 styling */
+.card-title {
+    color: #ffffff;
+}
+
+.display-4 {
+    color: #ffffff;
+}
+
+/* Pro tip box */
+.pro-tip {
+    background: linear-gradient(135deg, rgba(164, 74, 255, 0.1) 0%, rgba(255, 94, 201, 0.1) 100%);
+    border-left: 4px solid #a44aff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.pro-tip .tip-title {
+    display: flex;
+    align-items: center;
+    color: #a44aff;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.pro-tip .tip-title i {
+    margin-right: 10px;
+}
+
+.pro-tip .tip-content {
+    color: #f0f0f0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Context box styling */
+.context-box {
+    background-color: #242438;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.context-box:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #a44aff 0%, #ff5ec9 100%);
+    border-radius: 4px 0 0 4px;
+}
+
+.context-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(164, 74, 255, 0.3);
+}
+
+.context-box .icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #f0f0f0;
+}
+
+.context-box.no-data-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #a0a0b0;
+    text-align: center;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: rgba(36, 36, 56, 0.5);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    margin: 20px 0;
+}
+
+.no-data-message i {
+    color: #a44aff;
+    margin-bottom: 15px;
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+.no-data-message p {
+    font-size: 16px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* Section Headers */
+.section-header {
+    background-color: #242438;
+    color: #ffffff;
+    padding: 18px 20px;
+    margin: 25px 0;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #a44aff;
+    position: relative;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.section-header i {
+    margin-right: 10px;
+    color: #a44aff;
+    font-size: 1.2em;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+/* Chart container styling */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 380px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #242438;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chart-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+/* Table styling */
+.table {
+    color: #f0f0f0;
+    border-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 1rem;
+}
+
+.table thead th {
+    background-color: #2a2a3c;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+.table tbody tr:nth-of-type(odd) {
+    background-color: rgba(42, 42, 60, 0.5);
+}
+
+.table tbody tr:nth-of-type(even) {
+    background-color: rgba(36, 36, 56, 0.8);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(164, 74, 255, 0.1);
+}
+
+.table td {
+    padding: 12px 15px;
+    border-color: rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(60, 60, 60, 0.5);
+}
+
+.table-bordered {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table th {
+    color: #ffffff;
+    background-color: #454545;
+}
+
+/* Sidebar styles */
+.dashboard-sidebar {
+    background-color: #2a2a2a;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    position: sticky;
+    top: 20px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Modern metric cards */
+.metric-card {
+    position: relative;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #353535;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card .metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.metric-card .metric-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #f0f0f0;
+}
+
+.metric-card .metric-subtitle {
+    font-size: 0.85rem;
+    color: #a0a0b0;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.metric-card .progress {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.metric-card .progress-bar {
+    border-radius: 4px;
+}
+
+/* Gradient progress bars */
+.progress-purple-pink {
+    background: linear-gradient(to right, #a44aff, #ff5ec9);
+}
+
+.progress-orange {
+    background: linear-gradient(to right, #ffb347, #ffcc33);
+}
+
+.progress-blue {
+    background: linear-gradient(to right, #00c8ff, #33e4ff);
+}
+
+.progress-purple {
+    background: linear-gradient(to right, #8a35f5, #a44aff);
+}
+
+.metric-card .metric-change {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.metric-card .metric-change.positive {
+    color: #4ade80;
+}
+
+.metric-card .metric-change.negative {
+    color: #f43f5e;
+}
+
+/* Layout adjustments */
+.dashboard-content {
+    position: relative;
+}
+
+/* Main content padding for sidebar layout */
+@media (min-width: 992px) {
+    .with-sidebar {
+        padding-left: 20px;
+    }
+}
+
+/* Button styles */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #a44aff 0%, #8a35f5 100%);
+    border-color: transparent;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #b35fff 0%, #9545ff 100%);
+    border-color: transparent;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(164, 74, 255, 0.25);
+    color: #ffffff;
+}
+
+.btn-primary:active {
+    background: linear-gradient(135deg, #8a35f5 0%, #7324e0 100%);
+    border-color: transparent;
+    transform: translateY(1px);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #00c8ff 0%, #0099d5 100%);
+    border-color: transparent;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #20d2ff 0%, #00a3e0 100%);
+    border-color: transparent;
+}
+
+/* Input fields and selects */
+.form-control, .form-select {
+    background-color: #242438;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f0f0f0;
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #242438;
+    background-color: #2f2f45;
+    color: #f0f0f0;
+    border-color: #a44aff;
+    box-shadow: 0 0 0 0.25rem rgba(164, 74, 255, 0.25);
+}
+
+/* Filter section */
+.filter-section {
+    background-color: #242438;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-section .form-label {
+    color: #a0a0b0;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.filter-section .form-control,
+.filter-section .form-select {
+    height: 45px;
+}
+
+.filter-section .btn {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-section i {
+    margin-right: 8px;
+}
+.filter-card {
+    background-color: #2a2a3c;
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 12px;
+    border-width: 1px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    background-color: #242438;
+}
+
+.alert-info {
+    background-color: rgba(0, 200, 255, 0.15) !important;
+    border-color: rgba(0, 200, 255, 0.3) !important;
+    color: #00c8ff !important;
+}
+
+.alert-warning {
+    background-color: rgba(255, 179, 71, 0.15) !important;
+    border-color: rgba(255, 179, 71, 0.3) !important;
+    color: #ffb347 !important;
+}
+
+.alert-success {
+    background-color: rgba(74, 222, 128, 0.15) !important;
+    border-color: rgba(74, 222, 128, 0.3) !important;
+    color: #4ade80 !important;
+}
+
+.alert-danger {
+    background-color: rgba(244, 63, 94, 0.15) !important;
+    border-color: rgba(244, 63, 94, 0.3) !important;
+    color: #f43f5e !important;
+}
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: #75b798;
+    border-color: #75b798;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    background-color: #2a2a3c;
+}
+
+.dropdown-item {
+    color: #f0f0f0;
+}
+
+.dropdown-item:hover {
+    background-color: #3a3a50;
+    color: #ffffff;
+}

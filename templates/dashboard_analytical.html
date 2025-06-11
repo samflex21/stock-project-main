@@ -1,0 +1,553 @@
+{% extends "base.html" %}
+
+{% block title %}Analytical Dashboard{% endblock %}
+
+{% block head %}
+<style>
+    /* Chart container styling */
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 30px;
+    }
+    
+    /* Tag cloud styling */
+    .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .tag-cloud span {
+        display: inline-block;
+        margin: 4px;
+        padding: 5px 10px;
+        background-color: rgba(13, 110, 253, 0.2);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .tag-cloud span:hover {
+        background-color: #e9ecef;
+    }
+    
+    /* Tag size classes */
+    .tag-size-1 { font-size: 0.9rem; }
+    .tag-size-2 { font-size: 1.1rem; }
+    .tag-size-3 { font-size: 1.3rem; }
+    .tag-size-4 { font-size: 1.5rem; }
+    .tag-size-5 { font-size: 1.7rem; }
+    
+    /* Rating progress bar */
+    .rating-progress {
+        height: 8px;
+        width: 100%;
+    }
+    
+    /* Section header styling */
+    .section-header {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Analytical Dashboard — Recommendation System</h1>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filters</h5>
+    </div>
+    <div class="card-body">
+        <form class="row" id="filterForm">
+            <div class="col-md-4 mb-3">
+                <label for="tagFilter" class="form-label">Tag</label>
+                <select class="form-select" id="tagFilter">
+                    <option value="all">All Tags</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="minRatingFilter" class="form-label">Minimum Rating</label>
+                <select class="form-select" id="minRatingFilter">
+                    <option value="1">1+ stars</option>
+                    <option value="2">2+ stars</option>
+                    <option value="3" selected>3+ stars</option>
+                    <option value="4">4+ stars</option>
+                    <option value="5">5 stars only</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3 d-flex align-items-end">
+                <button type="button" class="btn btn-primary" id="applyFilters">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Section 1: Context -->
+<div class="section-header">
+    <h2>Context</h2>
+    <p>This dashboard provides analytical insights for product recommendations. Analyze user preferences, popular tags, and product ratings to optimize recommendation algorithms.</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Total Tags</h5>
+                <p class="display-4">{{ popular_tags|length }}</p>
+                <p class="text-muted">Number of unique product tags</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Average Rating</h5>
+                <p class="display-4">4.2</p>
+                <p class="text-muted">Average product rating</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Most Popular Tag</h5>
+                <p class="display-4">{{ popular_tags[0].TagName }}</p>
+                <p class="text-muted">Tag with highest usage</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 2: Main Section with 4 Charts -->
+<div class="section-header">
+    <h2>Main Section</h2>
+    <p>Key visualizations to analyze product ratings, tags, and recommendation factors.</p>
+</div>
+
+<div class="row">
+    <!-- Chart 1: Tag Cloud -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">Popular Tags</h5>
+            </div>
+            <div class="card-body">
+                <div class="tag-cloud">
+                    {% for tag in popular_tags %}
+                    {% set tag_size = (tag.TagUsage / tag.MaxUsage * 5) | round | int if tag.MaxUsage else 1 %}
+                    {% set tag_size = 5 if tag_size > 5 else tag_size %}
+                    {% set tag_size = 1 if tag_size < 1 else tag_size %}
+                    <span class="tag-size-{{ tag_size }}">{{ tag.TagName }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart 2: Average Rating by Tag -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">Average Rating by Tag</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ratingByTagChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart 3: Rating Distribution -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">Rating Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="ratingDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart 4: Recommendation Strength -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">Recommendation Strength</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="recommendationStrengthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 3: Deep Dive -->
+<div class="section-header">
+    <h2>Deep Dive</h2>
+    <p>Detailed analysis of product ratings and tag correlations.</p>
+</div>
+
+<!-- Top Rated Products -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">Top-Rated Products by Tag</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped" id="productsTable">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Product</th>
+                        <th>Avg Rating</th>
+                        <th>Rating Count</th>
+                        <th>Rating Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in tag_ratings %}
+                    <tr data-tag="{{ row.TagName }}" data-rating="{{ row.AvgRating }}">
+                        <td><span class="badge bg-info text-white">{{ row.TagName }}</span></td>
+                        <td>{{ row.ProductName }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="me-2">{{ "%.1f"|format(row.AvgRating) }}</span>
+                                <div>
+                                    {% for i in range(5) %}
+                                    {% if i < row.AvgRating|int %}
+                                    <i class="fa fa-star text-warning"></i>
+                                    {% elif i < row.AvgRating|float %}
+                                    <i class="fa fa-star-half-alt text-warning"></i>
+                                    {% else %}
+                                    <i class="fa fa-star text-muted"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ row.RatingCount }}</td>
+                        <td>
+                            <div class="progress rating-progress">
+                                <div class="progress-bar bg-success rating-bar" role="progressbar" aria-valuenow="{{ (row.AvgRating / 5 * 100)|round|int }}" aria-valuemin="0" aria-valuemax="100" data-rating="{{ row.AvgRating }}" data-percent="{{ (row.AvgRating / 5 * 100)|round|int }}"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Distribution -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">Rating Distribution by Tag</h5>
+    </div>
+    <div class="card-body">
+        <div class="chart-container">
+            <canvas id="ratingDistributionChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Add Font Awesome for stars -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+// First set default empty values for all data
+let tagRatings = [];
+let popularTags = [];
+
+// Then separate template rendering from JavaScript execution
+(function loadData() {
+    // Get data from Flask templates without exposing to JS linter
+    try {
+        tagRatings = JSON.parse('{{ tag_ratings|default([])|tojson|safe }}');
+        popularTags = JSON.parse('{{ popular_tags|default([])|tojson|safe }}');
+        
+        // Log data availability
+        console.log('Tag Ratings loaded:', tagRatings.length);
+        console.log('Popular Tags loaded:', popularTags.length);
+    } catch (e) {
+        console.error('Error parsing Flask data:', e);
+    }
+})();
+
+// Generate random colors for charts
+function generateRandomColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        const r = Math.floor(Math.random() * 200);
+        const g = Math.floor(Math.random() * 200);
+        const b = Math.floor(Math.random() * 200);
+        colors.push(`rgba(${r}, ${g}, ${b}, 0.7)`);
+    }
+    return colors;
+}
+
+// Create Average Rating by Tag Chart
+function createRatingByTagChart() {
+    const ctx = document.getElementById('ratingByTagChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    // Process data for chart
+    const tags = {};
+    tagRatings.forEach(item => {
+        if (!tags[item.TagName]) {
+            tags[item.TagName] = {
+                ratings: [],
+                count: 0
+            };
+        }
+        tags[item.TagName].ratings.push(item.AvgRating);
+        tags[item.TagName].count++;
+    });
+    
+    // Calculate average rating per tag
+    const tagNames = Object.keys(tags);
+    const avgRatings = tagNames.map(tag => {
+        const sum = tags[tag].ratings.reduce((a, b) => a + b, 0);
+        return sum / tags[tag].ratings.length;
+    });
+    
+    // Create chart
+    const colors = generateRandomColors(tagNames.length);
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: tagNames,
+            datasets: [{
+                label: 'Average Rating',
+                data: avgRatings,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.7', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5,
+                    title: {
+                        display: true,
+                        text: 'Average Rating'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Tag'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const tagName = context.label;
+                            return `Average Rating: ${context.parsed.y.toFixed(1)}/5 (${tags[tagName].count} products)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Create Rating Distribution Chart
+function createRatingDistributionChart() {
+    const ctx = document.getElementById('ratingDistributionChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    // Count products by rating
+    const ratingCounts = [0, 0, 0, 0, 0]; // For ratings 1-5
+    tagRatings.forEach(item => {
+        const rating = Math.round(item.AvgRating);
+        if (rating >= 1 && rating <= 5) {
+            ratingCounts[rating - 1]++;
+        }
+    });
+    
+    // Create chart
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+            datasets: [{
+                data: ratingCounts,
+                backgroundColor: [
+                    'rgba(220, 53, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(255, 153, 0, 0.7)',
+                    'rgba(23, 162, 184, 0.7)',
+                    'rgba(40, 167, 69, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(220, 53, 69, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(255, 153, 0, 1)',
+                    'rgba(23, 162, 184, 1)',
+                    'rgba(40, 167, 69, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = ratingCounts.reduce((sum, val) => sum + val, 0);
+                            const percentage = Math.round((context.parsed / total) * 100);
+                            return `${context.label}: ${context.parsed} products (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Create Recommendation Strength Chart
+function createRecommendationStrengthChart() {
+    const ctx = document.getElementById('recommendationStrengthChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    // Sample data for recommendation strength - would be replaced with actual data from server
+    const data = {
+        labels: ['Electronics', 'Clothing', 'Food', 'Home', 'Office'],
+        datasets: [{
+            label: 'Purchase Probability',
+            data: [0.82, 0.65, 0.91, 0.75, 0.58],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgb(54, 162, 235)',
+            borderWidth: 2,
+            fill: true
+        }, {
+            label: 'Repeat Purchase',
+            data: [0.45, 0.72, 0.88, 0.63, 0.51],
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 2,
+            fill: true
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        stepSize: 0.2
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${(context.raw * 100).toFixed(0)}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Filter products table
+function filterTable() {
+    const tagFilter = document.getElementById('tagFilter').value;
+    const minRatingFilter = parseFloat(document.getElementById('minRatingFilter').value);
+    
+    document.querySelectorAll('#productsTable tbody tr').forEach(row => {
+        const rowTag = row.getAttribute('data-tag');
+        const rowRating = parseFloat(row.getAttribute('data-rating'));
+        
+        const tagMatch = tagFilter === 'all' || rowTag === tagFilter;
+        const ratingMatch = !minRatingFilter || rowRating >= minRatingFilter;
+        
+        if (tagMatch && ratingMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Make tag cloud interactive
+document.querySelectorAll('.tag-cloud span').forEach(tag => {
+    tag.addEventListener('click', function() {
+        const tagName = this.textContent.trim();
+        const tagFilter = document.getElementById('tagFilter');
+        
+        // Set the select to the clicked tag
+        for (let i = 0; i < tagFilter.options.length; i++) {
+            if (tagFilter.options[i].value === tagName) {
+                tagFilter.selectedIndex = i;
+                break;
+            }
+        }
+        
+        // Filter the table
+        filterTable();
+    });
+});
+
+// Apply filters button click
+document.getElementById('applyFilters').addEventListener('click', filterTable);
+
+// Set width for rating progress bars using JavaScript instead of inline styles
+function initializeRatingBars() {
+    document.querySelectorAll('.rating-bar').forEach(bar => {
+        const percent = bar.getAttribute('data-percent');
+        const rating = parseFloat(bar.getAttribute('data-rating')).toFixed(1);
+        bar.style.width = percent + '%';
+        bar.textContent = rating;
+    });
+}
+
+// Initialize charts and UI elements
+document.addEventListener('DOMContentLoaded', function() {
+    createRatingByTagChart();
+    createRatingDistributionChart();
+    createRecommendationStrengthChart();
+    initializeRatingBars();
+    filterTable(); // Apply initial filters
+});
+</script>
+{% endblock %}

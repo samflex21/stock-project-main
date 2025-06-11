@@ -1,0 +1,1765 @@
+{% extends "base.html" %}
+
+{% block title %}Strategic Dashboard{% endblock %}
+
+{% block head %}
+{{super()}}
+<!-- Include Neon Dashboard CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/neon-dashboard.css') }}?v=1.0">
+<!-- Google Fonts for Neon Theme -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* Force gray background everywhere */
+    html, body, div, section, nav, main, article, aside, header, footer,
+    .container, .container-fluid, .row, [class*="col-"],
+    .card, .card-header, .card-body, .card-footer, table, tr, td, th {
+        background-color: #303030 !important;
+    }
+    
+    /* Make sure no white backgrounds slip through */
+    .bg-white, .bg-light, .bg-body-tertiary {
+        background-color: #303030 !important;
+    }
+    
+    /* Chart styling */
+    .chart-container {
+        position: relative;
+        margin: auto;
+        height: 360px;
+        width: 100%;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #3a3a3a !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .section-header {
+        background-color: #404040 !important;
+        border-left: 4px solid #0d6efd;
+        padding: 10px 15px;
+        color: #ffffff;
+        margin-bottom: 20px;
+    }
+    
+    /* Direct fix for section headers that might have white background */
+    h1, h2, h3, h4, h5, h6, .section-header, .row > div > h1, .row > div > h2,
+    .card > .card-header, .card > .card-body, .card > .card-footer,
+    .filter-controls, .filter-section, #refine-analysis {
+        background-color: #303030 !important;
+    }
+    .card-header {
+        background-color: #3a3a50;
+        color: #ffffff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 1rem 1.25rem;
+    }
+    .chart-container canvas {
+        padding: 10px;
+        transition: all 0.3s ease;
+    }
+    .card-body {
+        padding: 1.25rem;
+        background-color: #2a2a3c;
+        color: #fff;
+    }
+    .context-box {
+        background-color: #2f343a;
+        padding: 20px;
+        border-radius: 10px;
+        color: #fff;
+    }
+    .context-box i {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    .context-box .fs-3 {
+        font-size: 24px;
+        font-weight: 600;
+    }
+    /* Table styling */
+    .table-responsive {
+        margin-bottom: 1rem;
+    }
+    .table thead th {
+        background-color: #3a3a50;
+        color: #ffffff;
+        border-bottom: 2px solid #444;
+    }
+    .table tbody tr:nth-of-type(odd) {
+        background-color: #2f2f45;
+    }
+    .table tbody tr:nth-of-type(even) {
+        background-color: #2a2a3c;
+    }
+    .category-summary-table .number-cell {
+        text-align: right;
+        font-family: 'Quicksand', monospace;
+    }
+    
+    /* Main content areas */
+    main, section, article, header, footer, aside {
+        background-color: #303030 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Force gray background on this page */
+    body, html, .container-fluid, .row, .col, .col-lg-12, .col-md-12, .col-sm-12,
+    .card, .card-body, .chart-container, .dashboard-wrapper, #dashboard-strategic,
+    div[class*="col-"], .collapse, .collapsing, .accordion-body, table, thead, tbody, tr, th, td {
+        background-color: #303030 !important;
+    }
+    
+    /* Make sure Bootstrap default white backgrounds are overridden */
+    .bg-white, .bg-light, .bg-body-tertiary, .bg-body-secondary, .bg-body {
+        background-color: #303030 !important;
+    }
+    
+    /* Main content areas */
+    main, section, article, header, footer, aside {
+        background-color: #303030 !important;
+    }
+</style>
+<div class="container-fluid py-4 neon-theme" style="background: linear-gradient(135deg, var(--neon-bg-dark), var(--neon-bg-light)) !important;">
+
+<!-- Main Dashboard Layout with Rearranged Structure -->
+<div class="row">
+    <!-- Metrics Cards at Top (Previously in Sidebar) -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <!-- Categories Metric Card -->
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h3 class="metric-value" id="category-count">{{ summary_data|length }}</h3>
+                    <div class="metric-title">Categories</div>
+                    <span class="metric-subtitle">Total categories</span>
+                    <div class="progress">
+                        <div class="progress-bar progress-purple-pink" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="metric-change positive">25% <i class="fas fa-caret-up"></i></span>
+                </div>
+            </div>
+            
+            <!-- Average Price Metric Card -->
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h3 class="metric-value" id="avg-price">${{ summary_data[0].AvgPrice }}</h3>
+                    <div class="metric-title">Average Price</div>
+                    <span class="metric-subtitle">All products</span>
+                    <div class="progress">
+                        <div class="progress-bar progress-orange" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="metric-change positive">20% <i class="fas fa-caret-up"></i></span>
+                </div>
+            </div>
+            
+            <!-- Total Products Metric Card -->
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h3 class="metric-value" id="total-products">{{ total_products }}</h3>
+                    <div class="metric-title">Total Products</div>
+                    <span class="metric-subtitle">In inventory</span>
+                    <div class="progress">
+                        <div class="progress-bar progress-blue" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="metric-change positive">30% <i class="fas fa-caret-up"></i></span>
+                </div>
+            </div>
+            
+            <!-- Min Price Metric Card -->
+            <div class="col-md-3">
+                <div class="metric-card">
+                    <h3 class="metric-value" id="min-price">${{ summary_data[0].MinPrice }}</h3>
+                    <div class="metric-title">Min Price</div>
+                    <span class="metric-subtitle">Lowest product price</span>
+                    <div class="progress">
+                        <div class="progress-bar progress-purple" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <span class="metric-change negative">10% <i class="fas fa-caret-down"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar with Header and Filters -->
+    <div class="col-lg-3 mb-4">
+        <div class="dashboard-sidebar">
+            <h1 class="mb-4 neon-heading">Statistics</h1>
+
+            <div class="lead dashboard-intro mb-4">
+                <i class="fas fa-chart-line me-2"></i>
+                <span>This dashboard provides strategic pricing insights to optimize your product pricing strategy.</span>
+            </div>
+
+            <!-- Filter Controls moved to sidebar -->
+            <div class="filter-section" style="background-color: #303030 !important;">
+                <div class="row align-items-center">
+                    <div class="col-auto" style="background-color: #303030 !important;">
+                        <h5 class="mb-0" style="background-color: #303030 !important;"><i class="fas fa-filter me-2 text-primary"></i>Refine Analysis</h5>
+                    </div>
+                </div>
+                
+                <form class="mt-3" id="filterForm" style="background-color: #303030 !important;">
+                    <div class="mb-3">
+                        <label for="categoryFilter" class="form-label">Product Category</label>
+                        <select class="form-select" id="categoryFilter">
+                            <option value="all">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateRangeFilter" class="form-label">Date Range</label>
+                        <select class="form-select" id="dateRangeFilter">
+                            <option value="6">Last 6 months</option>
+                            <option value="3">Last 3 months</option>
+                            <option value="12">Last 12 months</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">
+                            <i class="fas fa-filter me-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="col-lg-9">
+        <!-- Most Stable/Volatile Categories -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="context-box">
+                    <i class="fas fa-shield-alt me-2"></i>Most Stable Category
+                    <div class="fs-3 mt-2" id="most-stable-category">Electronics</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="context-box">
+                    <i class="fas fa-bolt me-2"></i>Most Volatile Category
+                    <div class="fs-3 mt-2" id="most-volatile-category">Home Appliances</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Deep Dive Section -->
+        <h2 class="section-header"><i class="fas fa-chart-line me-2"></i>Deep Dive Analytics</h2>
+        
+        <!-- Chart Section -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="chart-container">
+                    <h5><i class="fas fa-fire me-2"></i>Heatmap: Category vs Month Price Changes</h5>
+                    <canvas id="priceTrendChart"></canvas>
+                    <div id="priceTrendNoData" class="no-data-message" style="display: none;">
+                        <i class="fas fa-fire fa-3x mb-3"></i>
+                        <p>No price change data available for the selected filters.</p>
+                    </div>
+                </div>
+            </div>
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5><i class="fas fa-chart-line me-2"></i>Line Chart: Price Growth Rate</h5>
+            <canvas id="priceGrowthChart"></canvas>
+            <div id="priceGrowthNoData" class="no-data-message" style="display: none;">
+                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                <p>No price growth data available for the selected filters.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5><i class="fas fa-chart-bar me-2"></i>Bar Chart: Price Volatility by Category</h5>
+            <canvas id="categoryComparisonChart"></canvas>
+            <div id="categoryComparisonNoData" class="no-data-message" style="display: none;">
+                <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                <p>No volatility data available for the selected filters.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5><i class="fas fa-chart-radar me-2"></i>Radar Chart: Category Performance Comparison</h5>
+            <canvas id="categoryPerformanceChart"></canvas>
+            <div id="categoryPerformanceNoData" class="no-data-message" style="display: none;">
+                <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                <p>No performance data available for the selected filters.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 3: Deep Dive -->
+<div class="section-header">
+    <h2>Deep Dive</h2>
+    <p>Detailed analysis and insights about pricing strategies and category performance.</p>
+</div>
+
+<div class="row">
+
+    <!-- Statistics Section with Neon Chart -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="neon-chart-container">
+                <canvas id="priceGrowthChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Summary Table -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Category Price Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Products</th>
+                                <th>Min Price</th>
+                                <th>Max Price</th>
+                                <th>Avg Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in summary_data %}
+                            <tr>
+                                <td>{{ item.CategoryName }}</td>
+                                <td>{{ item.ProductCount }}</td>
+                                <td>${{ item.MinPrice }}</td>
+                                <td>${{ item.MaxPrice }}</td>
+                                <td>${{ item.AvgPrice }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    // Initialize data storage
+    let chartData = {};
+    let volatilityData = [];
+    let summaryData = [];
+
+    // Advanced stock chart styling function
+    function applyFinanceChartStyling(options) {
+        // Start with default options if none provided
+        options = options || {};
+        
+        // Common finance chart styling defaults
+        const defaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: {
+                            family: "'Quicksand', sans-serif",
+                            size: 12
+                        },
+                        color: '#f0f0f0'
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(42, 42, 60, 0.9)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#f0f0f0',
+                    borderColor: '#444',
+                    borderWidth: 1,
+                    titleFont: {
+                        family: "'Quicksand', sans-serif",
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        family: "'Quicksand', sans-serif",
+                        size: 13
+                    },
+                    padding: 10,
+                    cornerRadius: 4,
+                    caretSize: 6,
+                    displayColors: true
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: options.xTitle || '',
+                        color: '#ffffff',
+                        font: {
+                            family: "'Quicksand', sans-serif",
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        color: '#f0f0f0',
+                        font: {
+                            family: "'Quicksand', sans-serif",
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        display: true,
+                        drawBorder: true,
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: options.yTitle || '',
+                        color: '#ffffff',
+                        font: {
+                            family: "'Quicksand', sans-serif",
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    ticks: {
+                        beginAtZero: true,
+                        color: '#f0f0f0',
+                        font: {
+                            family: "'Quicksand', sans-serif",
+                            size: 12
+                        },
+                        callback: function(value) {
+                            if (options.yFormat === 'currency') {
+                                return '$' + value.toLocaleString();
+                            } else if (options.yFormat === 'percent') {
+                                return value + '%';
+                            } else {
+                                return value;
+                            }
+                        }
+                    },
+                    grid: {
+                        display: true,
+                        drawBorder: true,
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            },
+            elements: {
+                line: {
+                    tension: 0.3, // Smoother curves
+                    borderWidth: 3 // Thicker lines for visibility
+                },
+                point: {
+                    radius: 4,
+                    hitRadius: 10,
+                    hoverRadius: 6,
+                    borderWidth: 2
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        };
+        
+        // Deep merge custom options with defaults
+        return mergeDeep(defaults, options || {});
+    }
+    
+    // Helper function for deep merging objects
+    function mergeDeep(target, source) {
+        const isObject = obj => obj && typeof obj === 'object';
+        
+        if (!isObject(target) || !isObject(source)) {
+            return source;
+        }
+        
+        Object.keys(source).forEach(key => {
+            const targetValue = target[key];
+            const sourceValue = source[key];
+            
+            if (Array.isArray(targetValue) && Array.isArray(sourceValue)) {
+                target[key] = targetValue.concat(sourceValue);
+            } else if (isObject(targetValue) && isObject(sourceValue)) {
+                target[key] = mergeDeep(Object.assign({}, targetValue), sourceValue);
+            } else {
+                target[key] = sourceValue;
+            }
+        });
+        
+        return target;
+    }
+
+// Safely parse data from Flask
+(function loadData() {
+    try {
+        chartData = JSON.parse('{{ chart_data|default({})|tojson|safe }}');
+        volatilityData = JSON.parse('{{ volatility_data|default([])|tojson|safe }}');
+        summaryData = JSON.parse('{{ summary_data|default([])|tojson|safe }}');
+        
+        console.log('Chart data loaded:', Object.keys(chartData).length > 0 ? 'Yes' : 'No');
+        console.log('Chart data structure:', chartData);
+        console.log('Chart data categories:', Object.keys(chartData));
+        if (Object.keys(chartData).length > 0) {
+            const firstCategory = Object.keys(chartData)[0];
+            console.log('Sample data points for ' + firstCategory + ':', chartData[firstCategory].slice(0, 3));
+        }
+        console.log('Volatility data loaded:', volatilityData.length);
+        console.log('Summary data loaded:', summaryData.length);
+    } catch (e) {
+        console.error('Error parsing data from Flask:', e);
+        // Initialize with fallback data if parsing fails
+        chartData = {};
+        volatilityData = [];
+        summaryData = [];
+    }
+})();
+
+// Generate colors from modern neon palette for each category
+function generateRandomColors(count) {
+    // Modern neon color palette matching the dark UI design
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        const hue = (i * 137) % 360; // Use golden angle approximation for good distribution
+        colors.push(`hsla(${hue}, 80%, 65%, 0.7)`);
+    }
+    return colors;
+}
+
+// Generate consistent color for a category index
+function generateCategoryColor(index) {
+    const hue = (index * 137) % 360; // Use golden angle approximation for good distribution
+    return `hsl(${hue}, 80%, 65%)`;
+}
+
+// Process data for the Price Growth Rate chart
+function processGrowthRateData(category = 'all', dateRange = '6') {
+    console.log(`Processing growth rate data for category ${category} and date range ${dateRange}`);
+    
+    const months = parseInt(dateRange);
+    const result = {
+        labels: [],
+        datasets: []
+    };
+    
+    // Check if we have chart data
+    if (!chartData || Object.keys(chartData).length === 0) {
+        console.error('No chart data available for growth rate calculation');
+        return result;
+    }
+    
+    // Get all categories or filter by selected category
+    let relevantCategories = [];
+    if (category === 'all') {
+        relevantCategories = Object.keys(chartData);
+    } else if (chartData[category]) {
+        relevantCategories = [category];
+    } else {
+        console.error(`Category ${category} not found in chart data`);
+        return result;
+    }
+    
+    // Apply date range filter
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - months);
+    
+    // Get all unique months across all categories
+    const allMonths = new Set();
+    const monthlyData = {};
+    
+    // First collect all months and organize data by month
+    relevantCategories.forEach(cat => {
+        if (!chartData[cat] || chartData[cat].length === 0) return;
+        
+        // Filter data points by date and sort chronologically
+        const filteredPoints = chartData[cat]
+            .filter(point => new Date(point.x) >= cutoffDate)
+            .sort((a, b) => new Date(a.x) - new Date(b.x));
+        
+        if (filteredPoints.length === 0) return;
+        
+        // Group by month
+        filteredPoints.forEach(point => {
+            const date = new Date(point.x);
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            allMonths.add(monthKey);
+            
+            if (!monthlyData[cat]) {
+                monthlyData[cat] = {};
+            }
+            
+            if (!monthlyData[cat][monthKey]) {
+                monthlyData[cat][monthKey] = [];
+            }
+            
+            monthlyData[cat][monthKey].push(parseFloat(point.y));
+        });
+    });
+    
+    // Sort months chronologically
+    const sortedMonths = Array.from(allMonths).sort();
+    
+    // Format month labels for display
+    result.labels = sortedMonths.map(month => {
+        const [year, monthNum] = month.split('-');
+        const date = new Date(parseInt(year), parseInt(monthNum) - 1, 1);
+        return `${date.toLocaleString('default', { month: 'short' })} ${year}`;
+    });
+    
+    // Calculate monthly averages and growth rates
+    relevantCategories.forEach((cat, index) => {
+        if (!monthlyData[cat]) return;
+        
+        const dataset = {
+            label: cat,
+            data: []
+        };
+        
+        let prevAvg = null;
+        
+        sortedMonths.forEach(month => {
+            const prices = monthlyData[cat][month] || [];
+            
+            if (prices.length > 0) {
+                const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+                
+                if (prevAvg !== null) {
+                    // Calculate growth rate as percentage change from previous month
+                    const growthRate = ((avgPrice - prevAvg) / prevAvg) * 100;
+                    dataset.data.push(growthRate);
+                } else {
+                    // For first data point, use 0% growth rate
+                    dataset.data.push(0);
+                }
+                
+                prevAvg = avgPrice;
+            } else {
+                // No data for this month, use null to create a gap in the line
+                dataset.data.push(null);
+            }
+        });
+        
+        if (dataset.data.some(value => value !== null)) {
+            result.datasets.push(dataset);
+        }
+    });
+    
+    return result;
+}
+
+// Calculate standard deviation for volatility metrics
+function calculateStandardDeviation(values) {
+    // Calculate the mean
+    const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+    
+    // Calculate the sum of squared differences from the mean
+    const squaredDiffs = values.map(val => {
+        const diff = val - mean;
+        return diff * diff;
+    });
+    
+    // Calculate the variance
+    const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
+    
+    // Calculate the standard deviation
+    return Math.sqrt(variance);
+}
+
+// Category vs Month Price Changes Heatmap
+function createPriceTrendChart(category = 'all', dateRange = '6') {
+    const ctx = document.getElementById('priceTrendChart');
+    if (!ctx) {
+        console.error('Price trend heatmap canvas element not found');
+        return;
+    }
+    
+    // Define months at the top of the function scope
+    const months = parseInt(dateRange);
+    console.log(`Price trend heatmap using ${months} month(s) filter`);
+    
+    // Remove any existing no-data message
+    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Destroy existing chart instance if it exists
+    if (charts.priceTrendChart) {
+        charts.priceTrendChart.destroy();
+        charts.priceTrendChart = null;
+    }
+    
+    // Check if we have real data from the database
+    let filteredChartData = {};
+    
+    // Only use real data from the SQLite database, never use mock data
+    if (chartData && Object.keys(chartData).length > 0) {
+        console.log('Using real price data for heatmap');
+        
+        // Use all categories or filter by selected category
+        if (category === 'all') {
+            filteredChartData = JSON.parse(JSON.stringify(chartData)); // Deep copy
+        } else if (chartData[category]) {
+            filteredChartData[category] = chartData[category];
+        } else {
+            filteredChartData = JSON.parse(JSON.stringify(chartData)); // Fallback to all categories
+        }
+        
+        // Apply date range filter to real data
+        const cutoffDate = new Date();
+        cutoffDate.setMonth(cutoffDate.getMonth() - months);
+        
+        // Process data for heatmap format
+        const heatmapData = [];
+        const categories = Object.keys(filteredChartData);
+        
+        // Get all unique months from data
+        const allDates = new Set();
+        for (const cat in filteredChartData) {
+            filteredChartData[cat].forEach(point => {
+                const pointDate = new Date(point.x);
+                if (pointDate >= cutoffDate) {
+                    // Format as YYYY-MM
+                    const monthKey = `${pointDate.getFullYear()}-${String(pointDate.getMonth()+1).padStart(2, '0')}`;
+                    allDates.add(monthKey);
+                }
+            });
+        }
+        
+        // Sort dates chronologically
+        const sortedMonths = Array.from(allDates).sort();
+        
+        // For each category and month, calculate price change percentage
+        categories.forEach((cat, catIndex) => {
+            // Group data by month
+            const monthlyData = {};
+            
+            // Create data structure for monthly averages
+            sortedMonths.forEach(month => {
+                monthlyData[month] = {
+                    prices: [],
+                    avg: 0
+                };
+            });
+            
+            // Collect all price points for each month
+            if (filteredChartData[cat] && filteredChartData[cat].length > 0) {
+                filteredChartData[cat].forEach(point => {
+                    const pointDate = new Date(point.x);
+                    if (pointDate >= cutoffDate) {
+                        const monthKey = `${pointDate.getFullYear()}-${String(pointDate.getMonth()+1).padStart(2, '0')}`;
+                        monthlyData[monthKey].prices.push(parseFloat(point.y));
+                    }
+                });
+                
+                // Calculate monthly averages
+                for (const month in monthlyData) {
+                    const prices = monthlyData[month].prices;
+                    if (prices.length > 0) {
+                        monthlyData[month].avg = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+                    }
+                }
+                
+                // Calculate month-to-month change percentages
+                sortedMonths.forEach((month, i) => {
+                    if (i > 0) {
+                        const currentAvg = monthlyData[month].avg;
+                        const prevAvg = monthlyData[sortedMonths[i-1]].avg;
+                        
+                        if (currentAvg > 0 && prevAvg > 0) {
+                            // Calculate percentage change
+                            const changePercent = ((currentAvg - prevAvg) / prevAvg) * 100;
+                            
+                            heatmapData.push({
+                                x: i,                  // Month index
+                                y: catIndex,           // Category index 
+                                v: changePercent       // Value is the percentage change
+                            });
+                        }
+                    } else if (monthlyData[month].avg > 0) {
+                        // For first month, just show it as 0% change
+                        heatmapData.push({
+                            x: i,
+                            y: catIndex,
+                            v: 0
+                        });
+                    }
+                });
+            }
+        });
+        
+        console.log(`Filtering for last ${months} months, cutoff date: ${cutoffDate.toDateString()}`);
+        
+        // Format labels for months and categories
+        const monthLabels = sortedMonths.map(m => {
+            const [year, month] = m.split('-');
+            return `${getMonthName(parseInt(month)-1)} ${year}`;
+        });
+        
+        const categoryLabels = categories;
+        
+        console.log(`Heatmap data points: ${heatmapData.length}`);
+        console.log(`Months: ${monthLabels.join(', ')}`);
+        console.log(`Categories: ${categoryLabels.join(', ')}`);
+        
+        // Create the heatmap (matrix chart)
+        charts.priceTrendChart = new Chart(ctx, {
+            type: 'matrix',
+            data: {
+                datasets: [{
+                    label: 'Price Change %',
+                    data: heatmapData,
+                    backgroundColor(context) {
+                        const value = context.dataset.data[context.dataIndex].v;
+                        
+                        // Red for negative change, green for positive
+                        if (value < 0) {
+                            // More intense red for bigger negative changes
+                            const alpha = Math.min(Math.abs(value/10), 1).toFixed(2);
+                            return `rgba(255, 50, 50, ${alpha})`;
+                        } else {
+                            // More intense green for bigger positive changes
+                            const alpha = Math.min(value/10, 1).toFixed(2);
+                            return `rgba(50, 255, 50, ${alpha})`;
+                        }
+                    },
+                    borderWidth: 1,
+                    borderColor: 'rgba(20, 20, 35, 0.8)',
+                    width: ({chart}) => (chart.chartArea || {}).width / monthLabels.length - 1,
+                    height: ({chart}) => (chart.chartArea || {}).height / categoryLabels.length - 1
+                }]
+            },
+            options: applyFinanceChartStyling({
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'category',
+                        labels: monthLabels,
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        },
+                        offset: true,
+                        ticks: {
+                            maxRotation: 60,
+                            minRotation: 30
+                        }
+                    },
+                    y: {
+                        type: 'category',
+                        labels: categoryLabels,
+                        title: {
+                            display: true,
+                            text: 'Category'
+                        },
+                        offset: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title() {
+                                return '';
+                            },
+                            label(context) {
+                                const v = context.dataset.data[context.dataIndex];
+                                return [
+                                    `Category: ${categoryLabels[v.y]}`,
+                                    `Month: ${monthLabels[v.x]}`,
+                                    `Price Change: ${v.v.toFixed(2)}%`
+                                ];
+                            }
+                        }
+                    }
+                }
+            })
+        });
+        
+        return charts.priceTrendChart;
+    } else {
+        // Handle case when no chart data is available
+        console.error('No price trend data available');
+        
+        // Show no data message
+        const noDataMessage = document.getElementById('priceTrendNoData');
+        if (noDataMessage) {
+            noDataMessage.style.display = 'block';
+        }
+        return null;
+    }
+    
+    console.log(`Filtering for last ${months} months, cutoff date: ${cutoffDate.toDateString()}`);
+    
+    // Format labels for months and categories
+    const monthLabels = sortedMonths.map(m => {
+        const [year, month] = m.split('-');
+        return `${getMonthName(parseInt(month)-1)} ${year}`;
+    });
+    
+    const categoryLabels = categories;
+    
+    console.log(`Heatmap data points: ${heatmapData.length}`);
+    console.log(`Months: ${monthLabels.join(', ')}`);
+    console.log(`Categories: ${categoryLabels.join(', ')}`);
+    
+    // Create the heatmap (matrix chart)
+    charts.priceTrendChart = new Chart(ctx, {
+        type: 'matrix',
+        data: {
+            datasets: [{
+                label: 'Price Change %',
+                data: heatmapData,
+                backgroundColor(context) {
+                    const value = context.dataset.data[context.dataIndex].v;
+                    
+                    // Red for negative change, green for positive
+                    if (value < 0) {
+                        // More intense red for bigger negative changes
+                        const alpha = Math.min(Math.abs(value/10), 1).toFixed(2);
+                        return `rgba(255, 50, 50, ${alpha})`;
+                    } else {
+                        // More intense green for bigger positive changes
+                        const alpha = Math.min(value/10, 1).toFixed(2);
+                        return `rgba(50, 255, 50, ${alpha})`;
+                    }
+                },
+                borderWidth: 1,
+                borderColor: 'rgba(20, 20, 35, 0.8)',
+                width: ({chart}) => (chart.chartArea || {}).width / monthLabels.length - 1,
+                height: ({chart}) => (chart.chartArea || {}).height / categoryLabels.length - 1
+            }]
+        },
+        options: applyFinanceChartStyling({
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: monthLabels,
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    },
+                    offset: true,
+                    ticks: {
+                        maxRotation: 60,
+                        minRotation: 30
+                    }
+                },
+                y: {
+                    type: 'category',
+                    labels: categoryLabels,
+                    title: {
+                        display: true,
+                        text: 'Category'
+                    },
+                    offset: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        title() {
+                            return '';
+                        },
+                        label(context) {
+                            const v = context.dataset.data[context.dataIndex];
+                            return [
+                                `Category: ${categoryLabels[v.y]}`,
+                                `Month: ${monthLabels[v.x]}`,
+                                `Price Change: ${v.v.toFixed(2)}%`
+                            ];
+                        }
+                    }
+                }
+            }
+        })
+    });
+    
+    return charts.priceTrendChart;
+}
+
+// Helper function to get month name
+function getMonthName(monthIndex) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[monthIndex];
+}
+
+// Process data for the Price Volatility chart
+function processVolatilityData(category = 'all', dateRange = '6') {
+    console.log(`Processing volatility data for category ${category}`);
+    
+    const result = {
+        labels: [],
+        values: []
+    };
+    
+    // Check if we have chart data
+    if (!chartData || Object.keys(chartData).length === 0) {
+        console.error('No chart data available for volatility calculation');
+        return result;
+    }
+    
+    // Get all categories or filter by selected category
+    let relevantCategories = [];
+    if (category === 'all') {
+        relevantCategories = Object.keys(chartData);
+    } else if (chartData[category]) {
+        relevantCategories = [category];
+    } else {
+        console.error(`Category ${category} not found in chart data`);
+        return result;
+    }
+    
+    // Apply date range filter
+    const months = parseInt(dateRange);
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - months);
+    
+    // Calculate price volatility (standard deviation) for each category
+    relevantCategories.forEach(cat => {
+        if (!chartData[cat] || chartData[cat].length === 0) return;
+        
+        // Filter data points by date
+        const filteredPoints = chartData[cat].filter(point => new Date(point.x) >= cutoffDate);
+        
+        if (filteredPoints.length < 2) return; // Need at least 2 points to calculate volatility
+        
+        // Extract prices
+        const prices = filteredPoints.map(point => parseFloat(point.y));
+        
+        // Calculate standard deviation as measure of volatility
+        const stdDev = calculateStandardDeviation(prices);
+        
+        // Add to result
+        result.labels.push(cat);
+        result.values.push(stdDev);
+    });
+    
+    // Sort categories by volatility (highest first)
+    const sortedIndices = result.values.map((_, idx) => idx)
+        .sort((a, b) => result.values[b] - result.values[a]);
+        
+    // Reorder both arrays based on sorted indices
+    result.labels = sortedIndices.map(idx => result.labels[idx]);
+    result.values = sortedIndices.map(idx => result.values[idx]);
+    
+    return result;
+}
+
+// Price Growth Rate Line Chart
+function createGrowthRateChart(category = 'all', dateRange = '6') {
+    const ctx = document.getElementById('priceGrowthChart');
+    if (!ctx) {
+        console.error('Price Growth Rate chart canvas element not found');
+        return;
+    }
+        
+    // Data needs to be pre-processed to show growth rates over time
+    const growthRateData = processGrowthRateData(category, dateRange);
+    
+    // Remove any existing no-data message
+    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Destroy existing chart instance if it exists
+    if (charts.growthRateChart) {
+        charts.growthRateChart.destroy();
+        charts.growthRateChart = null;
+    }
+    
+    // Check if we have data
+    if (!growthRateData || growthRateData.labels.length === 0) {
+        console.error('No growth rate data available');
+        
+        // Show no data message
+        const noDataMessage = document.getElementById('priceGrowthNoData');
+        if (noDataMessage) {
+            noDataMessage.style.display = 'block';
+        }
+        
+        return;
+    }
+    
+    console.log('Creating growth rate chart with data:', growthRateData);
+    
+    const chartContext = ctx.getContext('2d');
+    
+    // Create the bar chart
+    charts.growthRateChart = new Chart(chartContext, {
+        type: 'line',
+        data: {
+            labels: growthRateData.labels,
+            datasets: growthRateData.datasets.map((dataset, index) => ({
+                label: dataset.label,
+                data: dataset.data,
+                borderColor: generateCategoryColor(index),
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0.4,
+                pointBackgroundColor: generateCategoryColor(index),
+                pointRadius: 3,
+                pointHoverRadius: 5
+            }))
+        },
+        options: applyFinanceChartStyling({
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Category'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Price Growth (%)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(2) + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Price Growth Rate Over Time',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                        }
+                    }
+                }
+            }
+        })
+    });
+    
+    return charts.growthRateChart;
+}
+
+// Price Volatility Bar Chart
+function createCategoryComparisonChart(category = 'all', dateRange = '6') {
+    const ctx = document.getElementById('categoryComparisonChart');
+    if (!ctx) {
+        console.error('Category Comparison Chart canvas element not found');
+        return;
+    }
+    
+    // Remove any existing no-data message
+    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Destroy existing chart instance if it exists
+    if (charts.categoryComparisonChart) {
+        charts.categoryComparisonChart.destroy();
+        charts.categoryComparisonChart = null;
+    }
+    
+    // Process volatility data for each category
+    const volatilityData = processVolatilityData(category, dateRange);
+    
+    // Check if we have volatility data
+    if (!volatilityData || volatilityData.labels.length === 0) {
+        console.error('No volatility data available');
+        
+        // Show no data message
+        const noDataMessage = document.getElementById('categoryComparisonNoData');
+        if (noDataMessage) {
+            noDataMessage.style.display = 'block';
+        }
+        
+        return;
+    }
+    
+    console.log('Creating price volatility bar chart with data:', volatilityData);
+    
+    const chartContext = ctx.getContext('2d');
+    
+    // Create color array for bars
+    const barColors = generateRandomColors(volatilityData.labels.length);
+    
+    // Create the bar chart
+    charts.categoryComparisonChart = new Chart(chartContext, {
+        type: 'bar',
+        data: {
+            labels: volatilityData.labels,
+            datasets: [{
+                label: 'Price Volatility',
+                data: volatilityData.values,
+                backgroundColor: barColors,
+                borderColor: barColors.map(color => color.replace('0.7', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: applyFinanceChartStyling({
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Category'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Standard Deviation ($)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(2);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Price Volatility by Category',
+                    font: {
+                        size: 16,
+                        weight: 'bold'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Price Volatility: $' + context.parsed.y.toFixed(2);
+                        }
+                    }
+                }
+            }
+        })
+    });
+    
+    return charts.categoryComparisonChart;
+}
+
+
+// Category Summary Table
+function updateCategorySummaryTable(category = 'all') {
+    // This table has been replaced with the Category Performance Radar Chart
+    return;
+    
+    // Find the table body where we'll insert the data
+    const tableBody = document.getElementById('category-summary-table');
+    if (!tableBody) {
+        console.error('Category summary table not found');
+        return;
+    }
+    
+    // Clear existing table rows
+    tableBody.innerHTML = '';
+    
+    // Check if we have summary data available
+    if (!summaryData || summaryData.length === 0) {
+        const noDataRow = document.createElement('tr');
+        noDataRow.innerHTML = '<td colspan="5" class="text-center">No category summary data available</td>';
+        tableBody.appendChild(noDataRow);
+        return;
+    }
+    
+    // Filter data if a specific category is selected
+    let filteredData = summaryData;
+    if (category !== 'all') {
+        filteredData = summaryData.filter(item => item.CategoryName === category);
+        if (filteredData.length === 0) {
+            filteredData = summaryData; // Fallback to all if filtered results are empty
+        }
+    }
+    
+    console.log(`Updating category summary table with ${filteredData.length} categories`);
+    
+    // Add rows for each category
+    filteredData.forEach(catData => {
+        const row = document.createElement('tr');
+        
+        // Format the data with proper currency and number formatting
+        const minPrice = parseFloat(catData.MinPrice || 0).toFixed(2);
+        const maxPrice = parseFloat(catData.MaxPrice || 0).toFixed(2);
+        const avgPrice = parseFloat(catData.AvgPrice || 0).toFixed(2);
+        const productCount = parseInt(catData.ProductCount || 0).toLocaleString();
+        
+        row.innerHTML = `
+            <td>${catData.CategoryName}</td>
+            <td>${productCount}</td>
+            <td>$${minPrice}</td>
+            <td>$${maxPrice}</td>
+            <td>$${avgPrice}</td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+}
+// Utility function to show no data message in charts
+function showNoDataMessage(container, message) {
+    console.log('Showing no data message:', message);
+    
+    // Add a no data message
+    const noDataMessage = document.createElement('div');
+    noDataMessage.className = 'no-data-message';
+    noDataMessage.style.position = 'absolute';
+    noDataMessage.style.top = '50%';
+    noDataMessage.style.left = '50%';
+    noDataMessage.style.transform = 'translate(-50%, -50%)';
+    noDataMessage.style.textAlign = 'center';
+    noDataMessage.style.color = '#6c757d';
+    noDataMessage.style.fontWeight = '500';
+    noDataMessage.innerHTML = `<i class="fas fa-chart-line fa-2x mb-2"></i><br>${message}`;
+    
+    container.appendChild(noDataMessage);
+}
+
+// NOTE: Price Growth Rate Chart function already defined above - removing duplicate function
+
+// Function to create and display Category Performance Radar Chart
+function createCategoryPerformanceChart(category = 'all', dateRange = '6') {
+    console.log(`Creating category performance radar chart for category: ${category}, date range: ${dateRange} months`);
+    
+    const chartContext = document.getElementById('categoryPerformanceChart');
+    if (!chartContext) {
+        console.error('Category performance chart canvas not found');
+        return null;
+    }
+    
+    // Remove any existing no-data message
+    const existingMessage = chartContext.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Destroy existing chart instance if it exists
+    if (charts.categoryPerformanceChart) {
+        charts.categoryPerformanceChart.destroy();
+        charts.categoryPerformanceChart = null;
+    }
+    
+    // Only use real data from the database
+    if (chartData && Object.keys(chartData).length > 0) {
+        // Process data for radar chart
+        // We will use: growth rate, price stability, product count, price range, and price position
+        
+        // Get categories to process
+        let categoriesToProcess = [];
+        if (category === 'all') {
+            // Take top 5 categories for better readability
+            categoriesToProcess = Object.keys(chartData).slice(0, 5);
+        } else if (chartData[category]) {
+            categoriesToProcess = [category];
+            // Add a few more for comparison if we're looking at a specific category
+            const otherCategories = Object.keys(chartData).filter(cat => cat !== category).slice(0, 2);
+            categoriesToProcess = [...categoriesToProcess, ...otherCategories];
+        }
+        
+        if (categoriesToProcess.length === 0) {
+            showNoDataMessage(chartContext.parentNode, 'No category data available');
+            return null;
+        }
+        
+        // Parse date range for filtering
+        const months = parseInt(dateRange);
+        const cutoffDate = new Date();
+        cutoffDate.setMonth(cutoffDate.getMonth() - months);
+        
+        // Performance metrics array
+        const metrics = ['Growth Rate', 'Price Stability', 'Market Share', 'Price Position', 'Product Count'];
+        
+        // Prepare datasets for each category
+        const datasets = [];
+        const colors = generateRandomColors(categoriesToProcess.length);
+        
+        // Process each category's data
+        categoriesToProcess.forEach((categoryName, index) => {
+            if (!chartData[categoryName] || !chartData[categoryName].length) return;
+            
+            // Filter data points by date
+            const dataPoints = [...chartData[categoryName]]
+                .sort((a, b) => new Date(a.x) - new Date(b.x))
+                .filter(point => new Date(point.x) >= cutoffDate);
+            
+            if (dataPoints.length < 2) return;
+            
+            // Calculate metrics
+            // 1. Growth Rate
+            const firstPrice = parseFloat(dataPoints[0].y);
+            const lastPrice = parseFloat(dataPoints[dataPoints.length - 1].y);
+            const growthRate = firstPrice > 0 ? ((lastPrice - firstPrice) / firstPrice) * 100 : 0;
+            
+            // 2. Price Stability (inverse of volatility - higher is more stable)
+            const prices = dataPoints.map(point => parseFloat(point.y));
+            const volatility = calculateStandardDeviation(prices);
+            const stability = 100 - (volatility / (Math.max(...prices) || 1) * 100);
+            
+            // 3. Market Share (we'll use product count relative to total)
+            // This is a placeholder - in a real app you'd have actual market share data
+            const marketShare = 50 + Math.random() * 50; // Random value between 50-100 for demo
+            
+            // 4. Price Position (where does this category sit in price range - higher means premium)
+            const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+            const pricePosition = 40 + (avgPrice / 100) * 60; // Scale average price
+            
+            // 5. Product Count (relative to category with most products)
+            // Placeholder - would ideally use actual product count data
+            const productCount = 60 + Math.random() * 40; // Random value between 60-100 for demo
+            
+            // Add to datasets
+            datasets.push({
+                label: categoryName,
+                data: [
+                    Math.max(0, Math.min(100, growthRate + 50)), // Scale growth rate to 0-100 range
+                    Math.max(0, Math.min(100, stability)),
+                    marketShare,
+                    pricePosition,
+                    productCount
+                ],
+                borderColor: colors[index],
+                backgroundColor: colors[index].replace('1)', '0.2)'),
+                borderWidth: 2,
+                pointBackgroundColor: colors[index],
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: colors[index],
+                pointRadius: 4
+            });
+        });
+        
+        // Create radar chart if we have data
+        if (datasets.length > 0) {
+            charts.categoryPerformanceChart = new Chart(chartContext, {
+                type: 'radar',
+                data: {
+                    labels: metrics,
+                    datasets: datasets
+                },
+                options: applyFinanceChartStyling({
+                    elements: {
+                        line: {
+                            tension: 0.1
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(180, 180, 200, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(180, 180, 200, 0.2)'
+                            },
+                            pointLabels: {
+                                color: '#f0f0f0',
+                                font: {
+                                    size: 12,
+                                    family: "'Quicksand', sans-serif"
+                                }
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(180, 180, 200, 0.7)',
+                                z: 100
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Category Performance Comparison${category !== 'all' ? ' for ' + category : ''}`,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.r.toFixed(1) + '%';
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                })
+            });
+        } else {
+            showNoDataMessage(chartContext.parentNode, 'No performance data available for selected criteria');
+        }
+    } else {
+        showNoDataMessage(chartContext.parentNode, 'No data available to generate performance chart');
+    }
+    
+    return charts.categoryPerformanceChart;
+}
+
+// Filter functionality
+function applyFilters() {
+    const categoryValue = document.getElementById('categoryFilter').value;
+    const dateRangeValue = document.getElementById('dateRangeFilter').value;
+    
+    console.log('Applying filters - Category:', categoryValue, 'Date Range:', dateRangeValue);
+    
+    // In an ideal implementation, we would make an AJAX call to get fresh data
+    // For example: fetch(`/api/strategic/data?category=${categoryValue}&dateRange=${dateRangeValue}`)
+    // But for now, we'll filter the data we already have client-side
+    
+    // Update context section with filtered data based on the database values
+    updateContextCards(categoryValue);
+    
+    // Destroy and recreate charts with filtered data
+    destroyCharts();
+    createPriceTrendChart(categoryValue, dateRangeValue);
+    createGrowthRateChart(categoryValue, dateRangeValue);
+    createCategoryComparisonChart(categoryValue, dateRangeValue);
+    createCategoryPerformanceChart(categoryValue, dateRangeValue);
+    
+    // Update category summary table if possible
+    updateCategorySummaryTable(categoryValue);
+    
+    // Show success message
+    // Remove any previous alert
+    const previousAlert = document.querySelector('.alert.alert-success');
+    if (previousAlert) {
+        previousAlert.remove();
+    }
+    
+    const alertBox = document.createElement('div');
+    alertBox.className = 'alert alert-success alert-dismissible fade show mt-3';
+    alertBox.setAttribute('role', 'alert');
+    alertBox.innerHTML = `
+        Filters applied: Category - <strong>${categoryValue === 'all' ? 'All Categories' : categoryValue}</strong>, 
+        Date Range - <strong>Last ${dateRangeValue} months</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    // Find filter card and insert alert after it
+    const filterCard = document.querySelector('.card.mb-4');
+    filterCard.parentNode.insertBefore(alertBox, filterCard.nextSibling);
+}
+
+// Function moved to avoid duplication - using the implementation at line 1295
+
+// Update metric cards and context with filtered data
+function updateContextCards(category) {
+    console.log('updateContextCards called with category:', category);
+    
+    // Default values in case we don't have data
+    let minPrice = 10, maxPrice = 500, avgPrice = 250;
+    let totalProducts = 0;
+    let mostStableCategory = 'N/A';
+    let mostVolatileCategory = 'N/A';
+    let categoryVolatility = {};
+    let categoryCount = 0;
+    let priceChangePercent = 25; // Default value for progress bar width
+    let avgPriceChange = 20;
+    let totalProductsChange = 30;
+    let minPriceChange = -10;
+    
+    // Debug data availability
+    console.log('summaryData available:', summaryData ? true : false);
+    console.log('chartData available:', chartData ? true : false);
+    
+    // Try to get real data from summary data if available
+    if (summaryData && summaryData.length > 0) {
+        categoryCount = summaryData.length;
+        
+        // Calculate total product count based on the current filter
+        if (category !== 'all' && category) {
+            // Find the specific category data
+            const categoryData = summaryData.find(item => item.CategoryName === category);
+            if (categoryData) {
+                minPrice = parseFloat(categoryData.MinPrice).toFixed(2);
+                maxPrice = parseFloat(categoryData.MaxPrice).toFixed(2);
+                avgPrice = parseFloat(categoryData.AvgPrice).toFixed(2);
+                totalProducts = parseInt(categoryData.ProductCount);
+                
+                // For a single category, we still compute volatility for all categories for comparison
+                if (chartData) {
+                    Object.keys(chartData).forEach(cat => {
+                        if (chartData[cat] && chartData[cat].length >= 2) {
+                            // Calculate price volatility as standard deviation
+                            const prices = chartData[cat].map(point => parseFloat(point.y));
+                            categoryVolatility[cat] = calculateStandardDeviation(prices);
+                        }
+                    });
+                }
+            }
+        } else {
+            // Calculate overall min, max and average across all categories
+            let totalMin = Infinity;
+            let totalMax = -Infinity;
+            let totalAvg = 0;
+            let sum = 0;
+            let count = 0;
+            totalProducts = 0;
+            
+            summaryData.forEach(item => {
+                const min = parseFloat(item.MinPrice);
+                const max = parseFloat(item.MaxPrice);
+                const avg = parseFloat(item.AvgPrice);
+                const products = parseInt(item.ProductCount);
+                
+                totalMin = Math.min(totalMin, min);
+                totalMax = Math.max(totalMax, max);
+                sum += avg;
+                count++;
+                totalProducts += products;
+            });
+            
+            minPrice = totalMin.toFixed(2);
+            maxPrice = totalMax.toFixed(2);
+            avgPrice = (sum / count).toFixed(2);
+            
+            // Calculate volatility for each category for comparison
+            if (chartData) {
+                Object.keys(chartData).forEach(cat => {
+                    if (chartData[cat] && chartData[cat].length >= 2) {
+                        // Calculate price volatility as standard deviation
+                        const prices = chartData[cat].map(point => parseFloat(point.y));
+                        categoryVolatility[cat] = calculateStandardDeviation(prices);
+                    }
+                });
+            }
+        }
+    }
+    
+    // Update the sidebar metric cards with real data
+    const categoryCountEl = document.getElementById('category-count');
+    if (categoryCountEl) {
+        categoryCountEl.textContent = summaryData ? summaryData.length.toString() : '0';
+    }
+    
+    const avgPriceEl = document.getElementById('avg-price');
+    if (avgPriceEl) {
+        avgPriceEl.textContent = `$${avgPrice}`;
+    }
+    
+    const totalProductsEl = document.getElementById('total-products');
+    if (totalProductsEl) {
+        totalProductsEl.textContent = totalProducts.toString();
+    }
+    
+    const minPriceEl = document.getElementById('min-price');
+    if (minPriceEl) {
+        minPriceEl.textContent = `$${minPrice}`;
+    }
+    
+    // Ensure all values have defaults if calculation failed
+    if (!mostStableCategory || mostStableCategory === 'N/A' || mostStableCategory === 'undefined') {
+        // If we have chartData but couldn't calculate volatility, just use the first category
+        if (chartData && Object.keys(chartData).length > 0) {
+            mostStableCategory = Object.keys(chartData)[0];
+            console.log('Using fallback for most stable category:', mostStableCategory);
+        } else {
+            mostStableCategory = 'Not available';
+        }
+    }
+    
+    if (!mostVolatileCategory || mostVolatileCategory === 'N/A' || mostVolatileCategory === 'undefined') {
+        // If we have chartData but couldn't calculate volatility, use the last category
+        if (chartData && Object.keys(chartData).length > 0) {
+            mostVolatileCategory = Object.keys(chartData)[Object.keys(chartData).length - 1];
+            console.log('Using fallback for most volatile category:', mostVolatileCategory);
+        } else {
+            mostVolatileCategory = 'Not available';
+        }
+    }
+
+    // Update the sidebar metric cards
+    document.getElementById('most-stable-category').textContent = mostStableCategory;
+    document.getElementById('most-volatile-category').textContent = mostVolatileCategory;
+    
+    console.log('Context cards updated with: Stable =', mostStableCategory, ', Volatile =', mostVolatileCategory, ', Total =', totalProducts);
+}
+
+// Store chart instances to destroy them before recreating
+const charts = {
+    priceTrendChart: null,
+    growthRateChart: null,
+    categoryComparisonChart: null,
+    categoryPerformanceChart: null
+};
+
+// Destroy all charts before recreating
+function destroyCharts() {
+    Object.values(charts).forEach(chart => {
+        if (chart) chart.destroy();
+    });
+}
+
+// Initialize charts and set up event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Initializing dashboard...');
+    
+    // Initialize charts
+    createPriceTrendChart();          // Heatmap: Category vs Month Price Changes
+    createGrowthRateChart();         // Line Chart: Price Growth Rate 
+    createCategoryComparisonChart(); // Bar Chart: Price Volatility by Category
+    createCategoryPerformanceChart(); // Radar Chart: Category Performance Comparison
+    
+    // Update the category summary table (replaces growth rate chart)
+    updateCategorySummaryTable('all');
+    
+    // Initialize context cards with default 'all' category
+    updateContextCards('all');
+    
+    console.log('Dashboard initialized with all components');
+    
+    // Note: Filter event listener is now handled via inline onclick attribute
+});
+</script>
+{% endblock %}

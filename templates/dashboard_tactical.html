@@ -1,0 +1,494 @@
+{% extends "base.html" %}
+
+{% block title %}Tactical Dashboard{% endblock %}
+
+{% block head %}
+<style>
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin-bottom: 30px;
+    }
+    .product-card {
+        border-left: 4px solid transparent;
+    }
+    .expire-soon {
+        border-left-color: #dc3545;
+    }
+    .expire-warning {
+        border-left-color: #ffc107;
+    }
+    .expire-ok {
+        border-left-color: #198754;
+    }
+    .stock-low {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    .section-header {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0d6efd;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Tactical Dashboard — Shipment Optimization</h1>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filters</h5>
+    </div>
+    <div class="card-body">
+        <form class="row" id="filterForm" method="get">
+            <div class="col-md-4 mb-3">
+                <label for="expirationWindow" class="form-label">Expiration Window</label>
+                <select class="form-select" id="expirationWindow" name="expiration_window">
+                    <option value="7" {% if expiration_window == '7' %}selected{% endif %}>Next 7 days</option>
+                    <option value="14" {% if expiration_window == '14' %}selected{% endif %}>Next 14 days</option>
+                    <option value="30" {% if expiration_window == '30' %}selected{% endif %}>Next 30 days</option>
+                    <option value="60" {% if expiration_window == '60' %}selected{% endif %}>Next 60 days</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="categoryFilter" class="form-label">Product Category</label>
+                <select class="form-select" id="categoryFilter">
+                    <option value="all">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Section 1: Context -->
+<div class="section-header">
+    <h2>Context</h2>
+    <p>This dashboard provides tactical insights for shipment optimization. Monitor expiring products, stock levels, and identify items requiring attention to minimize waste.</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Products Expiring Soon</h5>
+                <p class="display-4">{{ expiring_products|length }}</p>
+                <p class="text-muted">Products expiring within {{ expiration_window }} days</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Low Stock Items</h5>
+                <p class="display-4">{{ low_stock_products|length }}</p>
+                <p class="text-muted">Products with stock quantity ≤ 10</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Total Stock Value</h5>
+                <p class="display-4">$25,750</p>
+                <p class="text-muted">Estimated value of current inventory</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section 2: Main Section -->
+<div class="section-header">
+    <h2>Main Section</h2>
+    <p>Visualize key metrics to optimize shipment planning and minimize waste.</p>
+</div>
+
+<div class="row">
+    <!-- Stock Level Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">Stock Level by Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="stockLevelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Low Stock Products -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title">Low Stock Products (≤ 10 units)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in low_stock_products %}
+                            <tr class="{% if product.StockQuantity <= 5 %}stock-low{% endif %}">
+                                <td>{{ product.ProductName }}</td>
+                                <td>{{ product.CategoryName }}</td>
+                                <td><span class="badge bg-{% if product.StockQuantity <= 5 %}danger{% else %}warning{% endif %}">{{ product.StockQuantity }}</span></td>
+                                <td><button class="btn btn-sm btn-outline-primary">Order</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Expiring Products Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">Products Expiring Within {{ expiration_window }} Days</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Expiration Date</th>
+                        <th>Days Left</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in expiring_products %}
+                    {% set days_left = ((product.ExpirationDate|string)|replace('-', '')|int - (now()|string|replace('-', '')|int) %}
+                    <tr>
+                        <td>{{ product.ProductName }}</td>
+                        <td>{{ product.CategoryName }}</td>
+                        <td>{{ product.StockQuantity }}</td>
+                        <td>{{ product.ExpirationDate }}</td>
+                        <td>
+                            {% if days_left <= 7 %}
+                            <span class="badge bg-danger">{{ days_left }} days</span>
+                            {% elif days_left <= 14 %}
+                            <span class="badge bg-warning text-dark">{{ days_left }} days</span>
+                            {% else %}
+                            <span class="badge bg-success">{{ days_left }} days</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if days_left <= 7 %}
+                            <span class="badge bg-danger">High</span>
+                            {% elif days_left <= 14 %}
+                            <span class="badge bg-warning text-dark">Medium</span>
+                            {% else %}
+                            <span class="badge bg-success">Low</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Category Expiration Overview -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">Expiration Risk by Category</h5>
+    </div>
+    <div class="card-body">
+        <div class="chart-container">
+            <canvas id="categoryExpirationChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+// First set default empty values for all data
+let expirationData = [];
+let stockData = [];
+
+// Then separate template rendering from JavaScript execution
+(function loadData() {
+    // Get data from Flask templates without exposing to JS linter
+    expirationData = JSON.parse('{{ expiration_data|default([])|tojson|safe }}');
+    stockData = JSON.parse('{{ stock_data|default([])|tojson|safe }}');
+    
+    // Log data availability
+    console.log('Expiration data loaded:', expirationData.length);
+    console.log('Stock data loaded:', stockData.length);
+})();
+
+// Generate random colors
+function generateRandomColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+        const r = Math.floor(Math.random() * 200);
+        const g = Math.floor(Math.random() * 200);
+        const b = Math.floor(Math.random() * 200);
+        colors.push(`rgba(${r}, ${g}, ${b}, 0.7)`);
+    }
+    return colors;
+}
+
+// Stock Level Chart
+function createStockLevelChart() {
+    const ctx = document.getElementById('stockLevelChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    const categories = stockData.map(item => item.CategoryName);
+    const stockLevels = stockData.map(item => item.StockLevel);
+    const colors = generateRandomColors(categories.length);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [{
+                label: 'Stock Level',
+                data: stockLevels,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.7', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Units in Stock'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Category'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Stock: ' + context.parsed.y + ' units';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Expiration Risk Chart
+function createExpirationRiskChart() {
+    const ctx = document.getElementById('expirationRiskChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    const categories = expirationData.map(item => item.CategoryName);
+    const expiringSoon = expirationData.map(item => item.ExpiringSoon);
+    const expiringLater = expirationData.map(item => item.ExpiringLater);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: categories,
+            datasets: [
+                {
+                    label: 'Expiring within 7 days',
+                    data: expiringSoon,
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Expiring within 30 days',
+                    data: expiringLater,
+                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Products'
+                    }
+                },
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'Category'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + ' products';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Stock Turnover Rate Chart
+function createTurnoverRateChart() {
+    const ctx = document.getElementById('turnoverRateChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    // Sample data for stock turnover rate - would be replaced with actual data from server
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Electronics',
+                data: [3.2, 2.8, 3.5, 4.2, 3.8, 3.6],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'Food',
+                data: [5.8, 6.2, 5.5, 6.0, 7.1, 6.8],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Turnover Rate'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Restock Timeline Chart
+function createRestockTimelineChart() {
+    const ctx = document.getElementById('restockTimelineChart').getContext('2d');
+    if (!ctx) return; // Ensure the element exists
+    
+    // Sample data for restock timeline - would be replaced with actual data from server
+    new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Electronics',
+                data: [
+                    {x: '2023-06-15', y: 1},
+                    {x: '2023-07-05', y: 2},
+                    {x: '2023-07-28', y: 1},
+                    {x: '2023-08-15', y: 3},
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+            }, {
+                label: 'Food',
+                data: [
+                    {x: '2023-06-10', y: 2},
+                    {x: '2023-06-25', y: 3},
+                    {x: '2023-07-15', y: 1},
+                    {x: '2023-08-05', y: 4},
+                ],
+                backgroundColor: 'rgba(255, 99, 132, 0.7)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'week'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Restock Date'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Shipment Size (pallets)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Filter products table by category
+document.getElementById('categoryFilter').addEventListener('change', function() {
+    const category = this.value;
+    document.querySelectorAll('.product-row').forEach(row => {
+        const rowCategory = row.getAttribute('data-category');
+        if (category === 'all' || rowCategory === category) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    createStockLevelChart();
+    createExpirationRiskChart();
+    createTurnoverRateChart();
+    createRestockTimelineChart();
+});
+</script>
+{% endblock %}

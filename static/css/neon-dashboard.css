@@ -1,0 +1,280 @@
+/* Neon Dashboard Theme */
+:root {
+    --neon-bg-dark: #0c1026;
+    --neon-bg-light: #111533;
+    --neon-primary: #00f0ff;
+    --neon-primary-alt: #00bfff;
+    --neon-text-primary: #ffffff;
+    --neon-text-secondary: #cccccc;
+}
+
+body.neon-theme {
+    background: linear-gradient(135deg, var(--neon-bg-dark), var(--neon-bg-light));
+    color: var(--neon-text-primary);
+    font-family: 'Poppins', 'Montserrat', sans-serif;
+}
+
+/* Neon Cards */
+.neon-card {
+    background-color: rgba(17, 21, 51, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.neon-card:hover {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    border-color: rgba(0, 240, 255, 0.4);
+}
+
+/* Neon Headings */
+.neon-heading {
+    color: var(--neon-text-primary);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* Chart Container */
+.neon-chart-container {
+    position: relative;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: rgba(12, 16, 38, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 191, 255, 0.2);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.15);
+}
+
+/* Tabs and Navigation */
+.neon-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.neon-tab {
+    padding: 10px 20px;
+    margin-right: 5px;
+    color: var(--neon-text-secondary);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+.neon-tab.active {
+    color: var(--neon-primary);
+    border-bottom: 2px solid var(--neon-primary);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.neon-tab:hover:not(.active) {
+    color: var(--neon-text-primary);
+    border-bottom: 2px solid rgba(0, 240, 255, 0.5);
+}
+
+/* Stats and Metrics */
+.neon-stat {
+    text-align: center;
+    padding: 15px;
+}
+
+.neon-stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--neon-text-primary);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.neon-stat-label {
+    color: var(--neon-text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Circular Progress */
+.neon-progress-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+}
+
+.neon-progress-circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(var(--neon-primary) var(--percentage), transparent var(--percentage));
+    mask: radial-gradient(transparent 60%, black 61%);
+    -webkit-mask: radial-gradient(transparent 60%, black 61%);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+}
+
+.neon-progress-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    height: 75%;
+    background-color: var(--neon-bg-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.neon-progress-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--neon-primary);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+/* Filter Controls */
+.neon-filter-controls {
+    background-color: rgba(12, 16, 38, 0.6);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 191, 255, 0.15);
+}
+
+.neon-filter-controls select,
+.neon-filter-controls input {
+    background-color: rgba(17, 21, 51, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    color: var(--neon-text-primary);
+    border-radius: 5px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.neon-filter-controls select:focus,
+.neon-filter-controls input:focus {
+    border-color: var(--neon-primary);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    outline: none;
+}
+
+.neon-btn {
+    background: linear-gradient(135deg, var(--neon-primary), var(--neon-primary-alt));
+    border: none;
+    color: #111533;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.neon-btn:hover {
+    background: linear-gradient(135deg, var(--neon-primary-alt), var(--neon-primary));
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.7);
+}
+
+/* Total Balance Card */
+.neon-balance-card {
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    background: rgba(12, 16, 38, 0.7);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.neon-balance-title {
+    color: var(--neon-text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.neon-balance-value {
+    color: var(--neon-text-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+/* Month/Week/Day Tabs */
+.neon-period-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    max-width: 300px;
+}
+
+.neon-period-tab {
+    padding: 8px 16px;
+    color: var(--neon-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.neon-period-tab.active {
+    color: var(--neon-primary);
+    border-color: var(--neon-primary);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+}
+
+/* Month selection */
+.neon-month-selector {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 8px;
+}
+
+.neon-month {
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    color: var(--neon-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 15px;
+}
+
+.neon-month.active {
+    color: var(--neon-text-primary);
+    background: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+/* Utility classes */
+.neon-glow-text {
+    color: var(--neon-primary);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.neon-border {
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+/* Configure Chart.js tooltip */
+.neon-tooltip {
+    background: rgba(12, 16, 38, 0.9) !important;
+    border: 1px solid var(--neon-primary) !important;
+    border-radius: 5px !important;
+    color: var(--neon-text-primary) !important;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3) !important;
+}
