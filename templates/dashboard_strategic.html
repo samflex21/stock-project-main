@@ -260,7 +260,7 @@ if (typeof Chart !== 'undefined') {
     /* Stats Cards */
     .stats-row {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
@@ -314,6 +314,18 @@ if (typeof Chart !== 'undefined') {
         box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
     }
     
+    .teal-glow {
+        background: rgba(0, 150, 136, 0.15);
+        color: #00bfa5;
+        box-shadow: 0 0 15px rgba(0, 150, 136, 0.5);
+    }
+    
+    .red-glow {
+        background: rgba(244, 67, 54, 0.15);
+        color: #f44336;
+        box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
+    }
+    
     .stat-info {
         flex-grow: 1;
     }
@@ -364,6 +376,16 @@ if (typeof Chart !== 'undefined') {
     .green-glow-bar {
         background: linear-gradient(90deg, #4caf50, #8bc34a);
         box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+    }
+    
+    .teal-glow-bar {
+        background: linear-gradient(90deg, #009688, #00bfa5);
+        box-shadow: 0 0 10px rgba(0, 150, 136, 0.7);
+    }
+    
+    .red-glow-bar {
+        background: linear-gradient(90deg, #f44336, #ff5252);
+        box-shadow: 0 0 10px rgba(244, 67, 54, 0.7);
     }
     
     .stat-change {
@@ -605,7 +627,7 @@ if (typeof Chart !== 'undefined') {
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-info">
-                        <h3 class="stat-value" id="avg-price">${{ summary_data[0].AvgPrice }}</h3>
+                        <h3 class="stat-value" id="avg-price">${{ summary_data[0].AvgPrice if summary_data else '0.00' }}</h3>
                         <div class="stat-title">Average Price</div>
                         <div class="stat-progress">
                             <div class="progress">
@@ -639,13 +661,47 @@ if (typeof Chart !== 'undefined') {
                         <i class="fas fa-tag"></i>
                     </div>
                     <div class="stat-info">
-                        <h3 class="stat-value" id="min-price">${{ summary_data[0].MinPrice }}</h3>
+                        <h3 class="stat-value" id="min-price">${{ summary_data[0].MinPrice if summary_data else '0.00' }}</h3>
                         <div class="stat-title">Min Price</div>
                         <div class="stat-progress">
                             <div class="progress">
                                 <div class="progress-bar green-glow-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <span class="stat-change negative">10% <i class="fas fa-caret-down"></i></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Most Stable Category Metric Card -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon teal-glow">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-value" id="most-stable-category">{{ most_stable_category }}</h3>
+                        <div class="stat-title">Most Stable Category</div>
+                        <div class="stat-progress">
+                            <div class="progress">
+                                <div class="progress-bar teal-glow-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="stat-change positive">✅ Consistent</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Most Volatile Category Metric Card -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon red-glow">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-value" id="most-volatile-category">{{ most_volatile_category }}</h3>
+                        <div class="stat-title">Most Volatile Category</div>
+                        <div class="stat-progress">
+                            <div class="progress">
+                                <div class="progress-bar red-glow-bar" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="stat-change negative">✅ Fluctuating</span>
                         </div>
                     </div>
                 </div>
@@ -2470,14 +2526,10 @@ function updateContextCards(category) {
     // Default values in case we don't have data
     let minPrice = 10, maxPrice = 500, avgPrice = 250;
     let totalProducts = 0;
-    let mostStableCategory = 'N/A';
-    let mostVolatileCategory = 'N/A';
+    let mostStableCategory = mostStableCategoryInitial || 'N/A';
+    let mostVolatileCategory = mostVolatileCategoryInitial || 'N/A';
     let categoryVolatility = {};
     let categoryCount = 0;
-    let priceChangePercent = 25; // Default value for progress bar width
-    let avgPriceChange = 20;
-    let totalProductsChange = 30;
-    let minPriceChange = -10;
     
     // Debug data availability
     console.log('summaryData available:', summaryData ? true : false);
@@ -2515,7 +2567,7 @@ function updateContextCards(category) {
             let totalAvg = 0;
             let sum = 0;
             let count = 0;
-            totalProducts = 0;
+            totalProducts = totalProductsInitial || 0; // Use initial value from backend if available
             
             summaryData.forEach(item => {
                 const min = parseFloat(item.MinPrice);
@@ -2527,7 +2579,11 @@ function updateContextCards(category) {
                 totalMax = Math.max(totalMax, max);
                 sum += avg;
                 count++;
-                totalProducts += products;
+                
+                // Only add products if we don't have a pre-calculated total
+                if (!totalProductsInitial) {
+                    totalProducts += products;
+                }
             });
             
             minPrice = totalMin.toFixed(2);
@@ -2536,21 +2592,32 @@ function updateContextCards(category) {
             
             // Calculate volatility for each category for comparison
             if (chartData) {
+                // Sort categories by volatility and find most stable/volatile
+                const volArray = [];
                 Object.keys(chartData).forEach(cat => {
                     if (chartData[cat] && chartData[cat].length >= 2) {
                         // Calculate price volatility as standard deviation
                         const prices = chartData[cat].map(point => parseFloat(point.y));
-                        categoryVolatility[cat] = calculateStandardDeviation(prices);
+                        const volatility = calculateStandardDeviation(prices);
+                        categoryVolatility[cat] = volatility;
+                        volArray.push({ category: cat, volatility: volatility });
                     }
                 });
+                
+                // If we calculated volatility and don't have backend values, use the calculated ones
+                if (volArray.length > 0 && (!mostStableCategoryInitial || !mostVolatileCategoryInitial)) {
+                    volArray.sort((a, b) => a.volatility - b.volatility);
+                    mostStableCategory = volArray[0].category;
+                    mostVolatileCategory = volArray[volArray.length - 1].category;
+                }
             }
         }
     }
     
-    // Update the sidebar metric cards with real data
+    // Update the context cards with real data
     const categoryCountEl = document.getElementById('category-count');
     if (categoryCountEl) {
-        categoryCountEl.textContent = summaryData ? summaryData.length.toString() : '0';
+        categoryCountEl.textContent = categoryCount.toString();
     }
     
     const avgPriceEl = document.getElementById('avg-price');
@@ -2568,30 +2635,16 @@ function updateContextCards(category) {
         minPriceEl.textContent = `$${minPrice}`;
     }
     
-    // Ensure all values have defaults if calculation failed
-    if (!mostStableCategory || mostStableCategory === 'N/A' || mostStableCategory === 'undefined') {
-        // If we have chartData but couldn't calculate volatility, just use the first category
-        if (chartData && Object.keys(chartData).length > 0) {
-            mostStableCategory = Object.keys(chartData)[0];
-            console.log('Using fallback for most stable category:', mostStableCategory);
-        } else {
-            mostStableCategory = 'Not available';
-        }
+    // Update the stable and volatile category cards
+    const stableCategoryEl = document.getElementById('most-stable-category');
+    if (stableCategoryEl) {
+        stableCategoryEl.textContent = mostStableCategory;
     }
     
-    if (!mostVolatileCategory || mostVolatileCategory === 'N/A' || mostVolatileCategory === 'undefined') {
-        // If we have chartData but couldn't calculate volatility, use the last category
-        if (chartData && Object.keys(chartData).length > 0) {
-            mostVolatileCategory = Object.keys(chartData)[Object.keys(chartData).length - 1];
-            console.log('Using fallback for most volatile category:', mostVolatileCategory);
-        } else {
-            mostVolatileCategory = 'Not available';
-        }
+    const volatileCategoryEl = document.getElementById('most-volatile-category');
+    if (volatileCategoryEl) {
+        volatileCategoryEl.textContent = mostVolatileCategory;
     }
-
-    // Update the sidebar metric cards
-    document.getElementById('most-stable-category').textContent = mostStableCategory;
-    document.getElementById('most-volatile-category').textContent = mostVolatileCategory;
     
     console.log('Context cards updated with: Stable =', mostStableCategory, ', Volatile =', mostVolatileCategory, ', Total =', totalProducts);
 }
@@ -2614,6 +2667,20 @@ function destroyCharts() {
 // Initialize charts and set up event listeners
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Initializing dashboard...');
+    
+    // Initialize data variables from Flask backend
+    window.summaryData = JSON.parse('{{ summary_data|tojson|safe }}');
+    console.log('Summary data loaded:', window.summaryData ? window.summaryData.length : 0, 'categories');
+    
+    // Initialize metrics from the Flask backend
+    window.totalProductsInitial = {{ total_products|default(0) }};
+    console.log('Total products loaded:', window.totalProductsInitial);
+    
+    window.mostStableCategoryInitial = '{{ most_stable_category|default("N/A")|safe }}';
+    console.log('Most stable category loaded:', window.mostStableCategoryInitial);
+    
+    window.mostVolatileCategoryInitial = '{{ most_volatile_category|default("N/A")|safe }}';
+    console.log('Most volatile category loaded:', window.mostVolatileCategoryInitial);
     
     // Set video src from data-src to prevent preloading
     const videoElement = document.getElementById('bgVideo');

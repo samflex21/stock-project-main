@@ -55,13 +55,27 @@ def dashboard_strategic():
     
     # Price volatility by category
     volatility_query = """
-    SELECT 
-        p.[Product Category] as CategoryName,
-        MAX(ph.Price) - MIN(ph.Price) AS PriceRange,
-        ROUND(AVG(ph.Price), 2) AS AvgPrice
-    FROM Pricing_History ph
-    JOIN Products p ON ph.ProductID = p.[Product ID]
-    GROUP BY p.[Product Category]
+    WITH category_price_stats AS (
+        SELECT 
+            p.[Product Category] as CategoryName,
+            MAX(ph.Price) - MIN(ph.Price) AS PriceRange,
+            ROUND(AVG(ph.Price), 2) AS AvgPrice,
+            COUNT(DISTINCT ph.ProductID) AS ProductCount,
+            MIN(ph.Price) AS MinPrice,
+            MAX(ph.Price) AS MaxPrice
+        FROM Pricing_History ph
+        JOIN Products p ON ph.ProductID = p.[Product ID]
+        GROUP BY p.[Product Category]
+    )
+    SELECT
+        CategoryName,
+        PriceRange,
+        AvgPrice,
+        ProductCount,
+        MinPrice,
+        MaxPrice,
+        PriceRange / CASE WHEN AvgPrice = 0 THEN 1 ELSE AvgPrice END AS VolatilityScore
+    FROM category_price_stats
     ORDER BY PriceRange DESC
     """
     
@@ -83,6 +97,55 @@ def dashboard_strategic():
     
     summary_data = rows_to_dict_list(conn.execute(summary_query).fetchall())
     
+    # Calculate total product count
+    total_products_query = """
+    SELECT COUNT(DISTINCT [Product ID]) AS TotalProducts FROM Products
+    """
+    
+    total_products_result = conn.execute(total_products_query).fetchone()
+    total_products = total_products_result['TotalProducts'] if total_products_result else 0
+    
+    # Get the most stable and most volatile categories
+    # Stable category has the lowest price range relative to its average price
+    stable_category_query = """
+    WITH category_volatility AS (
+        SELECT 
+            p.[Product Category] as CategoryName,
+            (MAX(ph.Price) - MIN(ph.Price)) / CASE WHEN AVG(ph.Price) = 0 THEN 1 ELSE AVG(ph.Price) END AS RelativeVolatility
+        FROM Pricing_History ph
+        JOIN Products p ON ph.ProductID = p.[Product ID]
+        GROUP BY p.[Product Category]
+        HAVING COUNT(DISTINCT ph.ProductID) > 0
+    )
+    SELECT CategoryName, RelativeVolatility
+    FROM category_volatility
+    ORDER BY RelativeVolatility ASC
+    LIMIT 1
+    """
+    
+    stable_category_result = conn.execute(stable_category_query).fetchone()
+    most_stable_category = stable_category_result['CategoryName'] if stable_category_result else "N/A"
+    
+    # Volatile category has the highest price range relative to its average price
+    volatile_category_query = """
+    WITH category_volatility AS (
+        SELECT 
+            p.[Product Category] as CategoryName,
+            (MAX(ph.Price) - MIN(ph.Price)) / CASE WHEN AVG(ph.Price) = 0 THEN 1 ELSE AVG(ph.Price) END AS RelativeVolatility
+        FROM Pricing_History ph
+        JOIN Products p ON ph.ProductID = p.[Product ID]
+        GROUP BY p.[Product Category]
+        HAVING COUNT(DISTINCT ph.ProductID) > 0
+    )
+    SELECT CategoryName, RelativeVolatility
+    FROM category_volatility
+    ORDER BY RelativeVolatility DESC
+    LIMIT 1
+    """
+    
+    volatile_category_result = conn.execute(volatile_category_query).fetchone()
+    most_volatile_category = volatile_category_result['CategoryName'] if volatile_category_result else "N/A"
+    
     conn.close()
 
     # Prepare data for Chart.js
@@ -99,7 +162,10 @@ def dashboard_strategic():
                            chart_data=chart_data,
                            volatility_data=volatility_data,
                            summary_data=summary_data,
-                           categories=categories)
+                           categories=categories,
+                           total_products=total_products,
+                           most_stable_category=most_stable_category,
+                           most_volatile_category=most_volatile_category)
 
 # AJAX endpoint for price trend data with filtering
 @app.route('/api/price_trend')
