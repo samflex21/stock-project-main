@@ -8,103 +8,36 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/neon-dashboard.css') }}?v=1.0">
 <!-- Google Fonts for Neon Theme -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-    /* Force gray background everywhere */
-    html, body, div, section, nav, main, article, aside, header, footer,
-    .container, .container-fluid, .row, [class*="col-"],
-    .card, .card-header, .card-body, .card-footer, table, tr, td, th {
-        background-color: #303030 !important;
-    }
-    
-    /* Make sure no white backgrounds slip through */
-    .bg-white, .bg-light, .bg-body-tertiary {
-        background-color: #303030 !important;
-    }
-    
-    /* Chart styling */
-    .chart-container {
-        position: relative;
-        margin: auto;
-        height: 360px;
-        width: 100%;
-        padding: 20px;
-        border-radius: 8px;
-        background-color: #3a3a3a !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    .section-header {
-        background-color: #404040 !important;
-        border-left: 4px solid #0d6efd;
-        padding: 10px 15px;
-        color: #ffffff;
-        margin-bottom: 20px;
-    }
-    
-    /* Direct fix for section headers that might have white background */
-    h1, h2, h3, h4, h5, h6, .section-header, .row > div > h1, .row > div > h2,
-    .card > .card-header, .card > .card-body, .card > .card-footer,
-    .filter-controls, .filter-section, #refine-analysis {
-        background-color: #303030 !important;
-    }
-    .card-header {
-        background-color: #3a3a50;
-        color: #ffffff;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        font-weight: 600;
-        font-size: 1.1rem;
-        padding: 1rem 1.25rem;
-    }
-    .chart-container canvas {
-        padding: 10px;
-        transition: all 0.3s ease;
-    }
-    .card-body {
-        padding: 1.25rem;
-        background-color: #2a2a3c;
-        color: #fff;
-    }
-    .context-box {
-        background-color: #2f343a;
-        padding: 20px;
-        border-radius: 10px;
-        color: #fff;
-    }
-    .context-box i {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-    .context-box .fs-3 {
-        font-size: 24px;
-        font-weight: 600;
-    }
-    /* Table styling */
-    .table-responsive {
-        margin-bottom: 1rem;
-    }
-    .table thead th {
-        background-color: #3a3a50;
-        color: #ffffff;
-        border-bottom: 2px solid #444;
-    }
-    .table tbody tr:nth-of-type(odd) {
-        background-color: #2f2f45;
-    }
-    .table tbody tr:nth-of-type(even) {
-        background-color: #2a2a3c;
-    }
-    .category-summary-table .number-cell {
-        text-align: right;
-        font-family: 'Quicksand', monospace;
-    }
-    
-    /* Main content areas */
-    main, section, article, header, footer, aside {
-        background-color: #303030 !important;
-    }
-</style>
-{% endblock %}
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- Chart.js and Required Modules -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.2.0/dist/chartjs-chart-matrix.min.js"></script>
+<!-- Additional Chart.js plugins -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
-{% block content %}
+<!-- Initialize Chart.js and register controllers -->
+<script>
+// Load chart.js plugins and register controllers
+
+// Check if Chart object exists before trying to register controllers
+if (typeof Chart !== 'undefined') {
+    console.log('Chart.js initialized with the following controllers:', Object.keys(Chart.controllers));
+    
+    // Register matrix controller if not already registered
+    if (!Chart.controllers.matrix) {
+        // Import and register the matrix plugin
+        try {
+            Chart.register(window.chartjs_matrix);
+            console.log('Matrix chart type registered successfully');
+        } catch (e) {
+            console.error('Error registering matrix chart type:', e);
+        }
+    }
+} else {
+    console.error('Chart.js not loaded');
+}
+</script>
 <style>
     /* Force gray background on this page */
     body, html, .container-fluid, .row, .col, .col-lg-12, .col-md-12, .col-sm-12,
@@ -113,238 +46,693 @@
         background-color: #303030 !important;
     }
     
-    /* Make sure Bootstrap default white backgrounds are overridden */
-    .bg-white, .bg-light, .bg-body-tertiary, .bg-body-secondary, .bg-body {
-        background-color: #303030 !important;
+    /* Modern Dashboard Styles */
+    /* Modern Dashboard Styles */
+    html, body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background-color: #0c0d16 !important;
+        color: #ffffff;
+        height: 100%;
+        overflow-x: hidden;
     }
     
+    /* Video Background Setup */
+    .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .video-bg {
+        position: absolute;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.5;
+    }
+    
+    /* Dashboard Layout Structure */
+    .dashboard-wrapper {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+        width: 100%;
+    }
+    
+    /* Glass Effect Components */
+    .glass-effect, .glass-panel {
+        background: rgba(21, 21, 40, 0.7) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Modern Sidebar Styling */
+    .modern-sidebar {
+        padding: 1.5rem;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        color: #eaeaff;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .neon-heading {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #ffffff;
+        text-shadow: 0 0 10px rgba(66, 133, 244, 0.7), 0 0 20px rgba(66, 133, 244, 0.5);
+        margin-bottom: 0.25rem;
+        background: transparent !important;
+    }
+    
+    .sidebar-profile {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .profile-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #42a5f5, #4776e6);
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .profile-info h6 {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .sidebar-nav {
+        margin-bottom: 2rem;
+    }
+    
+    .nav-links {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .nav-links li {
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+    
+    .nav-links li i {
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+    
+    .nav-links li.active {
+        background: linear-gradient(90deg, rgba(66, 133, 244, 0.3), rgba(66, 133, 244, 0.1));
+        border-left: 3px solid #4285f4;
+    }
+    
+    .nav-links li:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    /* Filter Section */
+    .filter-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background: rgba(21, 21, 40, 0.7) !important;
+    }
+    
+    .filter-section h5 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        color: #ffffff;
+        background: transparent !important;
+    }
+    
+    .form-label {
+        color: #b4b4cc;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .select-wrapper {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .modern-select {
+        width: 100%;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.9rem;
+        background-color: rgba(30, 30, 60, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border-radius: 6px;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+    
+    .select-wrapper:after {
+        content: '\f078';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #6c7293;
+    }
+    
+    .btn-glow {
+        background: linear-gradient(135deg, #4776e6, #8e54e9);
+        border: none;
+        border-radius: 6px;
+        padding: 0.6rem 1.25rem;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-glow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(66, 133, 244, 0.6);
+    }
+    
+    /* Main Content Area */
+    .main-content {
+        padding: 2rem;
+        overflow-y: auto;
+    }
+    
+    /* Stats Cards */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        display: flex;
+        padding: 1.5rem;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    /* Glowing Icons */
+    .blue-glow {
+        background: rgba(66, 133, 244, 0.15);
+        color: #42a5f5;
+        box-shadow: 0 0 15px rgba(66, 133, 244, 0.5);
+    }
+    
+    .orange-glow {
+        background: rgba(255, 152, 0, 0.15);
+        color: #ff9800;
+        box-shadow: 0 0 15px rgba(255, 152, 0, 0.5);
+    }
+    
+    .purple-glow {
+        background: rgba(156, 39, 176, 0.15);
+        color: #9c27b0;
+        box-shadow: 0 0 15px rgba(156, 39, 176, 0.5);
+    }
+    
+    .green-glow {
+        background: rgba(76, 175, 80, 0.15);
+        color: #4caf50;
+        box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+    }
+    
+    .stat-info {
+        flex-grow: 1;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    
+    .stat-title {
+        font-size: 0.9rem;
+        color: #b4b4cc;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-progress {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .stat-progress .progress {
+        flex-grow: 1;
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin-right: 10px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    /* Glowing progress bars */
+    .blue-glow-bar {
+        background: linear-gradient(90deg, #42a5f5, #4285f4);
+        box-shadow: 0 0 10px rgba(66, 133, 244, 0.7);
+    }
+    
+    .orange-glow-bar {
+        background: linear-gradient(90deg, #ff9800, #ff5722);
+        box-shadow: 0 0 10px rgba(255, 152, 0, 0.7);
+    }
+    
+    .purple-glow-bar {
+        background: linear-gradient(90deg, #9c27b0, #673ab7);
+        box-shadow: 0 0 10px rgba(156, 39, 176, 0.7);
+    }
+    
+    .green-glow-bar {
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+    }
+    
+    .stat-change {
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .positive {
+        color: #4caf50;
+    }
+    
+    .negative {
+        color: #f44336;
+    }
+    
+    /* Chart containers */
+    .chart-container {
+        background: rgba(21, 21, 40, 0.7) !important;
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    .chart-container h5 {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        color: #ffffff;
+        background: transparent !important;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .dashboard-wrapper {
+            grid-template-columns: 1fr;
+        }
+        
+        .modern-sidebar {
+            height: auto;
+            position: relative;
+        }
+        
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Ensure all elements have transparent backgrounds */
+    .chart-container, .section-header, .card, .card-header, .card-body, .card-footer,
+    .table-responsive, .context-box, .filter-section, .dashboard-sidebar {
+        background: rgba(21, 21, 40, 0.7) !important;
+    }
+    
+    /* Chart Grid and Layout */
+    .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .charts-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .canvas-wrapper {
+        position: relative;
+        width: 100%;
+        height: 300px;
+    }
+    
+    .modern-table {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .modern-table thead th {
+        position: sticky;
+        top: 0;
+        background: rgba(21, 21, 40, 0.9) !important;
+        backdrop-filter: blur(10px);
+        z-index: 10;
+    }
+    
+    .modern-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    .number-cell {
+        text-align: right;
+    }
+    
+    /* Video Play Button */
+    .video-play-button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(66, 133, 244, 0.7);
+        border: none;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 0 30px rgba(66, 133, 244, 0.7);
+    }
+    
+    /* Responsive Layout */
+    @media (max-width: 992px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+    }
     /* Main content areas */
     main, section, article, header, footer, aside {
         background-color: #303030 !important;
     }
 </style>
-<div class="container-fluid py-4 neon-theme" style="background: linear-gradient(135deg, var(--neon-bg-dark), var(--neon-bg-light)) !important;">
+{% endblock %}
 
-<!-- Main Dashboard Layout with Rearranged Structure -->
-<div class="row">
-    <!-- Metrics Cards at Top (Previously in Sidebar) -->
-    <div class="col-12 mb-4">
-        <div class="row">
-            <!-- Categories Metric Card -->
-            <div class="col-md-3">
-                <div class="metric-card">
-                    <h3 class="metric-value" id="category-count">{{ summary_data|length }}</h3>
-                    <div class="metric-title">Categories</div>
-                    <span class="metric-subtitle">Total categories</span>
-                    <div class="progress">
-                        <div class="progress-bar progress-purple-pink" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span class="metric-change positive">25% <i class="fas fa-caret-up"></i></span>
-                </div>
-            </div>
-            
-            <!-- Average Price Metric Card -->
-            <div class="col-md-3">
-                <div class="metric-card">
-                    <h3 class="metric-value" id="avg-price">${{ summary_data[0].AvgPrice }}</h3>
-                    <div class="metric-title">Average Price</div>
-                    <span class="metric-subtitle">All products</span>
-                    <div class="progress">
-                        <div class="progress-bar progress-orange" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span class="metric-change positive">20% <i class="fas fa-caret-up"></i></span>
-                </div>
-            </div>
-            
-            <!-- Total Products Metric Card -->
-            <div class="col-md-3">
-                <div class="metric-card">
-                    <h3 class="metric-value" id="total-products">{{ total_products }}</h3>
-                    <div class="metric-title">Total Products</div>
-                    <span class="metric-subtitle">In inventory</span>
-                    <div class="progress">
-                        <div class="progress-bar progress-blue" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span class="metric-change positive">30% <i class="fas fa-caret-up"></i></span>
-                </div>
-            </div>
-            
-            <!-- Min Price Metric Card -->
-            <div class="col-md-3">
-                <div class="metric-card">
-                    <h3 class="metric-value" id="min-price">${{ summary_data[0].MinPrice }}</h3>
-                    <div class="metric-title">Min Price</div>
-                    <span class="metric-subtitle">Lowest product price</span>
-                    <div class="progress">
-                        <div class="progress-bar progress-purple" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <span class="metric-change negative">10% <i class="fas fa-caret-down"></i></span>
-                </div>
-            </div>
-        </div>
+{% block content %}
+<!-- Main Dashboard Content -->
+<div class="container-fluid p-0 neon-theme">
+    <!-- Video Background Container - Added to support the full video background mentioned in the memory -->
+    <div class="video-background">
+        <video autoplay loop muted playsinline class="video-bg" id="bgVideo" data-src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}">
+            <source type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="overlay"></div>
     </div>
 
-    <!-- Sidebar with Header and Filters -->
-    <div class="col-lg-3 mb-4">
-        <div class="dashboard-sidebar">
-            <h1 class="mb-4 neon-heading">Statistics</h1>
-
-            <div class="lead dashboard-intro mb-4">
-                <i class="fas fa-chart-line me-2"></i>
-                <span>This dashboard provides strategic pricing insights to optimize your product pricing strategy.</span>
+    <div class="dashboard-wrapper">
+        <!-- Modern Sidebar with Glass Effect -->
+        <div class="modern-sidebar glass-effect">
+            <!-- Logo/Title Section -->
+            <div class="sidebar-header">
+                <h2 class="neon-heading"><i class="fas fa-chart-line me-2"></i>Strategy</h2>
+                <p class="text-muted small">Pricing Analytics</p>
             </div>
-
-            <!-- Filter Controls moved to sidebar -->
-            <div class="filter-section" style="background-color: #303030 !important;">
-                <div class="row align-items-center">
-                    <div class="col-auto" style="background-color: #303030 !important;">
-                        <h5 class="mb-0" style="background-color: #303030 !important;"><i class="fas fa-filter me-2 text-primary"></i>Refine Analysis</h5>
-                    </div>
+            
+            <!-- User Profile Section -->
+            <div class="sidebar-profile">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-circle"></i>
                 </div>
+                <div class="profile-info">
+                    <h6>Samuel Adebimpe</h6>
+                    <p class="small text-muted">Product Manager</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Links -->
+            <div class="sidebar-nav">
+                <ul class="nav-links">
+                    <li class="active"><i class="fas fa-chart-pie"></i> Dashboard</li>
+                    <li><i class="fas fa-boxes"></i> Inventory</li>
+                    <li><i class="fas fa-tags"></i> Products</li>
+                    <li><i class="fas fa-chart-bar"></i> Analytics</li>
+                    <li><i class="fas fa-cog"></i> Settings</li>
+                </ul>
+            </div>
+            
+            <!-- Filter Controls with Modern Design -->
+            <div class="filter-section glass-panel">
+                <h5><i class="fas fa-filter me-2 text-primary"></i>Refine Data</h5>
                 
-                <form class="mt-3" id="filterForm" style="background-color: #303030 !important;">
+                <form class="mt-3" id="filterForm">
                     <div class="mb-3">
                         <label for="categoryFilter" class="form-label">Product Category</label>
-                        <select class="form-select" id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            {% for category in categories %}
-                            <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="select-wrapper">
+                            <select class="form-select modern-select" id="categoryFilter">
+                                <option value="all">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="dateRangeFilter" class="form-label">Date Range</label>
-                        <select class="form-select" id="dateRangeFilter">
-                            <option value="6">Last 6 months</option>
-                            <option value="3">Last 3 months</option>
-                            <option value="12">Last 12 months</option>
-                        </select>
+                        <div class="select-wrapper">
+                            <select class="form-select modern-select" id="dateRangeFilter">
+                                <option value="6">Last 6 months</option>
+                                <option value="3">Last 3 months</option>
+                                <option value="12">Last 12 months</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">
+                        <button type="button" class="btn btn-glow w-100" onclick="applyFilters()">
                             <i class="fas fa-filter me-2"></i>Apply Filters
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-    
-    <!-- Main Content Area -->
-    <div class="col-lg-9">
-        <!-- Most Stable/Volatile Categories -->
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="context-box">
-                    <i class="fas fa-shield-alt me-2"></i>Most Stable Category
-                    <div class="fs-3 mt-2" id="most-stable-category">Electronics</div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="context-box">
-                    <i class="fas fa-bolt me-2"></i>Most Volatile Category
-                    <div class="fs-3 mt-2" id="most-volatile-category">Home Appliances</div>
-                </div>
-            </div>
-        </div>
         
-        <!-- Deep Dive Section -->
-        <h2 class="section-header"><i class="fas fa-chart-line me-2"></i>Deep Dive Analytics</h2>
-        
-        <!-- Chart Section -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="chart-container">
-                    <h5><i class="fas fa-fire me-2"></i>Heatmap: Category vs Month Price Changes</h5>
-                    <canvas id="priceTrendChart"></canvas>
-                    <div id="priceTrendNoData" class="no-data-message" style="display: none;">
-                        <i class="fas fa-fire fa-3x mb-3"></i>
-                        <p>No price change data available for the selected filters.</p>
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Top Stats Row -->
+            <div class="stats-row">
+                <!-- Categories Metric Card -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon blue-glow">
+                        <i class="fas fa-th-large"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-value" id="category-count">{{ summary_data|length }}</h3>
+                        <div class="stat-title">Categories</div>
+                        <div class="stat-progress">
+                            <div class="progress">
+                                <div class="progress-bar blue-glow-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="stat-change positive">25% <i class="fas fa-caret-up"></i></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Average Price Metric Card -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon orange-glow">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-value" id="avg-price">${{ summary_data[0].AvgPrice }}</h3>
+                        <div class="stat-title">Average Price</div>
+                        <div class="stat-progress">
+                            <div class="progress">
+                                <div class="progress-bar orange-glow-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="stat-change positive">20% <i class="fas fa-caret-up"></i></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Total Products Metric Card -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon purple-glow">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-value" id="total-products">{{ total_products }}</h3>
+                        <div class="stat-title">Total Products</div>
+                        <div class="stat-progress">
+                            <div class="progress">
+                                <div class="progress-bar purple-glow-bar" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="stat-change positive">30% <i class="fas fa-caret-up"></i></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Min Price Metric Card -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon green-glow">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 class="stat-value" id="min-price">${{ summary_data[0].MinPrice }}</h3>
+                        <div class="stat-title">Min Price</div>
+                        <div class="stat-progress">
+                            <div class="progress">
+                                <div class="progress-bar green-glow-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="stat-change negative">10% <i class="fas fa-caret-down"></i></span>
+                        </div>
                     </div>
                 </div>
             </div>
-    <div class="col-md-6 mb-4">
-        <div class="chart-container">
-            <h5><i class="fas fa-chart-line me-2"></i>Line Chart: Price Growth Rate</h5>
-            <canvas id="priceGrowthChart"></canvas>
-            <div id="priceGrowthNoData" class="no-data-message" style="display: none;">
-                <i class="fas fa-chart-line fa-3x mb-3"></i>
-                <p>No price growth data available for the selected filters.</p>
-            </div>
-        </div>
-    </div>
-</div>
+    
+            <!-- Chart Containers Section -->
+            <div class="chart-grid">
+                <!-- Price Growth Rate Chart (moved to first position) -->
+                <div class="chart-container glass-panel">
+                    <h5><i class="fas fa-chart-line me-2 text-warning"></i>Price Growth Rate Over Time</h5>
+                    <div class="canvas-wrapper">
+                        <canvas id="growthRateChart"></canvas>
+                        <div id="growthRateNoData" class="no-data-message" style="display: none;">
+                            <i class="fas fa-chart-line fa-3x mb-3"></i>
+                            <p>No growth rate data available for the selected filters.</p>
+                        </div>
+                    </div>
+                </div>
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="chart-container">
-            <h5><i class="fas fa-chart-bar me-2"></i>Bar Chart: Price Volatility by Category</h5>
-            <canvas id="categoryComparisonChart"></canvas>
-            <div id="categoryComparisonNoData" class="no-data-message" style="display: none;">
-                <i class="fas fa-chart-bar fa-3x mb-3"></i>
-                <p>No volatility data available for the selected filters.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 mb-4">
-        <div class="chart-container">
-            <h5><i class="fas fa-chart-radar me-2"></i>Radar Chart: Category Performance Comparison</h5>
-            <canvas id="categoryPerformanceChart"></canvas>
-            <div id="categoryPerformanceNoData" class="no-data-message" style="display: none;">
-                <i class="fas fa-chart-pie fa-3x mb-3"></i>
-                <p>No performance data available for the selected filters.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Section 3: Deep Dive -->
-<div class="section-header">
-    <h2>Deep Dive</h2>
-    <p>Detailed analysis and insights about pricing strategies and category performance.</p>
-</div>
-
-<div class="row">
-
-    <!-- Statistics Section with Neon Chart -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="neon-chart-container">
-                <canvas id="priceGrowthChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Category Summary Table -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title">Category Price Summary</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Products</th>
-                                <th>Min Price</th>
-                                <th>Max Price</th>
-                                <th>Avg Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in summary_data %}
-                            <tr>
-                                <td>{{ item.CategoryName }}</td>
-                                <td>{{ item.ProductCount }}</td>
-                                <td>${{ item.MinPrice }}</td>
-                                <td>${{ item.MaxPrice }}</td>
-                                <td>${{ item.AvgPrice }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <!-- Two Chart Row Layout -->
+                <div class="charts-row">
+                    <!-- Volatility Chart -->
+                    <div class="chart-container glass-panel">
+                        <h5><i class="fas fa-chart-bar me-2 text-info"></i>Price Volatility by Category</h5>
+                        <div class="canvas-wrapper">
+                            <canvas id="categoryComparisonChart"></canvas>
+                            <div id="categoryComparisonNoData" class="no-data-message" style="display: none;">
+                                <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                                <p>No volatility data available for the selected filters.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Category Performance Chart -->
+                    <div class="chart-container glass-panel">
+                        <h5><i class="fas fa-bullseye me-2 text-info"></i>Category Performance</h5>
+                        <div class="canvas-wrapper">
+                            <canvas id="categoryPerformanceChart"></canvas>
+                            <div id="categoryPerformanceNoData" class="no-data-message" style="display: none;">
+                                <i class="fas fa-chart-radar fa-3x mb-3"></i>
+                                <p>No performance data available for the selected filters.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Price Trend Analysis Chart (moved to this position) -->
+                <div class="chart-container glass-panel">
+                    <h5><i class="fas fa-chart-line me-2 text-primary"></i>Price Trend Analysis</h5>
+                    <div class="canvas-wrapper">
+                        <canvas id="priceTrendChart"></canvas>
+                        <div id="priceTrendNoData" class="no-data-message" style="display: none;">
+                            <i class="fas fa-fire fa-3x mb-3"></i>
+                            <p>No price change data available for the selected filters.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Category Summary Table with Glass Effect -->
+                <div class="chart-container glass-panel">
+                    <h5><i class="fas fa-table me-2 text-success"></i>Category Summary</h5>
+                    <div class="table-responsive modern-table">
+                        <table class="table category-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Average Price</th>
+                                    <th>Min Price</th>
+                                    <th>Max Price</th>
+                                    <th>Products Count</th>
+                                    <th>Total Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in summary_data %}
+                                <tr>
+                                    <td>{{ item.CategoryName }}</td>
+                                    <td class="number-cell">${{ item.AvgPrice }}</td>
+                                    <td class="number-cell">${{ item.MinPrice }}</td>
+                                    <td class="number-cell">${{ item.MaxPrice }}</td>
+                                    <td class="number-cell">{{ item.ProductsCount }}</td>
+                                    <td class="number-cell">${{ item.TotalValue }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -689,322 +1077,360 @@ function calculateStandardDeviation(values) {
 }
 
 // Category vs Month Price Changes Heatmap
-function createPriceTrendChart(category = 'all', dateRange = '6') {
+// Helper function to prepare data for heatmap
+async function prepareHeatmapData(category, dateRange) {
     const ctx = document.getElementById('priceTrendChart');
     if (!ctx) {
         console.error('Price trend heatmap canvas element not found');
-        return;
+        return { ctx: null };
     }
     
     // Define months at the top of the function scope
     const months = parseInt(dateRange);
-    console.log(`Price trend heatmap using ${months} month(s) filter`);
     
-    // Remove any existing no-data message
-    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
-    if (existingMessage) {
-        existingMessage.remove();
+    // Calculate the cutoff date for filtering data
+    const today = new Date();
+    const cutoffDate = new Date(today);
+    cutoffDate.setMonth(today.getMonth() - months);
+    
+    console.log(`Fetching heatmap data for last ${months} months, cutoff date:`, cutoffDate.toDateString());
+    
+    try {
+        // Fetch real data from the API
+        console.log(`Fetching heatmap data from database for category: ${category}, months: ${months}`);
+        const response = await fetch(`/api/price_heatmap_data?category=${encodeURIComponent(category)}&months=${months}`);
+        
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Heatmap API response:', result);
+        
+        if (result.error) {
+            console.error('Error from API:', result.error);
+            throw new Error(result.error);
+        }
+        
+        // Use the data from the API
+        const data = result.data || [];
+        const categories = result.categories || [];
+        const monthsLabels = result.months || [];
+        
+        if (data.length === 0) {
+            console.warn('No heatmap data returned from the API');
+            // Fall back to dummy data if needed
+            return createFallbackHeatmapData(ctx, months, cutoffDate);
+        }
+        
+        console.log('Heatmap data points:', data.length);
+        console.log('Categories:', categories.join(', '));
+        console.log('Months:', monthsLabels.join(', '));
+        
+        return {
+            ctx,
+            data,
+            categories,
+            months: monthsLabels,
+            cutoffDate
+        };
+    } catch (error) {
+        console.error('Error fetching heatmap data:', error);
+        // Fall back to dummy data on error
+        return createFallbackHeatmapData(ctx, months, cutoffDate);
+    }
+}
+
+// Create fallback dummy data for the heatmap if API fails
+function createFallbackHeatmapData(ctx, months, cutoffDate) {
+    console.log('Using fallback dummy data for heatmap');
+    
+    const today = new Date();
+    const dateArray = [];
+    for (let i = 0; i < months; i++) {
+        const date = new Date(today);
+        date.setMonth(today.getMonth() - i);
+        dateArray.unshift(date);
     }
     
-    // Destroy existing chart instance if it exists
+    const monthsLabels = dateArray.map(date => getMonthName(date.getMonth()) + ' ' + date.getFullYear());
+    
+    // Generate dummy data for testing
+    const dummyCategories = ['Electronics', 'Clothing', 'Home Goods', 'Food', 'Toys'];
+    let data = [];
+    
+    // Create dummy data points
+    for (let i = 0; i < dummyCategories.length; i++) {
+        for (let j = 0; j < months; j++) {
+            data.push({
+                x: j,
+                y: i,
+                v: Math.random() * 10 - 5, // range from -5 to +5
+                month: monthsLabels[j],
+                category: dummyCategories[i],
+                currentPrice: (Math.random() * 100).toFixed(2),
+                previousPrice: (Math.random() * 100).toFixed(2)
+            });
+        }
+    }
+    
+    return {
+        ctx,
+        data,
+        categories: dummyCategories,
+        months: monthsLabels,
+        cutoffDate
+    };
+}
+
+async function createPriceTrendChart(category = 'all', dateRange = '6') {
+    const canvas = document.getElementById('priceTrendChart');
+    if (!canvas) {
+        console.error('Price trend chart canvas element not found');
+        return null;
+    }
+    
+    // Check if Chart.js matrix plugin is available
+    if (!Chart.controllers.matrix && window.chartjs_matrix) {
+        try {
+            window.chartjs_matrix(Chart);
+            console.log('Matrix plugin registered successfully');
+        } catch(e) {
+            console.error('Failed to register matrix plugin:', e);
+        }
+    }
+
+    // Guard flag to prevent duplicate chart creation
+    if (window.isCreatingPriceTrendChart) {
+        console.warn('Price Trend Chart creation already in progress, skipping duplicate call.');
+        return null;
+    }
+    
+    window.isCreatingPriceTrendChart = true;
+    
+    // Clear any existing chart
     if (charts.priceTrendChart) {
         charts.priceTrendChart.destroy();
         charts.priceTrendChart = null;
     }
     
-    // Check if we have real data from the database
-    let filteredChartData = {};
+    // Remove any existing no-data message
+    const existingMessage = canvas.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
     
-    // Only use real data from the SQLite database, never use mock data
-    if (chartData && Object.keys(chartData).length > 0) {
-        console.log('Using real price data for heatmap');
+    // Show loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading-indicator';
+    loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading data...';
+    loadingIndicator.style.position = 'absolute';
+    loadingIndicator.style.top = '50%';
+    loadingIndicator.style.left = '50%';
+    loadingIndicator.style.transform = 'translate(-50%, -50%)';
+    loadingIndicator.style.color = '#6c757d';
+    loadingIndicator.style.textAlign = 'center';
+    canvas.parentNode.appendChild(loadingIndicator);
+    
+    try {
+        // Fetch and prepare heatmap data (now async)
+        const results = await prepareHeatmapData(category, dateRange);
+        const data = results.data;
+        const categories = results.categories;
+        const categoryLabels = results.categories;
+        const monthLabels = results.months;
+        const months = parseInt(dateRange);
         
-        // Use all categories or filter by selected category
-        if (category === 'all') {
-            filteredChartData = JSON.parse(JSON.stringify(chartData)); // Deep copy
-        } else if (chartData[category]) {
-            filteredChartData[category] = chartData[category];
-        } else {
-            filteredChartData = JSON.parse(JSON.stringify(chartData)); // Fallback to all categories
+        console.log(`Price trend heatmap using ${months} month(s) filter`);
+        
+        // Remove loading indicator
+        if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
         }
         
-        // Apply date range filter to real data
-        const cutoffDate = new Date();
-        cutoffDate.setMonth(cutoffDate.getMonth() - months);
-        
-        // Process data for heatmap format
-        const heatmapData = [];
-        const categories = Object.keys(filteredChartData);
-        
-        // Get all unique months from data
-        const allDates = new Set();
-        for (const cat in filteredChartData) {
-            filteredChartData[cat].forEach(point => {
-                const pointDate = new Date(point.x);
-                if (pointDate >= cutoffDate) {
-                    // Format as YYYY-MM
-                    const monthKey = `${pointDate.getFullYear()}-${String(pointDate.getMonth()+1).padStart(2, '0')}`;
-                    allDates.add(monthKey);
-                }
-            });
+        // Check if there's data to display
+        if (!data || data.length === 0) {
+            showNoDataMessage(canvas.parentNode, 'No price trend data available');
+            window.isCreatingPriceTrendChart = false;
+            return null;
         }
         
-        // Sort dates chronologically
-        const sortedMonths = Array.from(allDates).sort();
+        console.log('Creating matrix chart with', data.length, 'data points');
         
-        // For each category and month, calculate price change percentage
-        categories.forEach((cat, catIndex) => {
-            // Group data by month
-            const monthlyData = {};
-            
-            // Create data structure for monthly averages
-            sortedMonths.forEach(month => {
-                monthlyData[month] = {
-                    prices: [],
-                    avg: 0
-                };
-            });
-            
-            // Collect all price points for each month
-            if (filteredChartData[cat] && filteredChartData[cat].length > 0) {
-                filteredChartData[cat].forEach(point => {
-                    const pointDate = new Date(point.x);
-                    if (pointDate >= cutoffDate) {
-                        const monthKey = `${pointDate.getFullYear()}-${String(pointDate.getMonth()+1).padStart(2, '0')}`;
-                        monthlyData[monthKey].prices.push(parseFloat(point.y));
-                    }
-                });
-                
-                // Calculate monthly averages
-                for (const month in monthlyData) {
-                    const prices = monthlyData[month].prices;
-                    if (prices.length > 0) {
-                        monthlyData[month].avg = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-                    }
-                }
-                
-                // Calculate month-to-month change percentages
-                sortedMonths.forEach((month, i) => {
-                    if (i > 0) {
-                        const currentAvg = monthlyData[month].avg;
-                        const prevAvg = monthlyData[sortedMonths[i-1]].avg;
-                        
-                        if (currentAvg > 0 && prevAvg > 0) {
-                            // Calculate percentage change
-                            const changePercent = ((currentAvg - prevAvg) / prevAvg) * 100;
+        // Get the chart context
+        const ctx = canvas.getContext('2d');
+        
+        try {
+            // Create matrix chart
+            charts.priceTrendChart = new Chart(ctx, {
+                type: 'matrix',
+                data: {
+                    datasets: [{
+                        label: 'Price Change %',
+                        data: data,
+                        backgroundColor(context) {
+                            const dataPoint = context.dataset.data[context.dataIndex];
+                            if (!dataPoint || dataPoint.v === undefined || dataPoint.v === null) {
+                                return 'rgba(128, 128, 128, 0.3)';  // fallback neutral color
+                            }
                             
-                            heatmapData.push({
-                                x: i,                  // Month index
-                                y: catIndex,           // Category index 
-                                v: changePercent       // Value is the percentage change
-                            });
-                        }
-                    } else if (monthlyData[month].avg > 0) {
-                        // For first month, just show it as 0% change
-                        heatmapData.push({
-                            x: i,
-                            y: catIndex,
-                            v: 0
-                        });
-                    }
-                });
-            }
-        });
-        
-        console.log(`Filtering for last ${months} months, cutoff date: ${cutoffDate.toDateString()}`);
-        
-        // Format labels for months and categories
-        const monthLabels = sortedMonths.map(m => {
-            const [year, month] = m.split('-');
-            return `${getMonthName(parseInt(month)-1)} ${year}`;
-        });
-        
-        const categoryLabels = categories;
-        
-        console.log(`Heatmap data points: ${heatmapData.length}`);
-        console.log(`Months: ${monthLabels.join(', ')}`);
-        console.log(`Categories: ${categoryLabels.join(', ')}`);
-        
-        // Create the heatmap (matrix chart)
-        charts.priceTrendChart = new Chart(ctx, {
-            type: 'matrix',
-            data: {
-                datasets: [{
-                    label: 'Price Change %',
-                    data: heatmapData,
-                    backgroundColor(context) {
-                        const value = context.dataset.data[context.dataIndex].v;
-                        
-                        // Red for negative change, green for positive
-                        if (value < 0) {
-                            // More intense red for bigger negative changes
-                            const alpha = Math.min(Math.abs(value/10), 1).toFixed(2);
-                            return `rgba(255, 50, 50, ${alpha})`;
-                        } else {
-                            // More intense green for bigger positive changes
-                            const alpha = Math.min(value/10, 1).toFixed(2);
-                            return `rgba(50, 255, 50, ${alpha})`;
-                        }
-                    },
-                    borderWidth: 1,
-                    borderColor: 'rgba(20, 20, 35, 0.8)',
-                    width: ({chart}) => (chart.chartArea || {}).width / monthLabels.length - 1,
-                    height: ({chart}) => (chart.chartArea || {}).height / categoryLabels.length - 1
-                }]
-            },
-            options: applyFinanceChartStyling({
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        type: 'category',
-                        labels: monthLabels,
-                        title: {
-                            display: true,
-                            text: 'Month'
+                            const value = dataPoint.v;
+                            if (value < 0) {
+                                const alpha = Math.min(Math.abs(value / 10), 1).toFixed(2);
+                                return `rgba(255, 50, 50, ${alpha})`;
+                            } else {
+                                const alpha = Math.min(value / 10, 1).toFixed(2);
+                                return `rgba(50, 255, 50, ${alpha})`;
+                            }
                         },
-                        offset: true,
-                        ticks: {
-                            maxRotation: 60,
-                            minRotation: 30
-                        }
-                    },
-                    y: {
-                        type: 'category',
-                        labels: categoryLabels,
-                        title: {
-                            display: true,
-                            text: 'Category'
-                        },
-                        offset: true
-                    }
+                        borderWidth: 1,
+                        borderColor: 'rgba(20, 20, 35, 0.8)',
+                        width: ({chart}) => (chart.chartArea || {}).width / monthLabels.length - 1,
+                        height: ({chart}) => (chart.chartArea || {}).height / categoryLabels.length - 1
+                    }]
                 },
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                    tooltip: {
-                        callbacks: {
-                            title() {
-                                return '';
+                options: applyFinanceChartStyling({
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: monthLabels,
+                            title: {
+                                display: true,
+                                text: 'Month'
                             },
-                            label(context) {
-                                const v = context.dataset.data[context.dataIndex];
-                                return [
-                                    `Category: ${categoryLabels[v.y]}`,
-                                    `Month: ${monthLabels[v.x]}`,
-                                    `Price Change: ${v.v.toFixed(2)}%`
-                                ];
+                            offset: true,
+                            ticks: {
+                                maxRotation: 60,
+                                minRotation: 30
+                            }
+                        },
+                        y: {
+                            type: 'category',
+                            labels: categoryLabels,
+                            title: {
+                                display: true,
+                                text: 'Category'
+                            },
+                            offset: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    const dataPoint = item.dataset.data[item.dataIndex];
+                                    if (dataPoint) {
+                                        const catIndex = dataPoint.y;
+                                        const monthIndex = dataPoint.x;
+                                        return `${categoryLabels[catIndex]} - ${monthLabels[monthIndex]}`;
+                                    }
+                                    return '';
+                                },
+                                label: function(item) {
+                                    const dataPoint = item.dataset.data[item.dataIndex];
+                                    if (dataPoint && dataPoint.v !== undefined) {
+                                        const value = dataPoint.v;
+                                        return `Price Change: ${value.toFixed(2)}%`;
+                                    }
+                                    return '';
+                                },
+                                afterLabel: function(item) {
+                                    const dataPoint = item.dataset.data[item.dataIndex];
+                                    if (!dataPoint) return [];
+                                    
+                                    const lines = [];
+                                    
+                                    if (dataPoint.currentPrice) {
+                                        lines.push(`Current Price: $${parseFloat(dataPoint.currentPrice).toFixed(2)}`);
+                                    }
+                                    
+                                    if (dataPoint.previousPrice) {
+                                        lines.push(`Previous Price: $${parseFloat(dataPoint.previousPrice).toFixed(2)}`);
+                                    }
+                                    
+                                    return lines;
+                                }
                             }
                         }
                     }
-                }
-            })
-        });
-        
-        return charts.priceTrendChart;
-    } else {
-        // Handle case when no chart data is available
-        console.error('No price trend data available');
-        
-        // Show no data message
-        const noDataMessage = document.getElementById('priceTrendNoData');
-        if (noDataMessage) {
-            noDataMessage.style.display = 'block';
-        }
-        return null;
-    }
-    
-    console.log(`Filtering for last ${months} months, cutoff date: ${cutoffDate.toDateString()}`);
-    
-    // Format labels for months and categories
-    const monthLabels = sortedMonths.map(m => {
-        const [year, month] = m.split('-');
-        return `${getMonthName(parseInt(month)-1)} ${year}`;
-    });
-    
-    const categoryLabels = categories;
-    
-    console.log(`Heatmap data points: ${heatmapData.length}`);
-    console.log(`Months: ${monthLabels.join(', ')}`);
-    console.log(`Categories: ${categoryLabels.join(', ')}`);
-    
-    // Create the heatmap (matrix chart)
-    charts.priceTrendChart = new Chart(ctx, {
-        type: 'matrix',
-        data: {
-            datasets: [{
-                label: 'Price Change %',
-                data: heatmapData,
-                backgroundColor(context) {
-                    const value = context.dataset.data[context.dataIndex].v;
-                    
-                    // Red for negative change, green for positive
-                    if (value < 0) {
-                        // More intense red for bigger negative changes
-                        const alpha = Math.min(Math.abs(value/10), 1).toFixed(2);
-                        return `rgba(255, 50, 50, ${alpha})`;
-                    } else {
-                        // More intense green for bigger positive changes
-                        const alpha = Math.min(value/10, 1).toFixed(2);
-                        return `rgba(50, 255, 50, ${alpha})`;
-                    }
+                })
+            });
+        } catch (matrixError) {
+            console.error('Failed to create matrix chart:', matrixError);
+            console.log('Attempting to create fallback line chart instead');
+            
+            // Create a simpler line chart instead
+            const labels = monthLabels;
+            const datasets = [];
+            
+            // Create datasets for each category
+            for (let i = 0; i < categories.length; i++) {
+                const category = categories[i];
+                
+                // Get data for this category
+                const categoryData = data.filter(d => d.y === i)
+                    .sort((a, b) => a.x - b.x);
+                
+                datasets.push({
+                    label: category,
+                    data: categoryData.map(d => d && d.v !== undefined ? d.v : 0),
+                    borderColor: getColorForCategory(category, 1),
+                    backgroundColor: getColorForCategory(category, 0.2),
+                    tension: 0.3,
+                    fill: true
+                });
+            }
+            
+            charts.priceTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
                 },
-                borderWidth: 1,
-                borderColor: 'rgba(20, 20, 35, 0.8)',
-                width: ({chart}) => (chart.chartArea || {}).width / monthLabels.length - 1,
-                height: ({chart}) => (chart.chartArea || {}).height / categoryLabels.length - 1
-            }]
-        },
-        options: applyFinanceChartStyling({
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    type: 'category',
-                    labels: monthLabels,
-                    title: {
-                        display: true,
-                        text: 'Month'
-                    },
-                    offset: true,
-                    ticks: {
-                        maxRotation: 60,
-                        minRotation: 30
-                    }
-                },
-                y: {
-                    type: 'category',
-                    labels: categoryLabels,
-                    title: {
-                        display: true,
-                        text: 'Category'
-                    },
-                    offset: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false,
-                },
-                tooltip: {
-                    callbacks: {
-                        title() {
-                            return '';
+                options: applyFinanceChartStyling({
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Price Trend by Category (Fallback View)'
                         },
-                        label(context) {
-                            const v = context.dataset.data[context.dataIndex];
-                            return [
-                                `Category: ${categoryLabels[v.y]}`,
-                                `Month: ${monthLabels[v.x]}`,
-                                `Price Change: ${v.v.toFixed(2)}%`
-                            ];
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                        (context.raw > 0 ? '+' : '') + 
+                                        context.raw.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price Change (%)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return (value > 0 ? '+' : '') + value + '%';
+                                }
+                            }
                         }
                     }
-                }
-            }
-        })
-    });
+                })
+            });
+        }
+    } catch (e) {
+        console.error('Error creating price trend chart:', e);
+        showNoDataMessage(canvas.parentNode, 'Error creating price trend chart');
+    } finally {
+        window.isCreatingPriceTrendChart = false;
+    }
     
     return charts.priceTrendChart;
 }
@@ -1013,6 +1439,434 @@ function createPriceTrendChart(category = 'all', dateRange = '6') {
 function getMonthName(monthIndex) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return months[monthIndex];
+}
+
+// Create the Price Volatility by Category Chart (Bar Chart)
+async function createCategoryComparisonChart(category = 'all', dateRange = '6') {
+    console.log(`Creating price volatility chart for category: ${category}, date range: ${dateRange} months`);
+    
+    const canvas = document.getElementById('categoryComparisonChart');
+    if (!canvas) {
+        console.error('Price volatility chart canvas element not found');
+        return null;
+    }
+    
+    // Clear any existing no-data message
+    const existingMessage = canvas.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.style.display = 'none';
+    }
+    
+    // Destroy existing chart instance if it exists
+    if (charts.categoryComparisonChart) {
+        charts.categoryComparisonChart.destroy();
+        charts.categoryComparisonChart = null;
+    }
+    
+    // Show loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading-indicator';
+    loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading data...';
+    loadingIndicator.style.position = 'absolute';
+    loadingIndicator.style.top = '50%';
+    loadingIndicator.style.left = '50%';
+    loadingIndicator.style.transform = 'translate(-50%, -50%)';
+    loadingIndicator.style.color = '#6c757d';
+    loadingIndicator.style.textAlign = 'center';
+    canvas.parentNode.appendChild(loadingIndicator);
+    
+    try {
+        // Fetch real data from the API
+        const response = await fetch(`/api/price_volatility_data?category=${encodeURIComponent(category)}&months=${dateRange}`);
+        
+        // Remove loading indicator
+        if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
+        }
+        
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const volatilityData = await response.json();
+        console.log('Price volatility data received:', volatilityData);
+        
+        // Check if we have valid data
+        if (!volatilityData || !volatilityData.categories || volatilityData.categories.length === 0) {
+            console.warn('No price volatility data available');
+            const noDataEl = document.getElementById('categoryComparisonNoData');
+            if (noDataEl) {
+                noDataEl.style.display = 'flex';
+            } else {
+                showNoDataMessage(canvas.parentNode, 'No price volatility data available for the selected filters');
+            }
+            return null;
+        }
+        
+        // Create dataset for the chart
+        const categories = volatilityData.categories;
+        // Use standard deviation in $ as our volatility metric instead of coefficient of variation (%)
+        const volatilityValues = volatilityData.std_dev;
+        
+        // Sort data by volatility (highest first)
+        const indices = Array.from(volatilityValues.keys());
+        indices.sort((a, b) => volatilityValues[b] - volatilityValues[a]);
+        
+        const sortedCategories = indices.map(i => categories[i]);
+        const sortedValues = indices.map(i => volatilityValues[i]);
+        
+        // Limit to top 15 categories if there are too many
+        const limit = 15;
+        const displayCategories = sortedCategories.slice(0, limit);
+        const displayValues = sortedValues.slice(0, limit);
+        
+        // Create color gradients based on volatility values
+        const backgroundColors = displayValues.map(value => {
+            // Higher volatility = more intense color
+            const normalizedValue = Math.min(value / 100, 1); // Normalize to 0-1 range, cap at $100
+            return `rgba(255, ${Math.floor(165 - normalizedValue * 165)}, ${Math.floor(100 - normalizedValue * 100)}, 0.8)`;
+        });
+        
+        const borderColors = displayValues.map(value => {
+            const normalizedValue = Math.min(value / 100, 1);
+            return `rgba(255, ${Math.floor(140 - normalizedValue * 140)}, ${Math.floor(50 - normalizedValue * 50)}, 1)`;
+        });
+        
+        // Create the bar chart
+        charts.categoryComparisonChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: displayCategories,
+                datasets: [{
+                    label: 'Price Volatility ($)',
+                    data: displayValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    hoverBackgroundColor: displayValues.map(value => {
+                        const normalizedValue = Math.min(value / 100, 1);
+                        return `rgba(255, ${Math.floor(140 - normalizedValue * 140)}, ${Math.floor(50 - normalizedValue * 50)}, 0.9)`;
+                    }),
+                }]
+            },
+            options: applyFinanceChartStyling({
+                // Using default indexAxis (x) for vertical bar chart
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Price Volatility ($)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toFixed(2);
+                            }
+                        },
+                        beginAtZero: true
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Product Category'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false // Hide legend since we only have one dataset
+                    },
+                    title: {
+                        display: true,
+                        text: 'Price Volatility by Category',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return tooltipItems[0].label;
+                            },
+                            label: function(context) {
+                                const dataIndex = context.dataIndex;
+                                const originalIndex = indices[dataIndex];
+                                const rawData = volatilityData.raw_data && originalIndex < volatilityData.raw_data.length ? 
+                                                volatilityData.raw_data[originalIndex] : null;
+                                
+                                const lines = [
+                                    `Price Volatility: $${context.raw.toFixed(2)}`,
+                                ];
+                                
+                                if (rawData) {
+                                    lines.push(`Price Range: $${rawData.avg_price_range || rawData.avg_std_dev}`);
+                                    lines.push(`Avg Range %: ${rawData.avg_range_pct}%`);
+                                    lines.push(`Products: ${rawData.product_count}`);
+                                }
+                                
+                                return lines;
+                            }
+                        }
+                    }
+                }
+            })
+        });
+        
+        return charts.categoryComparisonChart;
+    } catch (error) {
+        console.error('Error creating price volatility chart:', error);
+        
+        // Remove loading indicator if it exists
+        if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
+        }
+        
+        // Show error message
+        const noDataEl = document.getElementById('categoryComparisonNoData');
+        if (noDataEl) {
+            noDataEl.style.display = 'flex';
+        } else {
+            showNoDataMessage(canvas.parentNode, 'Failed to load price volatility data');
+        }
+        return null;
+    }
+}
+
+// Helper function to get color for category
+function getColorForCategory(category, alpha = 1) {
+    // Generate a consistent color based on the category name
+    const colors = {
+        'Electronics': `rgba(75, 192, 192, ${alpha})`,
+        'Clothing': `rgba(255, 99, 132, ${alpha})`,
+        'Books': `rgba(54, 162, 235, ${alpha})`,
+        'Home & Kitchen': `rgba(255, 206, 86, ${alpha})`,
+        'Sports': `rgba(153, 102, 255, ${alpha})`,
+        'Toys': `rgba(255, 159, 64, ${alpha})`,
+        'Food': `rgba(199, 199, 199, ${alpha})`,
+        'Health': `rgba(83, 225, 138, ${alpha})`,
+        'Beauty': `rgba(223, 83, 201, ${alpha})`,
+        'Automotive': `rgba(40, 180, 99, ${alpha})`,
+        'Garden': `rgba(169, 200, 60, ${alpha})`,
+        'Baby': `rgba(255, 140, 171, ${alpha})`
+    };
+    
+    // Use the corresponding color or generate one if not found
+    if (colors[category]) {
+        return colors[category];
+    } else {
+        // Create a hash of the category name
+        let hash = 0;
+        for (let i = 0; i < category.length; i++) {
+            hash = category.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        // Convert the hash to RGB
+        const r = Math.abs((hash >> 24) & 0xFF);
+        const g = Math.abs((hash >> 16) & 0xFF);
+        const b = Math.abs((hash >> 8) & 0xFF);
+        
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+}
+
+// Create the Category Performance Chart (Radar Chart)
+function createCategoryPerformanceChart(category = 'all', dateRange = '6') {
+    const ctx = document.getElementById('categoryPerformanceChart');
+    if (!ctx) {
+        console.error('Category performance radar chart canvas element not found');
+        return;
+    }
+    
+    // Define months scope
+    const months = parseInt(dateRange);
+    console.log(`Category performance radar chart using ${months} month(s) filter`);
+    
+    // Remove any existing no-data message
+    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    // Destroy existing chart instance if it exists
+    if (charts.categoryPerformanceChart) {
+        charts.categoryPerformanceChart.destroy();
+        charts.categoryPerformanceChart = null;
+    }
+    
+    // Use summary data for the radar chart
+    if (summaryData && summaryData.length > 0) {
+        console.log('Using summary data for radar chart');
+        
+        // Filter categories based on selection
+        let filteredSummary = [];
+        if (category === 'all') {
+            // Use top categories for radar chart to avoid overcrowding
+            filteredSummary = [...summaryData].sort((a, b) => 
+                parseInt(b.ProductCount) - parseInt(a.ProductCount)
+            ).slice(0, 8); // Only show top 8 categories by product count
+        } else {
+            // Find the specific category
+            const selectedCategory = summaryData.find(item => item.Category === category);
+            if (selectedCategory) {
+                filteredSummary = [selectedCategory];
+            }
+        }
+        
+        if (filteredSummary.length > 0) {
+            // Create data structure for radar chart
+            const labels = ['Avg Price', 'Products', 'Min Price', 'Max Price', 'Price Range'];
+            
+            // Normalize values for radar chart
+            let maxAvgPrice = 0;
+            let maxProductCount = 0;
+            let maxMinPrice = 0;
+            let maxMaxPrice = 0;
+            let maxPriceRange = 0;
+            
+            // Find max values for normalization
+            filteredSummary.forEach(item => {
+                maxAvgPrice = Math.max(maxAvgPrice, parseFloat(item.AvgPrice));
+                maxProductCount = Math.max(maxProductCount, parseInt(item.ProductCount));
+                maxMinPrice = Math.max(maxMinPrice, parseFloat(item.MinPrice));
+                maxMaxPrice = Math.max(maxMaxPrice, parseFloat(item.MaxPrice));
+                maxPriceRange = Math.max(maxPriceRange, 
+                    parseFloat(item.MaxPrice) - parseFloat(item.MinPrice));
+            });
+            
+            // Create datasets for each category
+            const datasets = filteredSummary.map(item => {
+                // Normalize all values to 0-100 scale
+                const avgPrice = maxAvgPrice > 0 ? 
+                    (parseFloat(item.AvgPrice) / maxAvgPrice) * 100 : 0;
+                    
+                const productCount = maxProductCount > 0 ? 
+                    (parseInt(item.ProductCount) / maxProductCount) * 100 : 0;
+                    
+                const minPrice = maxMinPrice > 0 ? 
+                    (parseFloat(item.MinPrice) / maxMinPrice) * 100 : 0;
+                    
+                const maxPrice = maxMaxPrice > 0 ? 
+                    (parseFloat(item.MaxPrice) / maxMaxPrice) * 100 : 0;
+                    
+                const priceRange = maxPriceRange > 0 ? 
+                    ((parseFloat(item.MaxPrice) - parseFloat(item.MinPrice)) / maxPriceRange) * 100 : 0;
+                
+                return {
+                    label: item.Category,
+                    data: [avgPrice, productCount, minPrice, maxPrice, priceRange],
+                    backgroundColor: getColorForCategory(item.Category, 0.2),
+                    borderColor: getColorForCategory(item.Category, 1),
+                    pointBackgroundColor: getColorForCategory(item.Category, 1),
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: getColorForCategory(item.Category, 1)
+                };
+            });
+            
+            // Create the radar chart
+            charts.categoryPerformanceChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: applyFinanceChartStyling({
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 2
+                        },
+                        point: {
+                            radius: 3,
+                            hitRadius: 10,
+                            hoverRadius: 5
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(150, 150, 200, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(150, 150, 200, 0.2)'
+                            },
+                            pointLabels: {
+                                color: 'rgba(200, 220, 255, 0.9)',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(200, 220, 255, 0.7)',
+                                z: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Category Performance Comparison',
+                            color: 'rgba(150, 200, 255, 0.9)'
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    return tooltipItems[0].label;
+                                },
+                                label: function(context) {
+                                    let value = context.raw;
+                                    let dimension = labels[context.dataIndex];
+                                    let category = filteredSummary[context.datasetIndex].Category;
+                                    
+                                    // Show actual values rather than normalized ones
+                                    if (dimension === 'Avg Price') {
+                                        return `Avg Price: $${parseFloat(filteredSummary[context.datasetIndex].AvgPrice).toFixed(2)}`;
+                                    } else if (dimension === 'Products') {
+                                        return `Products: ${filteredSummary[context.datasetIndex].ProductCount}`;
+                                    } else if (dimension === 'Min Price') {
+                                        return `Min Price: $${parseFloat(filteredSummary[context.datasetIndex].MinPrice).toFixed(2)}`;
+                                    } else if (dimension === 'Max Price') {
+                                        return `Max Price: $${parseFloat(filteredSummary[context.datasetIndex].MaxPrice).toFixed(2)}`;
+                                    } else if (dimension === 'Price Range') {
+                                        const range = parseFloat(filteredSummary[context.datasetIndex].MaxPrice) - 
+                                                    parseFloat(filteredSummary[context.datasetIndex].MinPrice);
+                                        return `Price Range: $${range.toFixed(2)}`;
+                                    }
+                                    return `${dimension}: ${value.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    }
+                })
+            });
+            
+            return charts.categoryPerformanceChart;
+        }
+    }
+    
+    // Handle case when no data is available
+    console.error('No category performance data available');
+    const noDataEl = document.getElementById('categoryPerformanceNoData');
+    if (noDataEl) {
+        noDataEl.style.display = 'flex';
+    }
+    return null;
 }
 
 // Process data for the Price Volatility chart
@@ -1077,19 +1931,97 @@ function processVolatilityData(category = 'all', dateRange = '6') {
     return result;
 }
 
+// Process data for growth rate chart
+function processGrowthRateData(category = 'all', dateRange = '6') {
+    console.log(`Processing growth rate data for category: ${category}, date range: ${dateRange}`);
+    
+    // Return structure
+    const result = {
+        labels: [],
+        datasets: []
+    };
+
+    // If we have preloaded chart data, use it as a fallback
+    if (chartData && Object.keys(chartData).length > 0) {
+        try {
+            // This is temporary - we'll replace with real database data
+            const categoryKeys = category === 'all' ? 
+                Object.keys(chartData) : 
+                (chartData[category] ? [category] : []);
+
+            if (categoryKeys.length === 0) return result;
+            
+            // We'll fetch the real data from the database instead
+            return fetchGrowthRateData(category, dateRange);
+        } catch (error) {
+            console.error('Error processing growth rate data:', error);
+        }
+    }
+    
+    // If we have no chart data at all, fetch from the server
+    return fetchGrowthRateData(category, dateRange);
+}
+
+// Fetch real growth rate data from the database via API
+async function fetchGrowthRateData(category, dateRange) {
+    console.log(`Fetching growth rate data from server for: ${category}, date range: ${dateRange}`);
+    
+    const result = {
+        labels: [],
+        datasets: []
+    };
+    
+    try {
+        // Call the API to get the data
+        const response = await fetch(`/api/price_growth_data?category=${encodeURIComponent(category)}&months=${dateRange}`);
+        
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Growth rate data received:', data);
+        
+        if (!data || !data.categories || data.categories.length === 0) {
+            console.warn('No growth rate data returned from API');
+            return result;
+        }
+        
+        // Process the data into dataset format for Chart.js
+        result.labels = data.time_periods; // X-axis labels (time periods)
+        
+        // Create a dataset for each category
+        data.categories.forEach((categoryData, index) => {
+            result.datasets.push({
+                label: categoryData.name,
+                data: categoryData.growth_rates,
+                borderColor: getColorForCategory(categoryData.name, 1),
+                backgroundColor: getColorForCategory(categoryData.name, 0.2),
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false
+            });
+        });
+        
+        return result;
+    } catch (error) {
+        console.error('Error fetching growth rate data:', error);
+        return result;
+    }
+}
+
 // Price Growth Rate Line Chart
 function createGrowthRateChart(category = 'all', dateRange = '6') {
-    const ctx = document.getElementById('priceGrowthChart');
-    if (!ctx) {
-        console.error('Price Growth Rate chart canvas element not found');
-        return;
-    }
-        
-    // Data needs to be pre-processed to show growth rates over time
-    const growthRateData = processGrowthRateData(category, dateRange);
+    console.log('Price Growth Rate chart using', dateRange, 'month(s) filter');
     
-    // Remove any existing no-data message
-    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
+    const canvas = document.getElementById('growthRateChart');
+    if (!canvas) {
+        console.error('Price Growth Rate chart canvas element not found');
+        return null;
+    }
+    
+    // Clear any existing no-data message
+    const existingMessage = canvas.parentNode.querySelector('.no-data-message');
     if (existingMessage) {
         existingMessage.remove();
     }
@@ -1100,202 +2032,109 @@ function createGrowthRateChart(category = 'all', dateRange = '6') {
         charts.growthRateChart = null;
     }
     
-    // Check if we have data
-    if (!growthRateData || growthRateData.labels.length === 0) {
-        console.error('No growth rate data available');
-        
-        // Show no data message
-        const noDataMessage = document.getElementById('priceGrowthNoData');
-        if (noDataMessage) {
-            noDataMessage.style.display = 'block';
+    // Show loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading-indicator';
+    loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin fa-2x"></i><br>Loading data...';
+    loadingIndicator.style.position = 'absolute';
+    loadingIndicator.style.top = '50%';
+    loadingIndicator.style.left = '50%';
+    loadingIndicator.style.transform = 'translate(-50%, -50%)';
+    loadingIndicator.style.color = '#6c757d';
+    loadingIndicator.style.textAlign = 'center';
+    canvas.parentNode.appendChild(loadingIndicator);
+    
+    // Data needs to be fetched asynchronously
+    processGrowthRateData(category, dateRange).then(growthRateData => {
+        // Remove loading indicator
+        if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
         }
         
-        return;
-    }
-    
-    console.log('Creating growth rate chart with data:', growthRateData);
-    
-    const chartContext = ctx.getContext('2d');
-    
-    // Create the bar chart
-    charts.growthRateChart = new Chart(chartContext, {
-        type: 'line',
-        data: {
-            labels: growthRateData.labels,
-            datasets: growthRateData.datasets.map((dataset, index) => ({
-                label: dataset.label,
-                data: dataset.data,
-                borderColor: generateCategoryColor(index),
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                tension: 0.4,
-                pointBackgroundColor: generateCategoryColor(index),
-                pointRadius: 3,
-                pointHoverRadius: 5
-            }))
-        },
-        options: applyFinanceChartStyling({
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Category'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Price Growth (%)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return value.toFixed(2) + '%';
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: 'Price Growth Rate Over Time',
-                    font: {
-                        size: 16,
-                        weight: 'bold'
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
-                        }
-                    }
-                }
+        // Check if we have data
+        if (!growthRateData || !growthRateData.datasets || growthRateData.datasets.length === 0 || !growthRateData.labels || growthRateData.labels.length === 0) {
+            console.error('No growth rate data available');
+            
+            // Show no data message
+            const noDataMessage = document.getElementById('growthRateNoData');
+            if (noDataMessage) {
+                noDataMessage.style.display = 'flex';
+            } else {
+                // If no explicit message element exists, use showNoDataMessage function
+                showNoDataMessage(canvas.parentNode, 'No growth rate data available for the selected filters');
             }
-        })
+            
+            return null;
+        }
+        
+        console.log('Creating growth rate chart with data:', growthRateData);
+        
+        const chartContext = canvas.getContext('2d');
+        
+        // Create the line chart
+        charts.growthRateChart = new Chart(chartContext, {
+            type: 'line',
+            data: {
+                labels: growthRateData.labels,
+                datasets: growthRateData.datasets
+            },
+            options: applyFinanceChartStyling({
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time Period'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Price Growth (%)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Price Growth Rate Over Time',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                            }
+                        }
+                    }
+                }
+            })
+        });
+        
+        return charts.growthRateChart;
     });
     
     return charts.growthRateChart;
 }
 
-// Price Volatility Bar Chart
-function createCategoryComparisonChart(category = 'all', dateRange = '6') {
-    const ctx = document.getElementById('categoryComparisonChart');
-    if (!ctx) {
-        console.error('Category Comparison Chart canvas element not found');
-        return;
-    }
-    
-    // Remove any existing no-data message
-    const existingMessage = ctx.parentNode.querySelector('.no-data-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-    
-    // Destroy existing chart instance if it exists
-    if (charts.categoryComparisonChart) {
-        charts.categoryComparisonChart.destroy();
-        charts.categoryComparisonChart = null;
-    }
-    
-    // Process volatility data for each category
-    const volatilityData = processVolatilityData(category, dateRange);
-    
-    // Check if we have volatility data
-    if (!volatilityData || volatilityData.labels.length === 0) {
-        console.error('No volatility data available');
-        
-        // Show no data message
-        const noDataMessage = document.getElementById('categoryComparisonNoData');
-        if (noDataMessage) {
-            noDataMessage.style.display = 'block';
-        }
-        
-        return;
-    }
-    
-    console.log('Creating price volatility bar chart with data:', volatilityData);
-    
-    const chartContext = ctx.getContext('2d');
-    
-    // Create color array for bars
-    const barColors = generateRandomColors(volatilityData.labels.length);
-    
-    // Create the bar chart
-    charts.categoryComparisonChart = new Chart(chartContext, {
-        type: 'bar',
-        data: {
-            labels: volatilityData.labels,
-            datasets: [{
-                label: 'Price Volatility',
-                data: volatilityData.values,
-                backgroundColor: barColors,
-                borderColor: barColors.map(color => color.replace('0.7', '1')),
-                borderWidth: 1
-            }]
-        },
-        options: applyFinanceChartStyling({
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Category'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Standard Deviation ($)'
-                    },
-                    ticks: {
-                        callback: function(value) {
-                            return '$' + value.toFixed(2);
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: 'Price Volatility by Category',
-                    font: {
-                        size: 16,
-                        weight: 'bold'
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return 'Price Volatility: $' + context.parsed.y.toFixed(2);
-                        }
-                    }
-                }
-            }
-        })
-    });
-    
-    return charts.categoryComparisonChart;
-}
-
-
 // Category Summary Table
 function updateCategorySummaryTable(category = 'all') {
-    // This table has been replaced with the Category Performance Radar Chart
-    return;
-    
     // Find the table body where we'll insert the data
-    const tableBody = document.getElementById('category-summary-table');
+    const tableBody = document.querySelector('.category-summary-table tbody');
     if (!tableBody) {
         console.error('Category summary table not found');
         return;
@@ -1548,50 +2387,81 @@ function createCategoryPerformanceChart(category = 'all', dateRange = '6') {
 
 // Filter functionality
 function applyFilters() {
-    const categoryValue = document.getElementById('categoryFilter').value;
-    const dateRangeValue = document.getElementById('dateRangeFilter').value;
+    console.log('Applying filters...');
+    const category = document.getElementById('categoryFilter').value;
+    const dateRange = document.getElementById('dateRangeFilter').value;
     
-    console.log('Applying filters - Category:', categoryValue, 'Date Range:', dateRangeValue);
-    
-    // In an ideal implementation, we would make an AJAX call to get fresh data
-    // For example: fetch(`/api/strategic/data?category=${categoryValue}&dateRange=${dateRangeValue}`)
-    // But for now, we'll filter the data we already have client-side
-    
-    // Update context section with filtered data based on the database values
-    updateContextCards(categoryValue);
-    
-    // Destroy and recreate charts with filtered data
-    destroyCharts();
-    createPriceTrendChart(categoryValue, dateRangeValue);
-    createGrowthRateChart(categoryValue, dateRangeValue);
-    createCategoryComparisonChart(categoryValue, dateRangeValue);
-    createCategoryPerformanceChart(categoryValue, dateRangeValue);
-    
-    // Update category summary table if possible
-    updateCategorySummaryTable(categoryValue);
-    
-    // Show success message
-    // Remove any previous alert
-    const previousAlert = document.querySelector('.alert.alert-success');
-    if (previousAlert) {
-        previousAlert.remove();
+    if (!category || !dateRange) {
+        console.error('Filter values are missing');
+        return;
     }
     
-    const alertBox = document.createElement('div');
-    alertBox.className = 'alert alert-success alert-dismissible fade show mt-3';
-    alertBox.setAttribute('role', 'alert');
-    alertBox.innerHTML = `
-        Filters applied: Category - <strong>${categoryValue === 'all' ? 'All Categories' : categoryValue}</strong>, 
-        Date Range - <strong>Last ${dateRangeValue} months</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
+    console.log('Filters selected:', { category, dateRange });
     
-    // Find filter card and insert alert after it
-    const filterCard = document.querySelector('.card.mb-4');
-    filterCard.parentNode.insertBefore(alertBox, filterCard.nextSibling);
+    // Show loading state for charts
+    document.querySelectorAll('.chart-container').forEach(container => {
+        container.classList.add('loading');
+    });
+    
+    try {
+        // Destroy existing charts
+        destroyCharts();
+        
+        // Create new charts with filtered data
+        console.log('Creating filtered charts...');
+        createPriceTrendChart(category, dateRange);
+        createCategoryComparisonChart(category, dateRange);
+        createGrowthRateChart(category, dateRange);
+        createCategoryPerformanceChart(category, dateRange);
+        
+        // Update the Category Summary table with filtered data
+        updateCategorySummaryTable(category);
+        
+        // Update metrics based on filters
+        updateContextCards(category);
+        
+        console.log('Filters applied successfully');
+        
+        // Show success message
+        const alertBox = document.createElement('div');
+        alertBox.className = 'alert alert-success alert-dismissible fade show mt-3';
+        alertBox.setAttribute('role', 'alert');
+        alertBox.innerHTML = `
+            Filters applied: Category - <strong>${category === 'all' ? 'All Categories' : category}</strong>, 
+            Date Range - <strong>Last ${dateRange} months</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Find filter section and insert alert
+        const filterSection = document.querySelector('.filter-section');
+        if (filterSection) {
+            // Remove any previous alerts
+            const previousAlerts = filterSection.querySelectorAll('.alert');
+            previousAlerts.forEach(alert => alert.remove());
+            
+            // Add new alert after the filter form
+            const filterForm = filterSection.querySelector('#filterForm');
+            if (filterForm) {
+                filterForm.insertAdjacentElement('afterend', alertBox);
+            }
+        }
+        
+        // Remove loading state
+        document.querySelectorAll('.chart-container').forEach(container => {
+            container.classList.remove('loading');
+        });
+    } catch (error) {
+        console.error('Error applying filters:', error);
+        
+        // Remove loading state even in case of error
+        document.querySelectorAll('.chart-container').forEach(container => {
+            container.classList.remove('loading');
+        });
+        
+        // Show error message
+        alert('There was an error applying the filters. Please try again.');
+    }
 }
-
-// Function moved to avoid duplication - using the implementation at line 1295
 
 // Update metric cards and context with filtered data
 function updateContextCards(category) {
@@ -1745,17 +2615,84 @@ function destroyCharts() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Initializing dashboard...');
     
-    // Initialize charts
-    createPriceTrendChart();          // Heatmap: Category vs Month Price Changes
-    createGrowthRateChart();         // Line Chart: Price Growth Rate 
-    createCategoryComparisonChart(); // Bar Chart: Price Volatility by Category
-    createCategoryPerformanceChart(); // Radar Chart: Category Performance Comparison
+    // Set video src from data-src to prevent preloading
+    const videoElement = document.getElementById('bgVideo');
+    if (videoElement && videoElement.getAttribute('data-src')) {
+        videoElement.src = videoElement.getAttribute('data-src');
+        console.log('Video source set from data-src attribute');
+        
+        // Add error handling for video
+        videoElement.addEventListener('error', function() {
+            console.error('Video failed to load');
+            document.querySelector('.video-background').style.background = 
+                'linear-gradient(135deg, #1f1f3a 0%, #2d2b55 100%)';
+        });
+        
+        // Add play button if autoplay is blocked
+        videoElement.addEventListener('suspended', function() {
+            if (videoElement.paused) {
+                const playButton = document.createElement('button');
+                playButton.className = 'video-play-button';
+                playButton.innerHTML = '<i class="fas fa-play"></i>';
+                document.querySelector('.video-background').appendChild(playButton);
+                
+                playButton.addEventListener('click', function() {
+                    videoElement.play();
+                    playButton.style.display = 'none';
+                });
+            }
+        });
+    }
+
+    // Initialize charts with default values
+    const initialCategory = 'all';
+    const initialDateRange = '6';
+
+    // Make sure matrix plugin is registered before initialization
+    if (typeof window.chartjs_matrix !== 'undefined') {
+        try {
+            Chart.register(window.chartjs_matrix);
+            console.log('Matrix plugin registered during initialization');
+        } catch (e) {
+            console.error('Error registering matrix plugin:', e);
+        }
+    }
     
-    // Update the category summary table (replaces growth rate chart)
-    updateCategorySummaryTable('all');
+    // Initialize chart layout for modern dashboard
+    setTimeout(() => {
+        try {
+            createPriceTrendChart(initialCategory, initialDateRange);
+            createCategoryComparisonChart(initialCategory, initialDateRange);
+            createGrowthRateChart(initialCategory, initialDateRange);
+            createCategoryPerformanceChart(initialCategory, initialDateRange);
+            
+            // Initialize Category Summary Table
+            updateCategorySummaryTable(initialCategory);
+            
+            console.log('All charts initialized successfully');
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+        }
+    }, 200); // Small timeout to ensure plugins are registered
+
+    // Set up click listeners for sidebar navigation
+    document.querySelectorAll('.nav-links li').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
     
-    // Initialize context cards with default 'all' category
-    updateContextCards('all');
+    // Add animation effects to stat cards
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
     
     console.log('Dashboard initialized with all components');
     
