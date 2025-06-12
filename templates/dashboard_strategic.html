@@ -2,6 +2,32 @@
 
 {% block title %}Strategic Dashboard{% endblock %}
 
+<!-- Add strategic-page class to the HTML tag and override base template styles -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.classList.add('strategic-page');
+        document.body.classList.add('strategic-page');
+        
+        // Apply direct override for the gray background
+        const style = document.createElement('style');
+        style.innerHTML = `
+            body::before, html::before {
+                background-color: transparent !important;
+                background: none !important;
+                opacity: 0 !important;
+                display: none !important;
+                content: "" !important;
+            }
+            body, html, .container, .container-fluid, main, .content, .content-wrapper, .dashboard-wrapper,
+            .row, .col, div[class^="col-"], .card-body, .card-footer, #main-content, .page-content,
+            .dashboard, section, .tab-content, .tab-pane {
+                background-color: transparent !important;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+
 {% block head %}
 {{super()}}
 <!-- Disable caching -->
@@ -9,7 +35,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <style>
-    /* Apply consistent glass panel styling to chart containers */
+    /* Apply glass panel styling to chart containers */
     .chart-container, div.chart-container, .chart-grid .chart-container {
         background: rgba(21, 21, 40, 0.7) !important;
         backdrop-filter: blur(10px) !important;
@@ -108,9 +134,9 @@
     
     /* Make cards rectangular but taller */
     .stats-row .col-md-2 {
-        flex: 0 0 170px;
-        max-width: 170px;
-        padding: 0 8px;
+        flex: 0 0 16.666%;
+        max-width: 16.666%;
+        padding: 0 5px;
     }
     
     /* Handle smaller screens - horizontal scrolling */
@@ -133,34 +159,45 @@
         }
         
         .stats-row .col-md-2 {
-            flex: 0 0 160px;
-            max-width: 160px;
+            flex: 0 0 50%;
+            max-width: 50%;
         }
     }
     
     .stat-card {
         width: 100%;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         height: 100%;
-        padding: 20px;
+        padding: 8px;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        min-height: 220px;
+        align-items: center;
+        min-height: 110px;
         position: relative;
-        justify-content: space-between;
+        justify-content: space-evenly;
+        background: rgba(21, 21, 40, 0.15) !important;
+        backdrop-filter: blur(5px) !important;
+        -webkit-backdrop-filter: blur(5px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Optimize line spacing for all text in context cards */
+    .stat-card * {
+        line-height: 1.1;
     }
     
     /* Better sized stat cards for single row */
     .stat-icon {
-        font-size: 2rem;
-        width: 50px;
-        height: 50px;
+        font-size: 1.5rem;
+        width: 35px;
+        height: 35px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px;
-        margin: 0 auto 15px;
+        margin: 3px auto 8px;
         position: relative;
         top: auto;
         right: auto;
@@ -170,24 +207,21 @@
     .stat-info {
         width: 100%;
         text-align: center;
+        margin-bottom: 0;
     }
     
     .stat-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin-bottom: 5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0;
+        word-break: break-word;
+        line-height: 1.2;
     }
     
     .stat-title {
-        font-size: 1rem;
-        opacity: 0.8;
-        margin-bottom: 12px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0.4rem;
     }
     
     .stat-progress {
@@ -197,18 +231,20 @@
         flex-direction: column;
         font-size: 0.8rem;
         width: 100%;
-        margin-top: auto;
+        margin-top: 6px;
+        margin-bottom: 6px;
     }
     
     .progress {
-        height: 5px;
-        margin-bottom: 8px;
+        height: 4px;
+        margin-bottom: 5px;
         width: 80%;
     }
     
     .stat-change {
-        white-space: nowrap;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        margin-left: 0.3rem;
+        line-height: 1;
     }
     
     .chart-grid {
@@ -318,20 +354,38 @@ if (typeof Chart !== 'undefined') {
 }
 </script>
 <style>
-    /* Force gray background on this page */
-    body, html, .container-fluid, .row, .col, .col-lg-12, .col-md-12, .col-sm-12,
-    .card, .card-body, .chart-container, .dashboard-wrapper, #dashboard-strategic,
-    div[class*="col-"], .collapse, .collapsing, .accordion-body, table, thead, tbody, tr, th, td {
-        background-color: #303030 !important;
+    /* Override base template and allow video background to show through */
+    html.strategic-page, body.strategic-page,
+    html.strategic-page body, body.strategic-page .container, body.strategic-page .container-fluid,
+    body.strategic-page main, body.strategic-page .content, body.strategic-page .content-wrapper,
+    body.strategic-page .dashboard-wrapper, body.strategic-page .row, body.strategic-page .col,
+    body.strategic-page div[class^="col-"], body.strategic-page .card-body, body.strategic-page .card-footer,
+    body.strategic-page #main-content, body.strategic-page .page-content, body.strategic-page .dashboard,
+    body.strategic-page section, body.strategic-page .tab-content, body.strategic-page .tab-pane,
+    body.strategic-page .card, body.strategic-page .dashboard-wrapper, body.strategic-page #dashboard-strategic,
+    body.strategic-page div[class*="col-"], body.strategic-page .collapse, body.strategic-page .collapsing,
+    body.strategic-page .accordion-body, body.strategic-page table, body.strategic-page thead,
+    body.strategic-page tbody, body.strategic-page tr, body.strategic-page th, body.strategic-page td,
+    body.strategic-page .main-content, body.strategic-page .main-container {
+        background-color: transparent !important;
+        background: transparent !important;
     }
     
-    /* Modern Dashboard Styles */
+    /* Critical: Override the body::before background from base template */
+    html.strategic-page body::before,
+    body.strategic-page::before {
+        background-color: transparent !important;
+        background: none !important;
+        opacity: 0 !important;
+        display: none !important;
+    }
+    
     /* Modern Dashboard Styles */
     html, body {
         margin: 0;
         padding: 0;
         font-family: 'Poppins', sans-serif;
-        background-color: #0c0d16 !important;
+        background-color: transparent !important;
         color: #ffffff;
         height: 100%;
         overflow-x: hidden;
@@ -357,7 +411,7 @@ if (typeof Chart !== 'undefined') {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        opacity: 0.5;
+        opacity: 0.85;
     }
     
     /* Dashboard Layout Structure */
@@ -370,12 +424,17 @@ if (typeof Chart !== 'undefined') {
     
     /* Glass Effect Components */
     .glass-effect, .glass-panel {
-        background: rgba(21, 21, 40, 0.7) !important;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+        background: rgba(21, 21, 40, 0.3) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Main container transparent background */
+    .main-container {
+        background-color: transparent !important;
     }
     
     /* Modern Sidebar Styling */
@@ -615,15 +674,15 @@ if (typeof Chart !== 'undefined') {
     }
     
     .stat-value {
-        font-size: 1.8rem;
-        font-weight: 700;
+        font-size: 1.3rem;
+        font-weight: 600;
         margin-bottom: 0.3rem;
     }
     
     .stat-title {
         font-size: 0.9rem;
-        color: #b4b4cc;
-        margin-bottom: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0.4rem;
     }
     
     .stat-progress {
@@ -633,12 +692,11 @@ if (typeof Chart !== 'undefined') {
     }
     
     .stat-progress .progress {
-        flex-grow: 1;
-        height: 6px;
-        background-color: rgba(255, 255, 255, 0.1);
-        margin-right: 10px;
-        border-radius: 10px;
-        overflow: hidden;
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-top: 3px;
+        border-radius: 3px;
     }
     
     /* Glowing progress bars */
@@ -673,7 +731,7 @@ if (typeof Chart !== 'undefined') {
     }
     
     .stat-change {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
         white-space: nowrap;
     }
@@ -947,12 +1005,24 @@ if (typeof Chart !== 'undefined') {
 {% block content %}
 <!-- Main Dashboard Content -->
 <div class="video-background">
-    <video autoplay loop muted playsinline class="video-bg" id="bgVideo" data-src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}">
-        <source type="video/mp4">
+    <video autoplay loop muted playsinline class="video-bg" id="bgVideo">
+        <source src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-    <div class="overlay"></div>
 </div>
+
+<script>
+    // Ensure video loads immediately
+    document.addEventListener('DOMContentLoaded', function() {
+        const video = document.getElementById('bgVideo');
+        if (video) {
+            // Force video to play
+            video.play().catch(e => console.log('Video play auto-start prevented by browser:', e));
+            // Make video more visible
+            video.style.opacity = '0.85';
+        }
+    });
+</script>
 
 <!-- Separating the sidebar as its own top-level container -->
 <div class="sidebar-container">
@@ -1121,7 +1191,7 @@ if (typeof Chart !== 'undefined') {
                                     <div class="progress">
                                         <div class="progress-bar teal-glow-bar" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
-                                    <span class="stat-change positive">✅ Consistent</span>
+                                    <span class="stat-change positive">Consistent</span>
                                 </div>
                             </div>
                         </div>
@@ -1140,7 +1210,7 @@ if (typeof Chart !== 'undefined') {
                                     <div class="progress">
                                         <div class="progress-bar red-glow-bar" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
-                                    <span class="stat-change negative">✅ Fluctuating</span>
+                                    <span class="stat-change negative">Fluctuating</span>
                                 </div>
                             </div>
                         </div>
