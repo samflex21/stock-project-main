@@ -106,10 +106,10 @@
         overflow-x: visible;
     }
     
-    /* Make sure columns don't collapse */
+    /* Make cards rectangular but taller */
     .stats-row .col-md-2 {
-        flex: 0 0 16.666%;
-        max-width: 16.666%;
+        flex: 0 0 170px;
+        max-width: 170px;
         padding: 0 8px;
     }
     
@@ -133,8 +133,8 @@
         }
         
         .stats-row .col-md-2 {
-            flex: 0 0 180px;
-            max-width: 180px;
+            flex: 0 0 160px;
+            max-width: 160px;
         }
     }
     
@@ -142,32 +142,34 @@
         width: 100%;
         margin-bottom: 10px;
         height: 100%;
-        padding: 15px;
+        padding: 20px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        min-height: 120px;
+        min-height: 220px;
         position: relative;
+        justify-content: space-between;
     }
     
     /* Better sized stat cards for single row */
     .stat-icon {
-        font-size: 1.8rem;
-        width: 40px;
-        height: 40px;
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px;
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        opacity: 0.8;
+        margin: 0 auto 15px;
+        position: relative;
+        top: auto;
+        right: auto;
+        opacity: 0.95;
     }
     
     .stat-info {
         width: 100%;
-        padding-right: 40px;
+        text-align: center;
     }
     
     .stat-value {
@@ -180,9 +182,9 @@
     }
     
     .stat-title {
-        font-size: 0.9rem;
-        opacity: 0.7;
-        margin-bottom: 10px;
+        font-size: 1rem;
+        opacity: 0.8;
+        margin-bottom: 12px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -191,7 +193,8 @@
     .stat-progress {
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
+        flex-direction: column;
         font-size: 0.8rem;
         width: 100%;
         margin-top: auto;
@@ -199,8 +202,8 @@
     
     .progress {
         height: 5px;
-        margin-right: 8px;
-        width: 60%;
+        margin-bottom: 8px;
+        width: 80%;
     }
     
     .stat-change {
