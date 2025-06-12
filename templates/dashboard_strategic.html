@@ -1,34 +1,223 @@
 {% extends "base.html" %}
 
+<!-- Critical CSS override to remove base template backgrounds -->
+<style>
+    /* DIRECTLY OVERRIDE the base.html gray background in its own selector syntax */
+    html, body, .container, .container-fluid, main, .content, .content-wrapper, .dashboard-wrapper,
+    .row, .col, div[class^="col-"], .card-body, .card-footer, #main-content, .page-content,
+    .dashboard, section, .tab-content, .tab-pane {
+        background-color: transparent !important;
+    }
+    
+    /* EXPLICITLY DISABLE the body::before that creates the fixed gray background */
+    body::before {
+        content: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        display: none !important;
+        opacity: 0 !important;
+        z-index: -999 !important;
+        position: static !important;
+    }
+    
+    /* Additional overrides for all containers */
+    body, html, .main-container, .main-content, #wrapper, #page-wrapper, .gray-bg,
+    .right-sidebar, .page-wrapper, .wrapper-content, .wrapper {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+</style>
+
 {% block title %}Strategic Dashboard{% endblock %}
 
-<!-- Add strategic-page class to the HTML tag and override base template styles -->
+<!-- COMPREHENSIVE FIX: Strategic dashboard video background visibility -->
 <script>
+    // Execute immediately without waiting for DOMContentLoaded
+    (function() {
+        // 1. Find and remove the base template's gray background styles
+        var styleTagsToClean = document.querySelectorAll('style');
+        styleTagsToClean.forEach(function(styleTag) {
+            if (styleTag.innerText.includes('#303030')) {
+                // Remove the bad gray background style
+                styleTag.remove();
+            }
+        });
+        
+        // 2. Insert our high-priority override styles at the top of head
+        var styleOverride = document.createElement('style');
+        styleOverride.id = 'strategic-background-fix';
+        styleOverride.innerHTML = `
+            /* Critical overrides with !important for all containers */
+            body, html, #wrapper, #page-wrapper, .gray-bg, .wrapper-content,
+            .main-container, .container-fluid, .row, .main-content, body::before {
+                background: transparent !important;
+                background-color: transparent !important;
+                background-image: none !important;
+            }
+            
+            /* Explicitly remove the body::before pseudo-element that creates a gray background */
+            body::before {
+                content: none !important;
+                opacity: 0 !important;
+                display: none !important;
+                visibility: hidden !important;
+                background: none !important;
+                position: static !important;
+                z-index: -999 !important;
+            }
+            
+            /* Container fixes for dashboard specifically */
+            .main-container.main-dashboard-content {
+                background: transparent !important;
+                background-color: transparent !important;
+                position: relative;
+                z-index: 1;
+            }
+            
+            /* Video background visibility fixes */
+            .video-background {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                overflow: hidden;
+            }
+            
+            .video-bg {
+                min-width: 100%;
+                min-height: 100%;
+                width: auto;
+                height: auto;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                opacity: 0.85;
+            }
+            
+            /* Keep chart containers styled */
+            .chart-container {
+                background: rgba(30, 50, 80, 0.8) !important;
+            }
+            
+            /* Keep stat cards styled */
+            .stat-card, .glass-panel, .glass-effect {
+                background: rgba(21, 21, 40, 0.15) !important;
+            }
+        `;
+        document.head.insertBefore(styleOverride, document.head.firstChild);
+    })();
+    
+    // Continue with the rest of setup when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.classList.add('strategic-page');
         document.body.classList.add('strategic-page');
         
-        // Apply direct override for the gray background
+        // Force EVERYTHING to have transparent backgrounds
         const style = document.createElement('style');
         style.innerHTML = `
-            body::before, html::before {
+            /* Complete and total reset of all backgrounds */
+            *, *::before, *::after {
                 background-color: transparent !important;
-                background: none !important;
-                opacity: 0 !important;
-                display: none !important;
-                content: "" !important;
+                background-image: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
             }
-            body, html, .container, .container-fluid, main, .content, .content-wrapper, .dashboard-wrapper,
-            .row, .col, div[class^="col-"], .card-body, .card-footer, #main-content, .page-content,
-            .dashboard, section, .tab-content, .tab-pane {
+            
+            /* Strategic dashboard page specific */
+            body[class], html[class], div[class], main, section, nav, header, footer, aside,
+            .container, .container-fluid, .content, .content-wrapper, .dashboard-wrapper,
+            .row, .col, div[class*="col-"], .card-body, .card-footer,
+            #main-content, .page-content, .main-container, .main-content,
+            body::before, body::after, html::before, html::after,
+            div::before, div::after, main::before, main::after {
                 background-color: transparent !important;
+                background-image: none !important;
+                background: transparent !important;
+            }
+            
+            /* Explicit exceptions for elements we want styled */
+            .chart-container {
+                background: rgba(30, 50, 80, 0.8) !important;
+            }
+            .stat-card, .glass-panel, .glass-effect {
+                background: rgba(21, 21, 40, 0.15) !important;
             }
         `;
         document.head.appendChild(style);
+        
+        // More aggressive approach - find and remove ALL backgrounds via JS
+        setTimeout(function() {
+            // Get all elements in the DOM
+            const allElements = document.querySelectorAll('*');
+            
+            // For each element, remove background-related styles
+            allElements.forEach(function(element) {
+                if (element.classList.contains('chart-container')) {
+                    element.style.background = 'rgba(30, 50, 80, 0.8)';
+                    return;
+                }
+                if (element.classList.contains('stat-card') || 
+                    element.classList.contains('glass-panel') || 
+                    element.classList.contains('glass-effect')) {
+                    element.style.background = 'rgba(21, 21, 40, 0.15)';
+                    return;
+                }
+                
+                // For all other elements, remove background
+                element.style.backgroundColor = 'transparent';
+                element.style.backgroundImage = 'none';
+                element.style.background = 'transparent';
+            });
+        }, 100); // Small delay to ensure DOM is ready
     });
 </script>
 
 {% block head %}
+<!-- Complete override of base template styles -->
+<style id="video-background-overrides">
+    /* Highest specificity overrides */
+    html[lang="en"] body, 
+    html[lang="en"] body::before,
+    html[lang="en"] .container, 
+    html[lang="en"] .container-fluid, 
+    html[lang="en"] main, 
+    html[lang="en"] .content, 
+    html[lang="en"] .content-wrapper, 
+    html[lang="en"] .dashboard-wrapper,
+    html[lang="en"] #wrapper,
+    html[lang="en"] .wrapper,
+    html[lang="en"] #page-wrapper,
+    html[lang="en"] .gray-bg,
+    html[lang="en"] .wrapper-content {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+    
+    /* Extra-important overrides for the base template body::before */
+    body::before {
+        content: none !important;
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        background: transparent !important; 
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+    
+    /* Set charts and stat cards to retain their styling */
+    .chart-container {
+        background: rgba(30, 50, 80, 0.8) !important;
+    }
+    
+    .stat-card, .glass-panel, .glass-effect {
+        background: rgba(21, 21, 40, 0.15) !important;
+    }
+</style>
 {{super()}}
 <!-- Disable caching -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -432,9 +621,19 @@ if (typeof Chart !== 'undefined') {
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     }
     
-    /* Main container transparent background */
-    .main-container {
+    /* Make main container and content fully transparent */
+    .main-container, .main-content, .container-fluid, .row, .chart-grid {
         background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Override any ::before and ::after pseudo-elements */
+    .main-container::before, .main-container::after,
+    .main-content::before, .main-content::after {
+        content: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        display: none !important;
     }
     
     /* Modern Sidebar Styling */
@@ -1004,23 +1203,121 @@ if (typeof Chart !== 'undefined') {
 
 {% block content %}
 <!-- Main Dashboard Content -->
-<div class="video-background">
-    <video autoplay loop muted playsinline class="video-bg" id="bgVideo">
+<style>
+    .full-video-background {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow: hidden;
+        z-index: -100;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .full-video-background video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        transform: translateX(-50%) translateY(-50%);
+        opacity: 0.85;
+    }
+    
+    /* Remove ALL backgrounds */
+    body, html, #wrapper, .wrapper, #page-wrapper, .gray-bg, 
+    .main-container, .container-fluid, .main-content {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+    }
+</style>
+
+<!-- Override base template's gray background by tricking it to think this is the homepage -->
+<script>
+    // Execute before the page fully loads to intercept the base template's background forcing
+    (function() {
+        // Trick the base template's check for homepage
+        // The base template has code that exempts the homepage from gray backgrounds
+        Object.defineProperty(window, 'location', {
+            get: function() {
+                return { 
+                    ...window.location,
+                    pathname: '/' // Make it look like we're on the homepage
+                };
+            }
+        });
+        
+        // As a backup, explicitly disable the gray background style in base.html
+        const styleOverrider = document.createElement('style');
+        styleOverrider.innerHTML = `
+            body::before {
+                display: none !important;
+                content: none !important;
+                background: none !important;
+                background-color: transparent !important;
+            }
+            
+            /* Remove #303030 background color from all elements */
+            [style*="#303030"], [style*="background-color: #303030"] {
+                background: transparent !important;
+                background-color: transparent !important;
+            }
+        `;
+        document.head.appendChild(styleOverrider);
+    })();
+</script>
+
+<div class="full-video-background">
+    <video autoplay loop muted playsinline id="bgVideo">
         <source src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 </div>
 
 <script>
-    // Ensure video loads immediately
+    // Ensure video loads correctly
     document.addEventListener('DOMContentLoaded', function() {
         const video = document.getElementById('bgVideo');
         if (video) {
             // Force video to play
             video.play().catch(e => console.log('Video play auto-start prevented by browser:', e));
-            // Make video more visible
-            video.style.opacity = '0.85';
         }
+        
+        // Direct DOM manipulation to remove gray backgrounds
+        setTimeout(function() {
+            // Find the outer wrapper from the base template
+            const wrapper = document.getElementById('wrapper') || document.getElementById('page-wrapper');
+            if (wrapper) {
+                // Clear all background styles
+                wrapper.style.background = 'transparent';
+                wrapper.style.backgroundColor = 'transparent';
+                
+                // Remove any potential overlay divs
+                const overlays = document.querySelectorAll('.overlay, [class*="bg-"]');
+                overlays.forEach(overlay => {
+                    if (!overlay.classList.contains('video-bg')) {
+                        overlay.style.background = 'transparent';
+                        overlay.style.backgroundColor = 'transparent';
+                    }
+                });
+            }
+            
+            // Force body and html to be transparent
+            document.body.style.background = 'transparent';
+            document.body.style.backgroundColor = 'transparent';
+            document.documentElement.style.background = 'transparent';
+            document.documentElement.style.backgroundColor = 'transparent';
+            
+            // Remove the troublesome body::before pseudo-element
+            const pseudoElementRemover = document.createElement('style');
+            pseudoElementRemover.innerHTML = 'body::before { display: none !important; content: none !important; }'; 
+            document.head.appendChild(pseudoElementRemover);
+        }, 0);
     });
 </script>
 
@@ -1091,21 +1388,34 @@ if (typeof Chart !== 'undefined') {
     </div>
 </div>
 
-<!-- Separate Main Content Container -->
-<div class="main-container">
-    <!-- Mobile menu toggle button -->
-    <button id="sidebar-toggle" class="menu-toggle glass-panel d-lg-none">
-        <i class="fas fa-bars"></i>
-    </button>
-    
-    <div class="main-content w-100">
+<!-- Direct Content (No Containers) -->
+<!-- Mobile menu toggle button -->
+<button id="sidebar-toggle" class="menu-toggle glass-panel d-lg-none">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Main Dashboard Content Without Container -->
+<div style="margin-left: 290px; width: calc(100% - 290px); background: transparent !important; padding: 0; position: absolute; top: 0; right: 0; z-index: 1;">
+    <!-- Top Navigation Bar -->
+    <div class="d-flex align-items-center p-3" style="background: rgba(20, 20, 40, 0.4); backdrop-filter: blur(10px);">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-light"><i class="fas fa-home"></i> Home</a></li>
+                <li class="breadcrumb-item active text-light" aria-current="page">Strategic Dashboard</li>
+            </ol>
+        </nav>
+        <div class="ms-auto d-flex gap-3">
+            <a href="/dashboard/tactical" class="btn btn-sm btn-outline-light"><i class="fas fa-chart-bar"></i> Tactical Dashboard</a>
+            <a href="/dashboard/analytical" class="btn btn-sm btn-outline-light"><i class="fas fa-chart-line"></i> Analytical Dashboard</a>
+        </div>
+    </div>
             <!-- Top Stats Row -->
-            <div class="container-fluid stats-row">
-                <div class="row w-100">
+            <!-- Removing container-fluid to eliminate the dark background -->
+                <div class="d-flex flex-nowrap overflow-auto pb-2" style="background: transparent !important; background-color: transparent !important; gap: 15px; padding: 20px; padding-top: 70px; margin: 0;">
                     <!-- Categories Metric Card -->
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon blue-glow">
+                    <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
+                        <div class="stat-card glass-panel" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <div class="stat-icon d-flex justify-content-center align-items-center blue-glow">
                                 <i class="fas fa-th-large"></i>
                             </div>
                             <div class="stat-info">
@@ -1122,9 +1432,9 @@ if (typeof Chart !== 'undefined') {
                     </div>
                     
                     <!-- Average Price Metric Card -->
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon orange-glow">
+                    <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
+                        <div class="stat-card glass-panel" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <div class="stat-icon d-flex justify-content-center align-items-center orange-glow">
                                 <i class="fas fa-dollar-sign"></i>
                             </div>
                             <div class="stat-info">
@@ -1141,9 +1451,9 @@ if (typeof Chart !== 'undefined') {
                     </div>
                     
                     <!-- Total Products Metric Card -->
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon purple-glow">
+                    <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
+                        <div class="stat-card glass-panel" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <div class="stat-icon d-flex justify-content-center align-items-center purple-glow">
                                 <i class="fas fa-box"></i>
                             </div>
                             <div class="stat-info">
@@ -1160,9 +1470,9 @@ if (typeof Chart !== 'undefined') {
                     </div>
                     
                     <!-- Min Price Metric Card -->
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon green-glow">
+                    <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
+                        <div class="stat-card glass-panel" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <div class="stat-icon d-flex justify-content-center align-items-center green-glow">
                                 <i class="fas fa-tag"></i>
                             </div>
                             <div class="stat-info">
@@ -1179,9 +1489,9 @@ if (typeof Chart !== 'undefined') {
                     </div>
                     
                     <!-- Most Stable Category Metric Card -->
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon teal-glow">
+                    <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
+                        <div class="stat-card glass-panel" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <div class="stat-icon d-flex justify-content-center align-items-center teal-glow">
                                 <i class="fas fa-shield-alt"></i>
                             </div>
                             <div class="stat-info">
@@ -1198,9 +1508,9 @@ if (typeof Chart !== 'undefined') {
                     </div>
                     
                     <!-- Most Volatile Category Metric Card -->
-                    <div class="col-md-2 col-sm-4 mb-3">
-                        <div class="stat-card glass-panel">
-                            <div class="stat-icon red-glow">
+                    <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
+                        <div class="stat-card glass-panel" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <div class="stat-icon d-flex justify-content-center align-items-center red-glow">
                                 <i class="fas fa-bolt"></i>
                             </div>
                             <div class="stat-info">
@@ -1216,10 +1526,9 @@ if (typeof Chart !== 'undefined') {
                         </div>
                     </div>
                 </div>
-            </div>
     
             <!-- Chart Containers Section -->
-            <div class="chart-grid">
+            <div class="chart-grid" style="padding: 20px; padding-top: 30px; margin-top: 30px; background: transparent !important; background-color: transparent !important; border-top: 1px solid rgba(255,255,255,0.1);">
                 <!-- Price Growth Rate Chart (moved to first position) -->
                 <div class="chart-container glass-panel">
                     <h5><i class="fas fa-chart-line me-2 text-warning"></i>Price Growth Rate Over Time</h5>
@@ -1303,7 +1612,6 @@ if (typeof Chart !== 'undefined') {
                 </div>
             </div>
         </div>
-    </div>
 </div>
 {% endblock %}
 
@@ -3178,6 +3486,34 @@ function destroyCharts() {
 // Initialize charts and set up event listeners
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Initializing dashboard...');
+    
+    // Fix sidebar overlap by adjusting margin
+    const mainContent = document.querySelector('[style*="margin-left: 270px"]');
+    if (mainContent) {
+        mainContent.style.marginLeft = '280px';
+        mainContent.style.width = 'calc(100% - 280px)';
+    }
+            
+    // Remove all dark backgrounds
+    function removeAllBackgrounds() {
+        // Target all divs that might have dark backgrounds
+        document.querySelectorAll('.container, .container-fluid, .row, .col, div, main, section, .chart-grid').forEach(function(element) {
+            if (element.classList.contains('glass-panel')) return; // Skip glass panels
+            if (element.classList.contains('stat-card')) return; // Skip stat cards
+            if (element.classList.contains('stat-icon')) return; // Skip stat icons
+            if (element.classList.contains('sidebar-container')) return; // Skip sidebar
+            if (element.classList.contains('modern-sidebar')) return; // Skip sidebar
+            element.style.background = 'transparent !important';
+            element.style.backgroundColor = 'transparent !important';
+            element.style.boxShadow = 'none !important';
+        });
+    }
+            
+    // Execute immediately
+    removeAllBackgrounds();
+            
+    // Also execute after a delay to catch any elements added dynamically
+    setTimeout(removeAllBackgrounds, 300);
     
     // Initialize data variables from Flask backend - use IIFE to isolate Jinja2 template variables
     (function() {
