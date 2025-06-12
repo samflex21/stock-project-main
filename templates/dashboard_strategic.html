@@ -4,8 +4,114 @@
 
 {% block head %}
 {{super()}}
+<!-- Disable caching -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+    /* Apply consistent glass panel styling to chart containers */
+    .chart-container, div.chart-container, .chart-grid .chart-container {
+        background: rgba(21, 21, 40, 0.7) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* Ensure consistency with sidebar hover effects */
+    .chart-container:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* New layout for separated sidebar and main container */
+    .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+    
+    .video-background video {
+        min-width: 100%;
+        min-height: 100%;
+        object-fit: cover;
+    }
+    
+    .sidebar-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 10;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+    }
+    
+    .modern-sidebar {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .main-container {
+        margin-left: 280px;
+        padding: 20px;
+        width: calc(100% - 280px);
+        min-height: 100vh;
+        transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+    
+    /* Menu toggle button */
+    .menu-toggle {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 100;
+        background: rgba(21, 21, 40, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .menu-toggle:hover {
+        background: rgba(30, 30, 60, 0.8);
+        transform: scale(1.05);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .sidebar-container {
+            transform: translateX(-100%);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-container.active {
+            transform: translateX(0);
+        }
+        
+        .main-container {
+            margin-left: 0;
+            width: 100%;
+        }
+    }
+</style>
 <!-- Include Neon Dashboard CSS -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/neon-dashboard.css') }}?v=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/neon-dashboard.css') }}?v=1.1">
 <!-- Google Fonts for Neon Theme -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <!-- Font Awesome Icons -->
@@ -190,6 +296,11 @@ if (typeof Chart !== 'undefined') {
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         background: rgba(21, 21, 40, 0.7) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     }
     
     .filter-section h5 {
@@ -402,14 +513,40 @@ if (typeof Chart !== 'undefined') {
         color: #f44336;
     }
     
+    /* Chart Grid Layout */
+    .chart-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .charts-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 1.5rem;
+        width: 100%;
+    }
+    
     /* Chart containers */
     .chart-container {
-        background: rgba(21, 21, 40, 0.7) !important;
-        backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        background: rgba(30, 50, 80, 0.8) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 3px solid #4285f4 !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+        margin-bottom: 0 !important;
+        box-shadow: 0 0 15px rgba(66, 133, 244, 0.6) !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+    }
+    
+    .chart-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(66, 133, 244, 0.4);
+        border-color: rgba(66, 133, 244, 0.9);
     }
     
     .chart-container h5 {
@@ -417,6 +554,35 @@ if (typeof Chart !== 'undefined') {
         margin-bottom: 1.5rem;
         color: #ffffff;
         background: transparent !important;
+    }
+    
+    .canvas-wrapper {
+        position: relative;
+        flex: 1;
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .no-data-message {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.6);
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .no-data-message i {
+        margin-bottom: 1rem;
+        color: rgba(255, 255, 255, 0.3);
     }
     
     /* Responsive adjustments */
@@ -433,11 +599,29 @@ if (typeof Chart !== 'undefined') {
         .stats-row {
             grid-template-columns: repeat(2, 1fr);
         }
+        
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
     }
     
     @media (max-width: 768px) {
         .stats-row {
             grid-template-columns: 1fr;
+        }
+        
+        .canvas-wrapper {
+            min-height: 200px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .main-content {
+            padding: 1rem;
+        }
+        
+        .canvas-wrapper {
+            min-height: 180px;
         }
     }
     
@@ -524,19 +708,17 @@ if (typeof Chart !== 'undefined') {
 
 {% block content %}
 <!-- Main Dashboard Content -->
-<div class="container-fluid p-0 neon-theme">
-    <!-- Video Background Container - Added to support the full video background mentioned in the memory -->
-    <div class="video-background">
-        <video autoplay loop muted playsinline class="video-bg" id="bgVideo" data-src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}">
-            <source type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="overlay"></div>
-    </div>
+<div class="video-background">
+    <video autoplay loop muted playsinline class="video-bg" id="bgVideo" data-src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}">
+        <source type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div class="overlay"></div>
+</div>
 
-    <div class="dashboard-wrapper">
-        <!-- Modern Sidebar with Glass Effect -->
-        <div class="modern-sidebar glass-effect">
+<!-- Separating the sidebar as its own top-level container -->
+<div class="sidebar-container">
+    <div class="modern-sidebar glass-effect">
             <!-- Logo/Title Section -->
             <div class="sidebar-header">
                 <h2 class="neon-heading"><i class="fas fa-chart-line me-2"></i>Strategy</h2>
@@ -598,10 +780,17 @@ if (typeof Chart !== 'undefined') {
                     </div>
                 </form>
             </div>
-        </div>
-        
-        <!-- Main Content Area -->
-        <div class="main-content">
+    </div>
+</div>
+
+<!-- Separate Main Content Container -->
+<div class="main-container">
+    <!-- Mobile menu toggle button -->
+    <button id="sidebar-toggle" class="menu-toggle glass-panel d-lg-none">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="main-content">
             <!-- Top Stats Row -->
             <div class="stats-row">
                 <!-- Categories Metric Card -->
@@ -2668,19 +2857,22 @@ function destroyCharts() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Initializing dashboard...');
     
-    // Initialize data variables from Flask backend
-    window.summaryData = JSON.parse('{{ summary_data|tojson|safe }}');
-    console.log('Summary data loaded:', window.summaryData ? window.summaryData.length : 0, 'categories');
-    
-    // Initialize metrics from the Flask backend
-    window.totalProductsInitial = {{ total_products|default(0) }};
-    console.log('Total products loaded:', window.totalProductsInitial);
-    
-    window.mostStableCategoryInitial = '{{ most_stable_category|default("N/A")|safe }}';
-    console.log('Most stable category loaded:', window.mostStableCategoryInitial);
-    
-    window.mostVolatileCategoryInitial = '{{ most_volatile_category|default("N/A")|safe }}';
-    console.log('Most volatile category loaded:', window.mostVolatileCategoryInitial);
+    // Initialize data variables from Flask backend - use IIFE to isolate Jinja2 template variables
+    (function() {
+        window.summaryData = JSON.parse('{{ summary_data|tojson|safe }}');
+        console.log('Summary data loaded:', window.summaryData ? window.summaryData.length : 0, 'categories');
+        
+        // Initialize metrics from the Flask backend
+        window.totalProductsInitial = "{{ total_products|default(0) }}";
+        window.totalProductsInitial = !isNaN(parseFloat(window.totalProductsInitial)) ? parseFloat(window.totalProductsInitial) : 0;
+        console.log('Total products loaded:', window.totalProductsInitial);
+        
+        window.mostStableCategoryInitial = '{{ most_stable_category|default("N/A")|safe }}';
+        console.log('Most stable category loaded:', window.mostStableCategoryInitial);
+        
+        window.mostVolatileCategoryInitial = '{{ most_volatile_category|default("N/A")|safe }}';
+        console.log('Most volatile category loaded:', window.mostVolatileCategoryInitial);
+    })();
     
     // Set video src from data-src to prevent preloading
     const videoElement = document.getElementById('bgVideo');
@@ -2765,5 +2957,60 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Note: Filter event listener is now handled via inline onclick attribute
 });
+</script>
+
+<!-- Direct styling script to ensure chart containers have consistent glass-panel styling and sidebar mobile toggle functionality -->
+<script>
+    // Apply styling to chart containers after page loads to match sidebar styling
+    window.addEventListener('load', function() {
+        console.log('Applying glass panel styling to chart containers');
+        
+        // Get all chart containers and apply glass panel styling
+        document.querySelectorAll('.chart-container').forEach(function(container) {
+            // Apply the same glass panel effect as used in sidebar and context cards
+            container.style.background = 'rgba(21, 21, 40, 0.7)';
+            container.style.backdropFilter = 'blur(10px)';
+            container.style.webkitBackdropFilter = 'blur(10px)';
+            container.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+            container.style.borderRadius = '12px';
+            container.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.2)';
+        });
+        
+        // Mobile sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebarContainer = document.querySelector('.sidebar-container');
+        const mainContainer = document.querySelector('.main-container');
+        
+        if (sidebarToggle && sidebarContainer) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebarContainer.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const isClickInsideSidebar = sidebarContainer.contains(event.target);
+                const isClickOnToggle = sidebarToggle.contains(event.target);
+                
+                if (!isClickInsideSidebar && !isClickOnToggle && window.innerWidth < 992 && sidebarContainer.classList.contains('active')) {
+                    sidebarContainer.classList.remove('active');
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992 && sidebarContainer.classList.contains('active')) {
+                    sidebarContainer.classList.remove('active'); // Not needed in desktop mode
+                }
+            });
+        }
+        
+        // Apply the styling again after a delay in case of any dynamic updates
+        setTimeout(function() {
+            document.querySelectorAll('.chart-container').forEach(function(container) {
+                container.style.background = 'rgba(21, 21, 40, 0.7)';
+                container.style.backdropFilter = 'blur(10px)';
+            });
+        }, 1000);
+    });
 </script>
 {% endblock %}
