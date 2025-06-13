@@ -3,73 +3,386 @@
 {% block title %}Analytical Dashboard{% endblock %}
 
 {% block head %}
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Modern design styling for Analytical Dashboard -->
 <style>
-    /* Chart container styling */
+    /* Global styles for analytical dashboard */
+    html.analytical-page, body.analytical-page {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow-x: hidden;
+        font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: transparent;
+    }
+
+    /* Video background for analytical dashboard */
+    .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .video-background video {
+        position: absolute;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+        opacity: 0.9;
+    }
+
+    /* Modern glass panels with blur effect */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+        padding: 20px;
+        margin-bottom: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .glass-panel:hover {
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.6) !important;
+        transform: translateY(-5px);
+    }
+
+    /* Card styling with glassmorphism */
+    .card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        margin-bottom: 20px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px 0 rgba(31, 38, 135, 0.47);
+    }
+
+    .card-header {
+        background: rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 15px 20px;
+    }
+
+    .card-title {
+        margin-bottom: 0;
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    /* Chart container styling with glassmorphism */
     .chart-container {
         position: relative;
-        height: 400px;
-        margin-bottom: 30px;
+        height: 350px;
+        margin-bottom: 0;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 10px;
     }
     
-    /* Tag cloud styling */
+    /* Modern tag cloud styling */
     .tag-cloud {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: center;
+        gap: 10px;
     }
     
     .tag-cloud span {
         display: inline-block;
-        margin: 4px;
-        padding: 5px 10px;
-        background-color: rgba(13, 110, 253, 0.2);
-        border-radius: 20px;
+        padding: 6px 14px;
+        background: linear-gradient(135deg, rgba(76, 175, 229, 0.7), rgba(24, 119, 242, 0.7));
+        border-radius: 30px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
     }
     
     .tag-cloud span:hover {
-        background-color: #e9ecef;
+        background: linear-gradient(135deg, rgba(24, 119, 242, 0.8), rgba(24, 119, 242, 0.9));
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
     }
     
-    /* Tag size classes */
-    .tag-size-1 { font-size: 0.9rem; }
-    .tag-size-2 { font-size: 1.1rem; }
-    .tag-size-3 { font-size: 1.3rem; }
-    .tag-size-4 { font-size: 1.5rem; }
-    .tag-size-5 { font-size: 1.7rem; }
+    /* Tag size classes with modern sizing */
+    .tag-size-1 { font-size: 0.9rem; opacity: 0.8; }
+    .tag-size-2 { font-size: 1.1rem; opacity: 0.85; }
+    .tag-size-3 { font-size: 1.3rem; opacity: 0.9; }
+    .tag-size-4 { font-size: 1.5rem; opacity: 0.95; }
+    .tag-size-5 { font-size: 1.7rem; opacity: 1; }
     
-    /* Rating progress bar */
+    /* Modern rating progress bar */
     .rating-progress {
-        height: 8px;
+        height: 10px;
         width: 100%;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        overflow: hidden;
     }
     
-    /* Section header styling */
+    .rating-bar {
+        border-radius: 10px;
+        background: linear-gradient(to right, #4facfe, #00f2fe) !important;
+        transition: width 1s ease-in-out;
+    }
+
+    /* Modern section header styling */
     .section-header {
-        background-color: #f8f9fa;
-        border-left: 4px solid #0d6efd;
-        padding: 10px 15px;
-        margin-bottom: 20px;
-        font-weight: bold;
+        background: linear-gradient(135deg, rgba(16, 57, 144, 0.2), rgba(24, 119, 242, 0.2));
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-left: 4px solid #4facfe;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(31, 38, 135, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .section-header h2 {
+        margin-bottom: 8px;
+        color: #ffffff;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .section-header p {
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Table styling */
+    .table {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .table thead th {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 15px;
+    }
+    
+    .table td {
+        border-color: rgba(255, 255, 255, 0.1);
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Badge styling */
+    .badge {
+        padding: 6px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .badge.bg-info {
+        background: linear-gradient(135deg, #0093E9, #80D0C7) !important;
+    }
+    
+    /* Star rating styling */
+    .fa-star.text-warning {
+        color: #FFD700 !important;
+        filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+    }
+    
+    .fa-star-half-alt.text-warning {
+        color: #FFD700 !important;
+        filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+    }
+    
+    .fa-star.text-muted {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Metrics card styling */
+    .metric-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(31, 38, 135, 0.3);
+    }
+    
+    .metric-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 5px;
+    }
+    
+    .metric-title {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 0;
+        letter-spacing: 0.5px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Analytical Dashboard — Recommendation System</h1>
+<!-- Video Background -->
+<div class="video-background">
+    <video data-src="/static/videos/analytical-bg.mp4" muted loop autoplay></video>
+</div>
 
-<!-- Filters -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Filters</h5>
+<div class="container-fluid px-4 pt-4">
+    <h1 class="mb-4 text-white">Analytical Dashboard — Recommendation System</h1>
+    
+    <!-- Top metrics cards -->
+    <div class="d-flex overflow-auto pb-3">
+        <!-- Metric Card 1: Total Products -->
+        <div class="metric-card mx-2" style="min-width: 170px; min-height: 220px;">
+            <div class="metric-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="metric-value">{{ total_products }}</div>
+            <p class="metric-title">Total Products</p>
+        </div>
+        
+        <!-- Metric Card 2: Average Rating -->
+        <div class="metric-card mx-2" style="min-width: 170px; min-height: 220px;">
+            <div class="metric-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="metric-value">{{ "%.1f"|format(avg_rating|float) }}</div>
+            <p class="metric-title">Average Rating</p>
+        </div>
+        
+        <!-- Metric Card 3: Total Tags -->
+        <div class="metric-card mx-2" style="min-width: 170px; min-height: 220px;">
+            <div class="metric-icon">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="metric-value">{{ total_tags }}</div>
+            <p class="metric-title">Product Tags</p>
+        </div>
+        
+        <!-- Metric Card 4: Top Rated Category -->
+        <div class="metric-card mx-2" style="min-width: 170px; min-height: 220px;">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="metric-value">{{ top_rated_tag.AvgRating|float|round(1) }}</div>
+            <p class="metric-title">{{ top_rated_tag.TagName }}</p>
+        </div>
+        
+        <!-- Metric Card 5: Most Tagged Product -->
+        <div class="metric-card mx-2" style="min-width: 170px; min-height: 220px;">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #ff9a9e, #fad0c4);">
+                <i class="fas fa-thumbs-up"></i>
+            </div>
+            <div class="metric-value">{{ most_tags_count }}</div>
+            <p class="metric-title">Most Tagged</p>
+        </div>
+        
+        <!-- Metric Card 6: Recommendation Strength -->
+        <div class="metric-card mx-2" style="min-width: 170px; min-height: 220px;">
+            <div class="metric-icon" style="background: linear-gradient(135deg, #a18cd1, #fbc2eb);">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="metric-value">{{ "%.0f"|format(recommendation_strength * 100) }}%</div>
+            <p class="metric-title">Rec Strength</p>
+        </div>
     </div>
-    <div class="card-body">
+    
+    <!-- Filters -->
+    <div class="glass-panel mb-4">
+        <h2 class="text-white mb-3">Filters</h2>
         <form class="row" id="filterForm">
             <div class="col-md-4 mb-3">
-                <label for="tagFilter" class="form-label">Tag</label>
-                <select class="form-select" id="tagFilter">
+                <label for="tagFilter" class="form-label text-white">Tag</label>
+                <select class="form-select" id="tagFilter" style="background: rgba(255,255,255,0.2); color: white; border-color: rgba(255,255,255,0.3);">
                     <option value="all">All Tags</option>
                     {% for tag in tags %}
                     <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
@@ -77,132 +390,138 @@
                 </select>
             </div>
             <div class="col-md-4 mb-3">
-                <label for="minRatingFilter" class="form-label">Minimum Rating</label>
-                <select class="form-select" id="minRatingFilter">
-                    <option value="1">1+ stars</option>
-                    <option value="2">2+ stars</option>
-                    <option value="3" selected>3+ stars</option>
-                    <option value="4">4+ stars</option>
-                    <option value="5">5 stars only</option>
+                <label for="ratingFilter" class="form-label text-white">Minimum Rating</label>
+                <select class="form-select" id="ratingFilter" style="background: rgba(255,255,255,0.2); color: white; border-color: rgba(255,255,255,0.3);">
+                    <option value="0">All Ratings</option>
+                    <option value="1">1+ Stars</option>
+                    <option value="2">2+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="4.5">4.5+ Stars</option>
                 </select>
             </div>
-            <div class="col-md-4 mb-3 d-flex align-items-end">
-                <button type="button" class="btn btn-primary" id="applyFilters">Apply Filters</button>
+            <div class="col-md-4 mb-3">
+                <label for="sortFilter" class="form-label text-white">Sort By</label>
+                <select class="form-select" id="sortFilter" style="background: rgba(255,255,255,0.2); color: white; border-color: rgba(255,255,255,0.3);">
+                    <option value="rating-high">Rating (High to Low)</option>
+                    <option value="rating-low">Rating (Low to High)</option>
+                    <option value="count-high">Review Count (High to Low)</option>
+                    <option value="count-low">Review Count (Low to High)</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="button" class="btn btn-primary" onclick="filterTable()" style="background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);">Apply Filters</button>
+                <button type="reset" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); border: none;">Reset</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Section 1: Context -->
-<div class="section-header">
-    <h2>Context</h2>
-    <p>This dashboard provides analytical insights for product recommendations. Analyze user preferences, popular tags, and product ratings to optimize recommendation algorithms.</p>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Total Tags</h5>
-                <p class="display-4">{{ popular_tags|length }}</p>
-                <p class="text-muted">Number of unique product tags</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Average Rating</h5>
-                <p class="display-4">4.2</p>
-                <p class="text-muted">Average product rating</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Most Popular Tag</h5>
-                <p class="display-4">{{ popular_tags[0].TagName }}</p>
-                <p class="text-muted">Tag with highest usage</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Section 2: Main Section with 4 Charts -->
-<div class="section-header">
-    <h2>Main Section</h2>
-    <p>Key visualizations to analyze product ratings, tags, and recommendation factors.</p>
-</div>
-
-<div class="row">
-    <!-- Chart 1: Tag Cloud -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h5 class="card-title">Popular Tags</h5>
-            </div>
-            <div class="card-body">
-                <div class="tag-cloud">
-                    {% for tag in popular_tags %}
-                    {% set tag_size = (tag.TagUsage / tag.MaxUsage * 5) | round | int if tag.MaxUsage else 1 %}
-                    {% set tag_size = 5 if tag_size > 5 else tag_size %}
-                    {% set tag_size = 1 if tag_size < 1 else tag_size %}
-                    <span class="tag-size-{{ tag_size }}">{{ tag.TagName }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Section 2: Tag Cloud -->
+<div class="glass-panel mb-4">
+    <h2 class="text-white mb-3">Tag Cloud</h2>
+    <p class="text-white-50 mb-4">Popular tags sized by frequency. Click on a tag to filter.</p>
     
-    <!-- Chart 2: Average Rating by Tag -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h5 class="card-title">Average Rating by Tag</h5>
+    <div class="tag-cloud" id="tagCloud">
+        {% for tag in popular_tags[:30] %}
+        <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">{{ tag.TagName }}</span>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Section 3: Rating Analysis -->
+<div class="glass-panel mb-4">
+    <h2 class="text-white mb-3">Rating Analysis</h2>
+    <p class="text-white-50 mb-4">Analysis of ratings by tag and distribution.</p>
+
+    <div class="row">
+        <!-- Average Rating by Tag -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Average Rating by Tag</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="avgRatingByTagChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="ratingByTagChart"></canvas>
+        </div>
+        
+        <!-- Rating Distribution -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Rating Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="ratingDistributionChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Chart 3: Rating Distribution -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h5 class="card-title">Rating Distribution</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="ratingDistributionChart"></canvas>
+
+    <div class="row">
+        <!-- Recommendation Strength -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Recommendation Strength</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="recommendationStrengthChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Chart 4: Recommendation Strength -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h5 class="card-title">Recommendation Strength</h5>
-            </div>
-            <div class="card-body">
-                <div class="chart-container">
-                    <canvas id="recommendationStrengthChart"></canvas>
+        
+        <!-- Review Count by Rating -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Review Count by Rating</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="reviewCountChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Section 3: Deep Dive -->
-<div class="section-header">
-    <h2>Deep Dive</h2>
-    <p>Detailed analysis of product ratings and tag correlations.</p>
+<!-- Section 4: Top Rated Products by Tag -->
+<div class="glass-panel mb-4">
+    <h2 class="text-white mb-3">Top Rated Products by Tag</h2>
+    <p class="text-white-50 mb-4">View products with highest ratings filtered by selected tag.</p>
+    
+    <div class="table-responsive">
+        <table class="table" id="topRatedTable">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Tags</th>
+                    <th>Rating</th>
+                    <th>Reviews</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- The table will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!-- Section 5: Deep Dive -->
+<div class="glass-panel mb-4">
+    <h2 class="text-white mb-3">Deep Dive</h2>
+    <p class="text-white-50 mb-4">Detailed analysis of product ratings and tag correlations.</p>
 
 <!-- Top Rated Products -->
 <div class="card mb-4">

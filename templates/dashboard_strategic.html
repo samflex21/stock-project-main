@@ -1,28 +1,49 @@
 {% extends "base.html" %}
 
-<!-- Critical CSS override to remove base template backgrounds -->
+<!-- Strategic Dashboard CSS Override - Remove gray header and background -->
 <style>
-    /* DIRECTLY OVERRIDE the base.html gray background in its own selector syntax */
+    /* Override base template styles to remove backgrounds */
     html, body, .container, .container-fluid, main, .content, .content-wrapper, .dashboard-wrapper,
     .row, .col, div[class^="col-"], .card-body, .card-footer, #main-content, .page-content,
     .dashboard, section, .tab-content, .tab-pane {
         background-color: transparent !important;
     }
     
-    /* EXPLICITLY DISABLE the body::before that creates the fixed gray background */
+    /* Hide navbar completely with higher specificity */
+    body nav.navbar, body .navbar, body header nav, body .navbar-expand-lg, body nav.navbar-dark {
+        display: none !important;
+        height: 0 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        z-index: -9999 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        clip: rect(0, 0, 0, 0) !important;
+        border: 0 !important;
+    }
+    
+    /* Remove container padding that would leave space for navbar */
+    .container, .container-fluid {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Disable body::before that creates the fixed gray background */
     body::before {
         content: none !important;
         background: none !important;
-        background-color: transparent !important;
         display: none !important;
         opacity: 0 !important;
-        z-index: -999 !important;
         position: static !important;
     }
     
-    /* Additional overrides for all containers */
+    /* Additional overrides for common containers */
     body, html, .main-container, .main-content, #wrapper, #page-wrapper, .gray-bg,
-    .right-sidebar, .page-wrapper, .wrapper-content, .wrapper {
+    .right-sidebar, .page-wrapper, .wrapper-content, .wrapper, header {
         background: transparent !important;
         background-color: transparent !important;
         background-image: none !important;
@@ -41,6 +62,14 @@
             if (styleTag.innerText.includes('#303030')) {
                 // Remove the bad gray background style
                 styleTag.remove();
+            }
+        });
+        
+        // Hide the navbar completely
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                navbar.style.display = 'none';
             }
         });
         
@@ -719,12 +748,24 @@ if (typeof Chart !== 'undefined') {
     
     .nav-links li {
         padding: 0.8rem 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.8rem;
         border-radius: 8px;
-        cursor: pointer;
         transition: all 0.3s ease;
+        cursor: pointer;
         display: flex;
         align-items: center;
+    }
+    
+    .nav-links li a {
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .nav-links li:hover a {
+        color: rgba(255, 255, 255, 1);
     }
     
     .nav-links li i {
@@ -733,8 +774,12 @@ if (typeof Chart !== 'undefined') {
     }
     
     .nav-links li.active {
-        background: linear-gradient(90deg, rgba(66, 133, 244, 0.3), rgba(66, 133, 244, 0.1));
-        border-left: 3px solid #4285f4;
+        background-color: rgba(0, 120, 255, 0.2);
+        border-left: 3px solid #00a8ff;
+    }
+    
+    .nav-links li.active a {
+        color: #ffffff;
     }
     
     .nav-links li:hover:not(.active) {
@@ -1283,60 +1328,108 @@ if (typeof Chart !== 'undefined') {
             
             /* Remove #303030 background color from all elements */
             [style*="#303030"], [style*="background-color: #303030"] {
-                background: transparent !important;
                 background-color: transparent !important;
+                background: transparent !important;
             }
         `;
         document.head.appendChild(styleOverrider);
     })();
 </script>
 
+<!-- Video Background Container -->
 <div class="full-video-background">
     <video autoplay loop muted playsinline id="bgVideo">
-        <source src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}" type="video/mp4">
+        <source data-src="{{ url_for('static', filename='videos/Forex Trading Background Video.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 </div>
 
 <script>
-    // Ensure video loads correctly
     document.addEventListener('DOMContentLoaded', function() {
-        const video = document.getElementById('bgVideo');
-        if (video) {
-            // Force video to play
-            video.play().catch(e => console.log('Video play auto-start prevented by browser:', e));
+        // Initialize video background by setting source from data-src attribute
+        const videoElement = document.getElementById('bgVideo');
+        if (videoElement) {
+            const videoSource = videoElement.querySelector('source');
+            if (videoSource && videoSource.hasAttribute('data-src')) {
+                const videoSrc = videoSource.getAttribute('data-src');
+                videoSource.setAttribute('src', videoSrc);
+                videoElement.load();
+                videoElement.play().catch(e => console.log('Video playback may require user interaction:', e));
+            }
         }
         
-        // Direct DOM manipulation to remove gray backgrounds
-        setTimeout(function() {
-            // Find the outer wrapper from the base template
+        document.documentElement.classList.add('strategic-page');
+        document.body.classList.add('strategic-page');
+        
+        // Force EVERYTHING to have transparent backgrounds
+        const forceTransparentBG = function() {
+            const selectors = [
+                'html', 'body', '.container', '.container-fluid', 'main', '.content', '.content-wrapper',
+                '.dashboard-wrapper', '.row', '.col', '[class*="col-"]', '.card-body', '.card-footer',
+                '#main-content', '.page-content', '.dashboard', 'section', '.tab-content', '.tab-pane'
+            ];
+            
+            selectors.forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    el.style.background = 'transparent';
+                    el.style.backgroundColor = 'transparent';
+                });
+            });
+            
+            // Complete removal of the navbar
+            const navbars = document.querySelectorAll('nav.navbar, .navbar, header nav');
+            navbars.forEach(navbar => {
+                if (navbar) {
+                    // First try to remove it completely
+                    try {
+                        navbar.parentNode.removeChild(navbar);
+                    } catch (e) {
+                        // If removal fails, hide it completely
+                        navbar.style.cssText = 'display: none !important; height: 0 !important; ' +
+                          'opacity: 0 !important; visibility: hidden !important; position: absolute !important; ' +
+                          'z-index: -9999 !important; pointer-events: none !important; width: 0 !important; ' +
+                          'overflow: hidden !important; margin: 0 !important; padding: 0 !important;';
+                    }
+                }
+            });
+            
+            // Adjust container margins that would leave space for navbar
+            document.querySelectorAll('.container, .container-fluid').forEach(container => {
+                container.style.paddingTop = '0';
+                container.style.marginTop = '0';
+            });
+            
             const wrapper = document.getElementById('wrapper') || document.getElementById('page-wrapper');
             if (wrapper) {
-                // Clear all background styles
                 wrapper.style.background = 'transparent';
                 wrapper.style.backgroundColor = 'transparent';
-                
-                // Remove any potential overlay divs
-                const overlays = document.querySelectorAll('.overlay, [class*="bg-"]');
-                overlays.forEach(overlay => {
-                    if (!overlay.classList.contains('video-bg')) {
-                        overlay.style.background = 'transparent';
-                        overlay.style.backgroundColor = 'transparent';
-                    }
-                });
+                wrapper.style.marginTop = '0';
+                wrapper.style.paddingTop = '0';
             }
-            
-            // Force body and html to be transparent
-            document.body.style.background = 'transparent';
-            document.body.style.backgroundColor = 'transparent';
-            document.documentElement.style.background = 'transparent';
-            document.documentElement.style.backgroundColor = 'transparent';
             
             // Remove the troublesome body::before pseudo-element
             const pseudoElementRemover = document.createElement('style');
-            pseudoElementRemover.innerHTML = 'body::before { display: none !important; content: none !important; }'; 
+            pseudoElementRemover.innerHTML = 'body::before { display: none !important; content: none !important; }';
             document.head.appendChild(pseudoElementRemover);
-        }, 0);
+        };
+        
+        // Run immediately
+        forceTransparentBG();
+        // Run again after delays to catch dynamically added elements
+        setTimeout(forceTransparentBG, 10);
+        setTimeout(forceTransparentBG, 100);
+        setTimeout(forceTransparentBG, 500);
+        
+        // Ensure video is visible with proper styling
+        const bgVideoElement = document.getElementById('bgVideo');
+        if (bgVideoElement) {
+            bgVideoElement.style.display = 'block';
+            bgVideoElement.style.opacity = '0.85';
+            bgVideoElement.style.zIndex = '-100';
+        }
+        
+        // On window load for good measure
+        window.addEventListener('load', forceTransparentBG);
     });
 </script>
 
@@ -1363,11 +1456,10 @@ if (typeof Chart !== 'undefined') {
             <!-- Navigation Links -->
             <div class="sidebar-nav">
                 <ul class="nav-links">
-                    <li class="active"><i class="fas fa-chart-pie"></i> Dashboard</li>
-                    <li><i class="fas fa-boxes"></i> Inventory</li>
-                    <li><i class="fas fa-tags"></i> Products</li>
-                    <li><i class="fas fa-chart-bar"></i> Analytics</li>
-                    <li><i class="fas fa-cog"></i> Settings</li>
+                    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="active"><a href="#"><i class="fas fa-chart-pie"></i> Strategic Dashboard</a></li>
+                    <li><a href="/dashboard/tactical"><i class="fas fa-chart-bar"></i> Tactical Dashboard</a></li>
+                    <li><a href="/dashboard/analytical"><i class="fas fa-chart-line"></i> Analytical Dashboard</a></li>
                 </ul>
             </div>
             
@@ -1398,6 +1490,18 @@ if (typeof Chart !== 'undefined') {
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label for="yearFilter" class="form-label">Filter by Year</label>
+                        <div class="select-wrapper">
+                            <select class="form-select modern-select" id="yearFilter">
+                                <option value="all">All Years</option>
+                                {% set current_year = current_date.year %}
+                                {% for year in range(current_year, current_year-5, -1) %}
+                                    <option value="{{ year }}">{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <button type="button" class="btn btn-glow w-100" onclick="applyFilters()">
                             <i class="fas fa-filter me-2"></i>Apply Filters
                         </button>
@@ -1408,29 +1512,17 @@ if (typeof Chart !== 'undefined') {
 </div>
 
 <!-- Direct Content (No Containers) -->
-<!-- Mobile menu toggle button -->
-<button id="sidebar-toggle" class="menu-toggle glass-panel d-lg-none">
+<!-- Mobile menu toggle button with improved visibility -->
+<button id="sidebar-toggle" class="menu-toggle glass-panel d-lg-none" style="z-index: 1050; position: fixed; left: 10px; top: 10px;">
     <i class="fas fa-bars"></i>
 </button>
 
 <!-- Main Dashboard Content Without Container -->
 <div style="margin-left: 290px; width: calc(100% - 290px); background: transparent !important; padding: 0; position: absolute; top: 0; right: 0; z-index: 1;">
-    <!-- Top Navigation Bar -->
-    <div class="d-flex align-items-center p-3" style="background: rgba(20, 20, 40, 0.4); backdrop-filter: blur(10px);">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="/" class="text-light"><i class="fas fa-home"></i> Home</a></li>
-                <li class="breadcrumb-item active text-light" aria-current="page">Strategic Dashboard</li>
-            </ol>
-        </nav>
-        <div class="ms-auto d-flex gap-3">
-            <a href="/dashboard/tactical" class="btn btn-sm btn-outline-light"><i class="fas fa-chart-bar"></i> Tactical Dashboard</a>
-            <a href="/dashboard/analytical" class="btn btn-sm btn-outline-light"><i class="fas fa-chart-line"></i> Analytical Dashboard</a>
-        </div>
-    </div>
+    <!-- Navigation links moved to sidebar -->
             <!-- Top Stats Row -->
             <!-- Removing container-fluid to eliminate the dark background -->
-                <div class="d-flex flex-nowrap overflow-auto pb-2" style="background: transparent !important; background-color: transparent !important; gap: 15px; padding: 20px; padding-top: 70px; margin: 0;">
+                <div class="d-flex flex-nowrap overflow-auto pb-2" style="background: transparent !important; background-color: transparent !important; gap: 15px; padding: 15px; padding-top: 5px; margin: 0;"><!-- Reduced padding for tighter layout -->
                     <!-- Categories Metric Card -->
                     <div style="min-width: 170px; width: 170px; flex: 0 0 auto;">
                         <div class="stat-card" style="min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(21, 21, 40, 0.7) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px) !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;">
@@ -1547,7 +1639,7 @@ if (typeof Chart !== 'undefined') {
                 </div>
     
             <!-- Chart Containers Section -->
-            <div class="chart-grid" style="padding: 20px; padding-top: 25px; margin-top: 25px; background: transparent !important; background-color: transparent !important; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div class="chart-grid" style="padding: 20px; padding-top: 5px; margin-top: 5px; background: transparent !important; background-color: transparent !important; border-top: 1px solid rgba(255,255,255,0.1);"><!-- Reduced top padding and margin -->
                 <!-- Price Growth Rate Chart (moved to first position) -->
                 <div class="chart-container glass-panel">
                     <h5><i class="fas fa-chart-line me-2 text-warning"></i>Price Growth Rate Over Time</h5>
@@ -1972,7 +2064,7 @@ function calculateStandardDeviation(values) {
 
 // Category vs Month Price Changes Heatmap
 // Helper function to prepare data for heatmap
-async function prepareHeatmapData(category, dateRange) {
+async function prepareHeatmapData(category, dateRange, year = 'all') {
     const ctx = document.getElementById('priceTrendChart');
     if (!ctx) {
         console.error('Price trend heatmap canvas element not found');
@@ -1991,8 +2083,9 @@ async function prepareHeatmapData(category, dateRange) {
     
     try {
         // Fetch real data from the API
-        console.log(`Fetching heatmap data from database for category: ${category}, months: ${months}`);
-        const response = await fetch(`/api/price_heatmap_data?category=${encodeURIComponent(category)}&months=${months}`);
+        console.log(`Fetching heatmap data from database for category: ${category}, months: ${months}, year: ${year}`);
+        const response = await fetch(`/api/price_heatmap_data?category=${encodeURIComponent(category)}&months=${months}` + 
+            (year !== 'all' ? `&year=${year}` : ''));
         
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
@@ -2077,7 +2170,7 @@ function createFallbackHeatmapData(ctx, months, cutoffDate) {
     };
 }
 
-async function createPriceTrendChart(category = 'all', dateRange = '6') {
+async function createPriceTrendChart(category = 'all', dateRange = '6', year = 'all') {
     const canvas = document.getElementById('priceTrendChart');
     if (!canvas) {
         console.error('Price trend chart canvas element not found');
@@ -2128,7 +2221,7 @@ async function createPriceTrendChart(category = 'all', dateRange = '6') {
     
     try {
         // Fetch and prepare heatmap data (now async)
-        const results = await prepareHeatmapData(category, dateRange);
+        const results = await prepareHeatmapData(category, dateRange, year);
         const data = results.data;
         const categories = results.categories;
         const categoryLabels = results.categories;
@@ -2336,8 +2429,8 @@ function getMonthName(monthIndex) {
 }
 
 // Create the Price Volatility by Category Chart (Bar Chart)
-async function createCategoryComparisonChart(category = 'all', dateRange = '6') {
-    console.log(`Creating price volatility chart for category: ${category}, date range: ${dateRange} months`);
+async function createCategoryComparisonChart(category = 'all', dateRange = '6', year = 'all') {
+    console.log(`Creating price volatility chart for category: ${category}, date range: ${dateRange} months, year: ${year}`);
     
     const canvas = document.getElementById('categoryComparisonChart');
     if (!canvas) {
@@ -2764,7 +2857,7 @@ function createCategoryPerformanceChart(category = 'all', dateRange = '6') {
 }
 
 // Process data for the Price Volatility chart
-function processVolatilityData(category = 'all', dateRange = '6') {
+function processVolatilityData(category = 'all', dateRange = '6', year = 'all') {
     console.log(`Processing volatility data for category ${category}`);
     
     const result = {
@@ -2826,48 +2919,25 @@ function processVolatilityData(category = 'all', dateRange = '6') {
 }
 
 // Process data for growth rate chart
-function processGrowthRateData(category = 'all', dateRange = '6') {
-    console.log(`Processing growth rate data for category: ${category}, date range: ${dateRange}`);
+function processGrowthRateData(category = 'all', dateRange = '6', year = 'all') {
+    console.log(`Processing growth rate data for category: ${category}, date range: ${dateRange}, year: ${year}`);
     
-    // Return structure
-    const result = {
-        labels: [],
-        datasets: []
-    };
-
-    // If we have preloaded chart data, use it as a fallback
-    if (chartData && Object.keys(chartData).length > 0) {
-        try {
-            // This is temporary - we'll replace with real database data
-            const categoryKeys = category === 'all' ? 
-                Object.keys(chartData) : 
-                (chartData[category] ? [category] : []);
-
-            if (categoryKeys.length === 0) return result;
-            
-            // We'll fetch the real data from the database instead
-            return fetchGrowthRateData(category, dateRange);
-        } catch (error) {
-            console.error('Error processing growth rate data:', error);
-        }
-    }
-    
-    // If we have no chart data at all, fetch from the server
-    return fetchGrowthRateData(category, dateRange);
+    // Return structure - just call fetchGrowthRateData for all chart data
+    return fetchGrowthRateData(category, dateRange, year);
 }
 
 // Fetch real growth rate data from the database via API
-async function fetchGrowthRateData(category, dateRange) {
-    console.log(`Fetching growth rate data from server for: ${category}, date range: ${dateRange}`);
-    
+async function fetchGrowthRateData(category, dateRange, year = 'all') {
+    console.log(`Fetching growth rate data for category: ${category}, date range: ${dateRange}, year: ${year}`);
     const result = {
         labels: [],
         datasets: []
     };
     
     try {
-        // Call the API to get the data
-        const response = await fetch(`/api/price_growth_data?category=${encodeURIComponent(category)}&months=${dateRange}`);
+        const url = `/api/price_growth_data?category=${encodeURIComponent(category)}&months=${dateRange}` + 
+                  (year !== 'all' ? `&year=${year}` : '');
+        const response = await fetch(url);
         
         if (!response.ok) {
             throw new Error(`API request failed with status ${response.status}`);
@@ -2905,8 +2975,8 @@ async function fetchGrowthRateData(category, dateRange) {
 }
 
 // Price Growth Rate Line Chart
-function createGrowthRateChart(category = 'all', dateRange = '6') {
-    console.log('Price Growth Rate chart using', dateRange, 'month(s) filter');
+function createGrowthRateChart(category = 'all', dateRange = '6', year = 'all') {
+    console.log('Price Growth Rate chart using', dateRange, 'month(s) filter', year !== 'all' ? `for year ${year}` : '');
     
     const canvas = document.getElementById('growthRateChart');
     if (!canvas) {
@@ -2939,7 +3009,7 @@ function createGrowthRateChart(category = 'all', dateRange = '6') {
     canvas.parentNode.appendChild(loadingIndicator);
     
     // Data needs to be fetched asynchronously
-    processGrowthRateData(category, dateRange).then(growthRateData => {
+    processGrowthRateData(category, dateRange, year).then(growthRateData => {
         // Remove loading indicator
         if (loadingIndicator && loadingIndicator.parentNode) {
             loadingIndicator.parentNode.removeChild(loadingIndicator);
@@ -3026,7 +3096,9 @@ function createGrowthRateChart(category = 'all', dateRange = '6') {
 }
 
 // Category Summary Table
-function updateCategorySummaryTable(category = 'all') {
+function updateCategorySummaryTable(category = 'all', year = 'all') {
+    console.log(`Updating category summary table with filter: category=${category}, year=${year}`);
+
     // Find the table body where we'll insert the data
     const tableBody = document.querySelector('.category-summary-table tbody');
     if (!tableBody) {
@@ -3077,29 +3149,9 @@ function updateCategorySummaryTable(category = 'all') {
         tableBody.appendChild(row);
     });
 }
-// Utility function to show no data message in charts
-function showNoDataMessage(container, message) {
-    console.log('Showing no data message:', message);
-    
-    // Add a no data message
-    const noDataMessage = document.createElement('div');
-    noDataMessage.className = 'no-data-message';
-    noDataMessage.style.position = 'absolute';
-    noDataMessage.style.top = '50%';
-    noDataMessage.style.left = '50%';
-    noDataMessage.style.transform = 'translate(-50%, -50%)';
-    noDataMessage.style.textAlign = 'center';
-    noDataMessage.style.color = '#6c757d';
-    noDataMessage.style.fontWeight = '500';
-    noDataMessage.innerHTML = `<i class="fas fa-chart-line fa-2x mb-2"></i><br>${message}`;
-    
-    container.appendChild(noDataMessage);
-}
-
-// NOTE: Price Growth Rate Chart function already defined above - removing duplicate function
 
 // Function to create and display Category Performance Radar Chart
-function createCategoryPerformanceChart(category = 'all', dateRange = '6') {
+function createCategoryPerformanceChart(category = 'all', dateRange = '6', year = 'all') {
     console.log(`Creating category performance radar chart for category: ${category}, date range: ${dateRange} months`);
     
     const chartContext = document.getElementById('categoryPerformanceChart');
@@ -3284,13 +3336,14 @@ function applyFilters() {
     console.log('Applying filters...');
     const category = document.getElementById('categoryFilter').value;
     const dateRange = document.getElementById('dateRangeFilter').value;
+    const year = document.getElementById('yearFilter').value;
     
     if (!category || !dateRange) {
         console.error('Filter values are missing');
         return;
     }
     
-    console.log('Filters selected:', { category, dateRange });
+    console.log('Filters selected:', { category, dateRange, year });
     
     // Show loading state for charts
     document.querySelectorAll('.chart-container').forEach(container => {
@@ -3303,16 +3356,16 @@ function applyFilters() {
         
         // Create new charts with filtered data
         console.log('Creating filtered charts...');
-        createPriceTrendChart(category, dateRange);
-        createCategoryComparisonChart(category, dateRange);
-        createGrowthRateChart(category, dateRange);
-        createCategoryPerformanceChart(category, dateRange);
+        createPriceTrendChart(category, dateRange, year);
+        createCategoryComparisonChart(category, dateRange, year);
+        createGrowthRateChart(category, dateRange, year);
+        createCategoryPerformanceChart(category, dateRange, year);
         
         // Update the Category Summary table with filtered data
-        updateCategorySummaryTable(category);
+        updateCategorySummaryTable(category, year);
         
         // Update metrics based on filters
-        updateContextCards(category);
+        updateContextCards(category, year);
         
         console.log('Filters applied successfully');
         
@@ -3322,7 +3375,8 @@ function applyFilters() {
         alertBox.setAttribute('role', 'alert');
         alertBox.innerHTML = `
             Filters applied: Category - <strong>${category === 'all' ? 'All Categories' : category}</strong>, 
-            Date Range - <strong>Last ${dateRange} months</strong>
+            Date Range - <strong>Last ${dateRange} months</strong>` + 
+            (year !== 'all' ? `, Year - <strong>${year}</strong>` : '') + `
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
         
@@ -3358,8 +3412,10 @@ function applyFilters() {
 }
 
 // Update metric cards and context with filtered data
-function updateContextCards(category) {
-    console.log('updateContextCards called with category:', category);
+function updateContextCards(category, year = 'all') {
+    console.log(`Updating context cards with filter: category=${category}, year=${year}`);
+    
+    // Variables will be declared below - don't redeclare them here
     
     // Default values in case we don't have data
     let minPrice = 10, maxPrice = 500, avgPrice = 250;
@@ -3506,6 +3562,30 @@ function destroyCharts() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - Initializing dashboard...');
     
+    // Setup year filter with current year and previous years
+    const currentYear = new Date().getFullYear();
+    const yearFilter = document.getElementById('yearFilter');
+    
+    if (yearFilter) {
+        // Add 'All Years' option
+        const allOption = document.createElement('option');
+        allOption.value = 'all';
+        allOption.textContent = 'All Years';
+        yearFilter.appendChild(allOption);
+        
+        // Add individual year options (current year and 5 previous years)
+        for (let i = 0; i <= 5; i++) {
+            const year = currentYear - i;
+            const option = document.createElement('option');
+            option.value = year.toString();
+            option.textContent = year.toString();
+            yearFilter.appendChild(option);
+        }
+        
+        // Select current year by default
+        yearFilter.value = currentYear.toString();
+    }
+    
     // Fix sidebar overlap by adjusting margin
     const mainContent = document.querySelector('[style*="margin-left: 270px"]');
     if (mainContent) {
@@ -3583,7 +3663,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize charts with default values
     const initialCategory = 'all';
     const initialDateRange = '6';
-
+    const initialYear = document.getElementById('yearFilter') ? document.getElementById('yearFilter').value : 'all';
+    
+    console.log(`Initial chart parameters: category=${initialCategory}, dateRange=${initialDateRange}, year=${initialYear}`);
+    
     // Make sure matrix plugin is registered before initialization
     if (typeof window.chartjs_matrix !== 'undefined') {
         try {
@@ -3597,13 +3680,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize chart layout for modern dashboard
     setTimeout(() => {
         try {
-            createPriceTrendChart(initialCategory, initialDateRange);
-            createCategoryComparisonChart(initialCategory, initialDateRange);
-            createGrowthRateChart(initialCategory, initialDateRange);
-            createCategoryPerformanceChart(initialCategory, initialDateRange);
+            createPriceTrendChart(initialCategory, initialDateRange, initialYear);
+            createCategoryComparisonChart(initialCategory, initialDateRange, initialYear);
+            createGrowthRateChart(initialCategory, initialDateRange, initialYear);
+            createCategoryPerformanceChart(initialCategory, initialDateRange, initialYear);
             
             // Initialize Category Summary Table
-            updateCategorySummaryTable(initialCategory);
+            updateCategorySummaryTable(initialCategory, initialYear);
+            
+            // Initialize Context Cards
+            updateContextCards(initialCategory, initialYear);
             
             console.log('All charts initialized successfully');
         } catch (error) {
@@ -3664,8 +3750,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add more space between context cards and charts
         const chartGrid = document.querySelector('.chart-grid');
         if (chartGrid) {
-            chartGrid.style.marginTop = '20px';
-            chartGrid.style.paddingTop = '20px';
+            chartGrid.style.marginTop = '10px';
+            chartGrid.style.paddingTop = '10px';
         }
         
         // Get all chart containers and apply glass panel styling

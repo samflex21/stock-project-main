@@ -158,6 +158,9 @@ def dashboard_strategic():
             chart_data[category] = []
         chart_data[category].append({'x': date, 'y': avg_price})
 
+    # Pass current date for the year filter
+    current_date = datetime.now()
+    
     return render_template('dashboard_strategic.html', 
                            chart_data=chart_data,
                            volatility_data=volatility_data,
@@ -165,7 +168,8 @@ def dashboard_strategic():
                            categories=categories,
                            total_products=total_products,
                            most_stable_category=most_stable_category,
-                           most_volatile_category=most_volatile_category)
+                           most_volatile_category=most_volatile_category,
+                           current_date=current_date)
 
 # AJAX endpoint for price trend data with filtering
 @app.route('/api/price_trend')
@@ -213,13 +217,24 @@ def api_price_volatility():
 def api_price_volatility_data():
     category = request.args.get('category', 'all')
     months = int(request.args.get('months', '6'))
+    year = request.args.get('year', 'all')
+    
     cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
     conn = get_db_connection()
-    where_clause = ""
+    
+    # Build where clause with conditions
+    where_conditions = ["ph.EffectiveDate >= ?"]
     params = [cutoff_date]
+    
     if category and category != 'all':
-        where_clause = "AND p.[Product Category] = ?"
+        where_conditions.append("p.[Product Category] = ?")
         params.append(category)
+        
+    if year and year != 'all':
+        where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
+        params.append(year)
+        
+    where_clause = "WHERE " + " AND ".join(where_conditions)
     
     # Simplified approach to calculate price statistics without using STDEV
     # Using SQLite-compatible calculations that avoid nested aggregates
@@ -237,8 +252,7 @@ def api_price_volatility_data():
             Pricing_History ph
         JOIN 
             Products p ON ph.ProductID = p.[Product ID]
-        WHERE 
-            ph.EffectiveDate >= ? {where_clause}
+        {where_clause}
         GROUP BY 
             p.[Product Category], ph.ProductID
         HAVING 
@@ -323,9 +337,257 @@ def api_category_summary():
     
     return jsonify(rows_to_dict_list(summary_data))
 
-# API endpoint for price trend heatmap data (Category vs Month)
+# API endpoint for price heatmap data with year filtering
 @app.route('/api/price_heatmap_data')
 def api_price_heatmap_data():
+    category = request.args.get('category', 'all')
+    months = int(request.args.get('months', '6'))
+    year = request.args.get('year', 'all')
+    
+    # Calculate the cutoff date based on months parameter
+    cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
+    
+    conn = get_db_connection()
+    
+    # Set up query based on filters
+    where_conditions = ["ph.EffectiveDate >= ?"]
+    params = [cutoff_date]
+    
+    if category and category != 'all':
+        where_conditions.append("p.[Product Category] = ?")
+        params.append(category)
+        
+    if year and year != 'all':
+        where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
+        params.append(year)
+    
+    where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+    
+    # Query for monthly price changes by category
+    query = f"""
+    WITH monthly_avg_prices AS (
+        SELECT 
+            p.[Product Category] AS category_name,
+            strftime('%Y-%m', ph.EffectiveDate) AS month_year,
+            ROUND(AVG(ph.Price), 2) AS avg_price
+        FROM 
+            Pricing_History ph
+        JOIN 
+            Products p ON ph.ProductID = p.[Product ID]
+        {where_clause}
+        GROUP BY 
+            p.[Product Category], strftime('%Y-%m', ph.EffectiveDate)
+    ),
+    month_changes AS (
+        SELECT 
+            curr.category_name,
+            curr.month_year,
+            curr.avg_price,
+            prev.avg_price AS prev_avg_price,
+            CASE 
+                WHEN prev.avg_price > 0 
+                THEN ROUND(((curr.avg_price - prev.avg_price) / prev.avg_price * 100), 2)
+                ELSE 0
+            END AS growth_rate
+        FROM 
+            monthly_avg_prices curr
+        LEFT JOIN 
+            monthly_avg_prices prev
+        ON 
+            curr.category_name = prev.category_name AND
+            prev.month_year = (
+                SELECT MAX(m.month_year)
+                FROM monthly_avg_prices m
+                WHERE 
+                    m.category_name = curr.category_name AND
+                    m.month_year < curr.month_year
+            )
+    )
+    SELECT 
+        category_name,
+        month_year,
+        avg_price,
+        prev_avg_price,
+        growth_rate
+    FROM 
+        month_changes
+    ORDER BY 
+        category_name, month_year
+    """
+    
+    try:
+        results = conn.execute(query, params).fetchall()
+        data = rows_to_dict_list(results)
+        
+        # Process data for heatmap
+        categories = list(set([item['category_name'] for item in data if item['category_name']]))
+        categories.sort()
+        
+        months = list(set([item['month_year'] for item in data if item['month_year']]))
+        months.sort()
+        
+        # Format data for chart.js heatmap
+        heatmap_data = []
+        for item in data:
+            if item['category_name'] and item['month_year']:
+                category_index = categories.index(item['category_name'])
+                month_index = months.index(item['month_year'])
+                growth_rate = item['growth_rate'] if item['growth_rate'] is not None else 0
+                
+                heatmap_data.append({
+                    'x': month_index,
+                    'y': category_index,
+                    'v': growth_rate,  # Value used for color intensity
+                    'month': item['month_year'],
+                    'category': item['category_name'],
+                    'growth': growth_rate
+                })
+        
+        result = {
+            'data': heatmap_data,
+            'categories': categories,
+            'months': months
+        }
+        
+        conn.close()
+        return jsonify(result)
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': str(e), 'data': [], 'categories': [], 'months': []})
+
+# API endpoint for price growth rate data with year filtering
+@app.route('/api/price_growth_data')
+def api_price_growth_data():
+    category = request.args.get('category', 'all')
+    months = int(request.args.get('months', '6'))
+    year = request.args.get('year', 'all')
+    
+    # Calculate the cutoff date based on months parameter
+    cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
+    
+    conn = get_db_connection()
+    
+    # Set up query based on filters
+    where_conditions = ["ph.EffectiveDate >= ?"]
+    params = [cutoff_date]
+    
+    if category and category != 'all':
+        where_conditions.append("p.[Product Category] = ?")
+        params.append(category)
+        
+    if year and year != 'all':
+        where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
+        params.append(year)
+    
+    where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+    
+    # Get monthly average prices per category
+    query = f"""
+    WITH monthly_avg_prices AS (
+        SELECT 
+            p.[Product Category] AS category_name,
+            strftime('%Y-%m', ph.EffectiveDate) AS month_year,
+            ROUND(AVG(ph.Price), 2) AS avg_price
+        FROM 
+            Pricing_History ph
+        JOIN 
+            Products p ON ph.ProductID = p.[Product ID]
+        {where_clause}
+        GROUP BY 
+            p.[Product Category], strftime('%Y-%m', ph.EffectiveDate)
+    ),
+    month_changes AS (
+        SELECT 
+            curr.category_name,
+            curr.month_year,
+            curr.avg_price,
+            prev.avg_price AS prev_avg_price,
+            CASE 
+                WHEN prev.avg_price > 0 
+                THEN ROUND(((curr.avg_price - prev.avg_price) / prev.avg_price * 100), 2)
+                ELSE 0
+            END AS growth_rate
+        FROM 
+            monthly_avg_prices curr
+        LEFT JOIN 
+            monthly_avg_prices prev
+        ON 
+            curr.category_name = prev.category_name AND
+            prev.month_year = (
+                SELECT MAX(m.month_year)
+                FROM monthly_avg_prices m
+                WHERE 
+                    m.category_name = curr.category_name AND
+                    m.month_year < curr.month_year
+            )
+    )
+    SELECT 
+        category_name,
+        month_year,
+        avg_price,
+        growth_rate
+    FROM 
+        month_changes
+    WHERE
+        prev_avg_price IS NOT NULL
+    ORDER BY 
+        category_name, month_year
+    """
+    
+    try:
+        price_data = conn.execute(query, params).fetchall()
+        price_data_list = rows_to_dict_list(price_data)
+        
+        # Group data by category
+        categories = []
+        time_periods = []
+        
+        # Extract unique time periods across all categories
+        for row in price_data_list:
+            if row['month_year'] not in time_periods:
+                time_periods.append(row['month_year'])
+        
+        time_periods.sort()  # Sort chronologically
+        
+        # Group by category
+        category_dict = {}
+        for row in price_data_list:
+            cat = row['category_name']
+            if cat not in category_dict:
+                category_dict[cat] = {
+                    'name': cat,
+                    'growth_rates': [None] * len(time_periods),
+                    'avg_prices': [None] * len(time_periods)
+                }
+                
+            # Find index of this time period
+            time_idx = time_periods.index(row['month_year'])
+            category_dict[cat]['growth_rates'][time_idx] = row['growth_rate']
+            category_dict[cat]['avg_prices'][time_idx] = row['avg_price']
+        
+        # Convert to list of categories
+        for cat_name, cat_data in category_dict.items():
+            categories.append(cat_data)
+        
+        result = {
+            'categories': categories,
+            'time_periods': time_periods
+        }
+        
+        conn.close()
+        return jsonify(result)
+    
+    except Exception as e:
+        conn.close()
+        return jsonify({
+            'error': str(e),
+            'categories': [],
+            'time_periods': []
+        })
+
+# API endpoint for price trend heatmap data (Category vs Month)
+@app.route('/api/price_heatmap_data_old')
+def api_price_heatmap_data_old():
     category = request.args.get('category', 'all')
     months = int(request.args.get('months', '6'))
     
@@ -453,8 +715,8 @@ def api_price_heatmap_data():
         return jsonify({'error': str(e), 'data': [], 'categories': [], 'months': []})
 
 # API endpoint for price growth rate data
-@app.route('/api/price_growth_data')
-def api_price_growth_data():
+@app.route('/api/price_growth_data_old')
+def api_price_growth_data_old():
     category = request.args.get('category', 'all')
     months = int(request.args.get('months', '6'))
     
