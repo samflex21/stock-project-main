@@ -415,17 +415,24 @@
         background: rgba(255, 255, 255, 0.5);
     }
     
-    /* Metrics card styling */
+    /* Metrics card styling - vertical design as per user preference */
     .metric-card {
-        background: rgba(255, 255, 255, 0.1);
+        width: 170px;
+        min-height: 220px;
+        padding: 1.25rem;
+        margin-right: 15px;
+        border-radius: 16px;
+        background: rgba(30, 41, 59, 0.75);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border-radius: 15px;
-        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
         box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        height: 100%;
+        position: relative;
+        overflow: hidden;
         transition: all 0.3s ease;
     }
     
@@ -436,8 +443,6 @@
     
     .metric-icon {
         position: relative;
-        top: 0;
-        right: 0;
         width: 60px;
         height: 60px;
         display: flex;
@@ -446,6 +451,10 @@
         border-radius: 50%;
         margin: 0 auto 15px;
         font-size: 26px;
+        /* Ensure top-center positioning */
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
     }
     
     .blue-glow .metric-icon {
@@ -485,7 +494,7 @@
     }
     
     .metric-value {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 600;
         margin: 10px 0;
         background: linear-gradient(90deg, #ffffff 0%, #e0e0e0 100%);
@@ -499,6 +508,9 @@
         font-weight: 500;
         color: rgba(255, 255, 255, 0.8);
         margin-bottom: 15px;
+        line-height: 1.2;
+        /* Ensure label doesn't overflow in narrow cards */
+        max-width: 95%;
     }
     
     .metric-footer {
@@ -518,6 +530,7 @@
     /* Progress bar color variants */
     .progress-bar {
         height: 100%;
+        transition: width 0.8s ease-in-out;
     }
     
     /* Custom progress bar styles */
@@ -542,20 +555,20 @@
         background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
     }
     
+    .progress-green {
+        background: linear-gradient(90deg, #0ba360 0%, #3cba92 100%);
+    }
+    
     .progress-orange {
-        background: linear-gradient(90deg, #ff9900 0%, #ffac38 100%);
+        background: linear-gradient(90deg, #f09819 0%, #edde5d 100%);
     }
     
     .progress-purple {
-        background: linear-gradient(90deg, #9966ff 0%, #a94cff 100%);
-    }
-    
-    .progress-green {
-        background: linear-gradient(90deg, #00e676 0%, #42f593 100%);
+        background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%);
     }
     
     .progress-teal {
-        background: linear-gradient(90deg, #14b8a6 0%, #22d3be 100%);
+        background: linear-gradient(90deg, #2193b0 0%, #6dd5ed 100%);
     }
     
     .progress-red {
@@ -567,7 +580,7 @@
 {% block content %}
 <!-- Video Background -->
 <div class="video-background">
-    <video data-src="/static/videos/Financial Background Video Data Visuals - High Resolution.mp4" muted loop autoplay></video>
+    <video data-src="/static/videos/Financial Background Video Data Visuals - High Resolution.mp4" muted loop playsinline autoplay></video>
 </div>
 
 <div class="container-fluid px-4 pt-4">
@@ -617,13 +630,13 @@
             </div>
         </div>
         
-        <!-- Metric Card 4: Top Rated Category -->
+        <!-- Metric Card 4: Lowest Rated Tag -->
         <div class="metric-card teal-glow">
             <div class="metric-icon">
-                <i class="fas fa-chart-line-down"></i>
+                <i class="fas fa-chart-line"></i>
             </div>
             <div class="metric-value">{{ lowest_rated_tag.AvgRating|float|round(1) }}</div>
-            <p class="metric-label">{{ lowest_rated_tag.TagName }}</p>
+            <p class="metric-label">Lowest: {{ lowest_rated_tag.TagName }}</p>
             <div class="metric-footer">
                 <div class="metric-progress">
                     <div class="progress-bar progress-teal metric-progress-value" data-value="{{ lowest_rated_tag.AvgRating }}" data-max="5"></div>
@@ -646,15 +659,15 @@
         </div>
         
         <!-- Metric Card 6: Top Tag (replacing Recommendation Strength) -->
-        <div class="metric-card teal-glow">
+        <div class="metric-card red-glow">
             <div class="metric-icon">
                 <i class="fas fa-tag"></i>
             </div>
             <div class="metric-value">{{ popular_tags[0]['TagName'] if popular_tags else 'N/A' }}</div>
-            <p class="metric-label">Top Tag</p>
+            <p class="metric-label">Most Popular Tag</p>
             <div class="metric-footer">
                 <div class="metric-progress">
-                    <div class="progress-bar progress-teal metric-progress-value" data-value="{{ popular_tags[0]['TagUsage'] if popular_tags else 0 }}" data-max="{{ popular_tags[0]['TagUsage'] * 1.5 if popular_tags else 100 }}"></div>
+                    <div class="progress-bar progress-red metric-progress-value" data-value="{{ popular_tags[0]['TagUsage'] if popular_tags else 0 }}" data-max="{{ popular_tags[0]['TagUsage'] * 1.5 if popular_tags else 100 }}"></div>
                 </div>
             </div>
         </div>
@@ -852,187 +865,95 @@
     <!-- All extra charts removed to match required specification -->
 </div>
 
-{% endblock %}
-
-{% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js" integrity="sha512-Tn2m0TIpgVyTzzvmxLNuqbSJH3JP8jm+Cy3hvHrW7ndTDcJ1w5mBiksqDBb8GpE2ksktFvDB/ykZ0mDpsZj20w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize video background
-        const videoElement = document.querySelector('.video-background video');
-        if (videoElement) {
-            const videoSrc = videoElement.getAttribute('data-src');
-            if (videoSrc) {
-                videoElement.src = videoSrc;
-                videoElement.play().catch(error => {
-                    console.error('Video autoplay was prevented:', error);
-                    document.body.classList.add('video-fallback');
-                });
-            }
-        }
+// All JavaScript functions defined outside of any event listeners
+
+// Function to update progress bar indicators
+function updateBarIndicators() {
+    var progressBars = document.querySelectorAll('.metric-progress-value');
+    for (var i = 0; i < progressBars.length; i++) {
+        var bar = progressBars[i];
+        var value = parseFloat(bar.getAttribute('data-value') || 0);
+        var maxValue = parseFloat(bar.getAttribute('data-max') || 5);
+        var percent = Math.min(100, Math.max(0, Math.floor((value / maxValue) * 100)));
         
-        // Initialize progress bars
-        const progressBars = document.querySelectorAll('.metric-progress-value');
-        progressBars.forEach(bar => {
-            const value = parseFloat(bar.getAttribute('data-value'));
-            const maxValue = parseFloat(bar.getAttribute('data-max') || '5');
-            let percent = Math.round((value / maxValue) * 100);
-            // Round to nearest 10
-            percent = Math.floor(percent / 10) * 10;
-            // Ensure minimum 20% width for visibility
-            percent = Math.max(20, percent); 
+        // Set the width directly with inline style for visibility
+        bar.style.width = percent + '%';
+    }
+}
+
+// Chart initialization function
+function initializeCharts() {
+        // Top Rated Products by Category Chart
+        var topRatedProductsChart = document.getElementById('topRatedProductsChart');
+        var topRatedProductsCtx = topRatedProductsChart ? topRatedProductsChart.getContext('2d') : null;
+        if (topRatedProductsCtx) {
+            var categoryNames = [];
+            var categoryRatings = [];
             
-            // Apply the width class
-            bar.classList.add('w-' + percent);
-        });
-        
-        // Initialize filters
-        const tagFilter = document.getElementById('tagFilter');
-        const ratingFilter = document.getElementById('ratingFilter');
-        const sortFilter = document.getElementById('sortFilter');
-        
-        if (tagFilter) tagFilter.addEventListener('change', filterTable);
-        if (ratingFilter) ratingFilter.addEventListener('change', filterTable);
-        if (sortFilter) sortFilter.addEventListener('change', filterTable);
-        
-        // Initialize charts function
-        function initializeCharts() {
-            // Top Rated Products by Category Chart
-            const topRatedProductsCtx = document.getElementById('topRatedProductsChart')?.getContext('2d');
-            if (topRatedProductsCtx) {
-                let categoryNames = [];
-                let categoryRatings = [];
+            try {
+                // Use safe JSON.parse with proper escaping
+                categoryNames = JSON.parse('{{ category_names|tojson|safe }}');
+                categoryRatings = JSON.parse('{{ category_ratings|tojson|safe }}');
+                console.log('Category Names:', categoryNames);
+                console.log('Category Ratings:', categoryRatings);
                 
-                try {
-                    categoryNames = JSON.parse('{{ category_names|default("[]") }}');
-                    categoryRatings = JSON.parse('{{ category_ratings|default("[]") }}');
-                    console.log('Category Names:', categoryNames);
-                    console.log('Category Ratings:', categoryRatings);
-                    
-                    // If we have no data, use sample data
-                    if (!categoryNames || categoryNames.length === 0 || !categoryRatings || categoryRatings.length === 0) {
-                        categoryNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
-                        categoryRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
-                    }
-                } catch (e) {
-                    console.error('Error parsing category data:', e);
-                    // Sample fallback data
+                // If we have no data, use sample data
+                if (!categoryNames || categoryNames.length === 0 || !categoryRatings || categoryRatings.length === 0) {
+                    console.warn('No category data found, using sample data');
                     categoryNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
                     categoryRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
                 }
-                
-                // Sort data by ratings in descending order
-                const combinedData = categoryNames.map((name, index) => ({
-                    name: name,
-                    rating: categoryRatings[index] || 0
-                }));
-                
-                combinedData.sort((a, b) => b.rating - a.rating);
-                
-                // Get back sorted arrays
-                const sortedNames = combinedData.map(item => item.name);
-                const sortedRatings = combinedData.map(item => item.rating);
-                
-                new Chart(topRatedProductsCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: sortedNames,
-                        datasets: [{
-                            label: 'Average Rating',
-                            data: sortedRatings,
-                            backgroundColor: sortedRatings.map(rating => {
-                                // Color gradient based on rating
-                                if (rating >= 4.5) return 'rgba(0, 230, 118, 0.7)';
-                                if (rating >= 4.0) return 'rgba(79, 172, 254, 0.7)';
-                                if (rating >= 3.5) return 'rgba(255, 193, 7, 0.7)';
-                                if (rating >= 3.0) return 'rgba(255, 152, 0, 0.7)';
-                                return 'rgba(244, 67, 54, 0.7)';
-                            }),
-                            borderColor: sortedRatings.map(rating => {
-                                if (rating >= 4.5) return 'rgba(0, 230, 118, 1)';
-                                if (rating >= 4.0) return 'rgba(79, 172, 254, 1)';
-                                if (rating >= 3.5) return 'rgba(255, 193, 7, 1)';
-                                if (rating >= 3.0) return 'rgba(255, 152, 0, 1)';
-                                return 'rgba(244, 67, 54, 1)';
-                            }),
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 5,
-                                title: {
-                                    display: true,
-                                    text: 'Average Rating (1-5)',
-                                    color: 'rgba(255, 255, 255, 0.9)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)',
-                                    stepSize: 1
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
+            } catch (e) {
+                console.error('Error parsing category data:', e);
+                // Sample fallback data
+                categoryNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
+                categoryRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
+            }
+            
+            // Sort data by ratings in descending order
+            var combinedData = [];
+            for (var i = 0; i < categoryNames.length; i++) {
+                combinedData.push({
+                    name: categoryNames[i],
+                    rating: categoryRatings[i] || 0
                 });
             }
             
-            // Average Rating by Tag Chart
-            const avgRatingCtx = document.getElementById('avgRatingByTagChart')?.getContext('2d');
-            if (avgRatingCtx) {
-            // Safely get data from template using variables already formatted as JSON
-            let tagNames = [];
-            let tagRatingsData = [];
+            combinedData.sort(function(a, b) { return b.rating - a.rating; });
             
-            try {
-                tagNames = JSON.parse('{{ tag_names|default("[]") }}');
-                tagRatingsData = JSON.parse('{{ tag_ratings_data|default("[]") }}');
-                
-                // If we have no meaningful data, use sample data for visualization
-                if (tagNames.length === 0 || tagRatingsData.length === 0) {
-                    tagNames = ['DJF', 'WFC', 'OBL', 'ZNV', 'YMQ', 'YGX', 'XPI', 'XNZ', 'WTD', 'VVB'];
-                    tagRatingsData = [4.2, 3.8, 4.0, 3.5, 4.7, 3.9, 4.1, 3.7, 4.3, 4.5];
-                }
-            } catch (e) {
-                console.error('Error parsing tag data:', e);
-                // Fallback sample data
-                tagNames = ['DJF', 'WFC', 'OBL', 'ZNV', 'YMQ', 'YGX', 'XPI', 'XNZ', 'WTD', 'VVB'];
-                tagRatingsData = [4.2, 3.8, 4.0, 3.5, 4.7, 3.9, 4.1, 3.7, 4.3, 4.5];
+            // Get back sorted arrays
+            var sortedNames = [];
+            var sortedRatings = [];
+            for (var i = 0; i < combinedData.length; i++) {
+                sortedNames.push(combinedData[i].name);
+                sortedRatings.push(combinedData[i].rating);
             }
             
-            // Debug output to check data format
-            console.log('Tag Names:', tagNames);
-            console.log('Tag Ratings Data:', tagRatingsData);
-            
-            new Chart(avgRatingCtx, {
+            new Chart(topRatedProductsCtx, {
                 type: 'bar',
                 data: {
-                    labels: tagNames,
+                    labels: sortedNames,
                     datasets: [{
                         label: 'Average Rating',
-                        data: tagRatingsData,
-                        backgroundColor: 'rgba(79, 172, 254, 0.7)',
-                        borderColor: 'rgba(79, 172, 254, 1)',
+                        data: sortedRatings,
+                        backgroundColor: sortedRatings.map(rating => {
+                            // Color gradient based on rating
+                            if (rating >= 4.5) return 'rgba(0, 230, 118, 0.7)';
+                            if (rating >= 4.0) return 'rgba(79, 172, 254, 0.7)';
+                            if (rating >= 3.5) return 'rgba(255, 193, 7, 0.7)';
+                            if (rating >= 3.0) return 'rgba(255, 152, 0, 0.7)';
+                            return 'rgba(244, 67, 54, 0.7)';
+                        }),
+                        borderColor: sortedRatings.map(rating => {
+                            if (rating >= 4.5) return 'rgba(0, 230, 118, 1)';
+                            if (rating >= 4.0) return 'rgba(79, 172, 254, 1)';
+                            if (rating >= 3.5) return 'rgba(255, 193, 7, 1)';
+                            if (rating >= 3.0) return 'rgba(255, 152, 0, 1)';
+                            return 'rgba(244, 67, 54, 1)';
+                        }),
                         borderWidth: 1
                     }]
                 },
@@ -1042,88 +963,15 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            suggestedMax: 5,
+                            max: 5,
                             title: {
                                 display: true,
-                                text: 'Rating (0-5)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'rgba(255, 255, 255, 0.9)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Rating Distribution Chart
-        const ratingDistCtx = document.getElementById('ratingDistributionChart')?.getContext('2d');
-        if (ratingDistCtx) {
-            let ratingDistribution = [0, 0, 0, 0, 0]; // Default empty data
-            
-            try {
-                ratingDistribution = JSON.parse('{{ rating_distribution|default("[]") }}');
-                console.log('Rating Distribution Data:', ratingDistribution);
-                
-                // If data is empty or invalid, use sample data
-                if (!ratingDistribution || ratingDistribution.length === 0 || ratingDistribution.every(val => val === 0)) {
-                    ratingDistribution = [10, 15, 8, 5, 2]; // Default data
-                    console.log('Using default rating distribution data');
-                }
-            } catch (e) {
-                console.error('Error parsing rating distribution data:', e);
-                ratingDistribution = [10, 15, 8, 5, 2]; // Default fallback
-            }
-            
-            new Chart(ratingDistCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
-                    datasets: [{
-                        label: 'Number of Products',
-                        data: ratingDistribution,
-                        backgroundColor: [
-                            'rgba(0, 230, 118, 0.7)',
-                            'rgba(79, 172, 254, 0.7)',
-                            'rgba(255, 193, 7, 0.7)',
-                            'rgba(255, 152, 0, 0.7)',
-                            'rgba(244, 67, 54, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(0, 230, 118, 1)',
-                            'rgba(79, 172, 254, 1)',
-                            'rgba(255, 193, 7, 1)',
-                            'rgba(255, 152, 0, 1)',
-                            'rgba(244, 67, 54, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Products',
+                                text: 'Average Rating (1-5)',
                                 color: 'rgba(255, 255, 255, 0.9)'
                             },
                             ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                stepSize: 1
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)'
@@ -1147,230 +995,483 @@
             });
         }
         
-        // Recommendation Strength Chart removed to match the required specification
-        
-        // Review Count by Rating Chart removed to match the required specification
-        
-        // Tag Activity Chart
-        const tagActivityCtx = document.getElementById('tagActivityChart')?.getContext('2d');
-        if (tagActivityCtx) {
-            let tagActivity = [];
-            let activityTagNames = [];
+        // Average Rating by Tag Chart
+        const avgRatingCtx = document.getElementById('avgRatingByTagChart')?.getContext('2d');
+        if (avgRatingCtx) {
+            let tagNames = [];
+            let tagRatingsData = [];
             
             try {
-                tagActivity = JSON.parse('{{ tag_activity|default("[]") }}');
-                activityTagNames = JSON.parse('{{ tag_names|default("[]") }}').slice(0, 10);
-                console.log('Tag Activity Data:', tagActivity);
-                console.log('Activity Tag Names:', activityTagNames);
+                // Get the raw data as strings and then parse them
+                const tagNamesStr = '{{ tag_names|tojson|safe }}';
+                const tagRatingsDataStr = '{{ tag_ratings_data|tojson|safe }}';
+                console.log('Raw tag_names JSON string:', tagNamesStr);
+                console.log('Raw tag_ratings_data JSON string:', tagRatingsDataStr);
                 
-                // If we have no data, use sample data
-                if (!tagActivity || tagActivity.length === 0) {
-                    tagActivity = [85, 72, 65, 59, 52, 49, 45, 40, 35, 30];
-                    activityTagNames = ['DJF', 'WFC', 'OBL', 'ZNV', 'YMQ', 'YGX', 'XPI', 'XNZ', 'WTD', 'VVB'];
+                // Check if we have valid JSON strings
+                if (tagNamesStr && tagNamesStr !== '[]' && tagNamesStr !== 'null') {
+                    tagNames = JSON.parse(tagNamesStr);
+                }
+                
+                if (tagRatingsDataStr && tagRatingsDataStr !== '[]' && tagRatingsDataStr !== 'null') {
+                    tagRatingsData = JSON.parse(tagRatingsDataStr);
+                }
+                    
+                    // If we have no meaningful data, use sample data for visualization
+                if (!tagNames || tagNames.length === 0 || !tagRatingsData || tagRatingsData.length === 0) {
+                    console.warn('No tag ratings data found, using sample data');
+                    tagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Garden', 'Office', 'Auto'];
+                    tagRatingsData = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
                 }
             } catch (e) {
-                console.error('Error parsing tag activity data:', e);
-                // Sample fallback data
-                tagActivity = [85, 72, 65, 59, 52, 49, 45, 40, 35, 30];
-                activityTagNames = ['DJF', 'WFC', 'OBL', 'ZNV', 'YMQ', 'YGX', 'XPI', 'XNZ', 'WTD', 'VVB'];
+                console.error('Error parsing tag data:', e);
+                // Fallback sample data
+                tagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Garden', 'Office', 'Auto'];
+                tagRatingsData = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
             }
-            
-            // Generate mock time periods for the line chart (last 8 time periods)
-            const timeLabels = [];
-            const now = new Date();
-            for (let i = 7; i >= 0; i--) {
-                const date = new Date(now);
-                date.setMonth(now.getMonth() - i);
-                timeLabels.push(date.toLocaleString('default', { month: 'short', year: '2-digit' }));
-            }
-            
-            // Create datasets for top 5 tags
-            const tagDatasets = [];
-            const colors = [
-                'rgba(0, 230, 118, 1)', // green
-                'rgba(79, 172, 254, 1)', // blue
-                'rgba(255, 193, 7, 1)',  // yellow
-                'rgba(244, 67, 54, 1)',   // red
-                'rgba(156, 39, 176, 1)'   // purple
-            ];
-            
-            // Get top 5 tags only
-            const top5Tags = activityTagNames.slice(0, 5);
-            const top5Activity = tagActivity.slice(0, 5);
-            
-            // Generate trend data (mock trends over time)
-            for (let i = 0; i < Math.min(5, top5Tags.length); i++) {
-                const baseValue = top5Activity[i] || 50;
-                const trendData = [];
                 
-                // Generate realistic trend data
-                for (let j = 0; j < 8; j++) {
-                    // Create a trend with some variation but overall increasing
-                    const variation = Math.floor(Math.random() * 15) - 5; // -5 to +10
-                    const valueWithTrend = Math.max(0, baseValue - 30 + (j * 8) + variation);
-                    trendData.push(valueWithTrend);
-                }
-                
-                tagDatasets.push({
-                    label: top5Tags[i],
-                    data: trendData,
-                    borderColor: colors[i],
-                    backgroundColor: colors[i].replace('1)', '0.1)'),
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: false,
-                    pointRadius: 4
+                // Detailed debug output to check data format
+                console.log('Tag Names (type: ' + typeof tagNames + ', length: ' + (tagNames ? tagNames.length : 0) + '):', tagNames);
+                console.log('Tag Ratings Data (type: ' + typeof tagRatingsData + ', length: ' + (tagRatingsData ? tagRatingsData.length : 0) + '):', tagRatingsData);
+            
+                new Chart(avgRatingCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: tagNames,
+                        datasets: [{
+                            label: 'Average Rating',
+                            data: tagRatingsData,
+                            backgroundColor: 'rgba(79, 172, 254, 0.7)',
+                            borderColor: 'rgba(79, 172, 254, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: 5,
+                                title: {
+                                    display: true,
+                                    text: 'Rating (0-5)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.9)'
+                                }
+                            }
+                        }
+                    }
                 });
             }
             
-            new Chart(tagActivityCtx, {
-                type: 'line',
-                data: {
-                    labels: timeLabels,
-                    datasets: tagDatasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Usage Count',
-                                color: 'rgba(255, 255, 255, 0.9)'
+            // Rating Distribution Chart
+            const ratingDistCtx = document.getElementById('ratingDistributionChart')?.getContext('2d');
+            if (ratingDistCtx) {
+                let ratingLabels = ['1★', '2★', '3★', '4★', '5★'];
+                let ratingDistribution = [0, 0, 0, 0, 0]; // Default empty data
+                
+                try {
+                    // Get rating distribution data from Flask
+                    const ratingDistStr = '{{ rating_distribution|tojson|safe }}';
+                    console.log('Raw rating distribution JSON:', ratingDistStr);
+                    
+                    if (ratingDistStr && ratingDistStr !== '[]' && ratingDistStr !== 'null') {
+                        const parsedDist = JSON.parse(ratingDistStr);
+                        if (parsedDist && parsedDist.length === 5) {
+                            ratingDistribution = parsedDist;
+                        }
+                    }
+                    
+                    console.log('Parsed rating distribution:', ratingDistribution);
+                } catch (e) {
+                    console.error('Error parsing rating distribution:', e);
+                    // Fallback sample data
+                    ratingDistribution = [5, 8, 15, 30, 42];
+                }
+                
+                new Chart(ratingDistCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ratingLabels,
+                        datasets: [{
+                            label: 'Number of Ratings',
+                            data: ratingDistribution,
+                            backgroundColor: [
+                                'rgba(244, 67, 54, 0.7)',
+                                'rgba(255, 152, 0, 0.7)',
+                                'rgba(255, 193, 7, 0.7)',
+                                'rgba(79, 172, 254, 0.7)',
+                                'rgba(0, 230, 118, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(244, 67, 54, 1)',
+                                'rgba(255, 152, 0, 1)',
+                                'rgba(255, 193, 7, 1)',
+                                'rgba(79, 172, 254, 1)',
+                                'rgba(0, 230, 118, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Number of Ratings',
+                                    color: 'rgba(255, 255, 255, 0.9)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
+                            x: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             }
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Time Period',
-                                color: 'rgba(255, 255, 255, 0.9)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         }
+                    }
+                });
+            }
+            
+            // Tag Activity Chart - Line chart showing tag usage over time
+            var tagActivityElement = document.getElementById('tagActivityChart');
+            var tagActivityCtx = tagActivityElement ? tagActivityElement.getContext('2d') : null;
+            if (tagActivityCtx) {
+                var tagActivity = [];
+                var activityTagNames = [];
+                
+                try {
+                    // Get tag activity data
+                    const tagActivityStr = '{{ tag_activity|tojson|safe }}';
+                    const activityTagNamesStr = '{{ tag_names|tojson|safe }}';
+                    
+                    console.log('Raw tag activity JSON:', tagActivityStr);
+                    console.log('Raw activity tag names JSON:', activityTagNamesStr);
+                    
+                    if (tagActivityStr && tagActivityStr !== '[]' && tagActivityStr !== 'null') {
+                        tagActivity = JSON.parse(tagActivityStr);
+                    }
+                    
+                    if (activityTagNamesStr && activityTagNamesStr !== '[]' && activityTagNamesStr !== 'null') {
+                        activityTagNames = JSON.parse(activityTagNamesStr);
+                    }
+                    
+                    // If we have no data, use sample data
+                    if (!tagActivity || tagActivity.length === 0) {
+                        console.warn('No tag activity data found, using sample data');
+                        // Sample data for 5 tags over 6 months
+                        tagActivity = [
+                            [12, 15, 18, 22, 25, 30],  // Tag 1
+                            [8, 10, 12, 15, 18, 20],   // Tag 2
+                            [20, 18, 16, 14, 15, 17],  // Tag 3
+                            [5, 8, 10, 12, 15, 18],    // Tag 4
+                            [15, 13, 12, 10, 8, 10]    // Tag 5
+                        ];
+                    }
+                    
+                    if (!activityTagNames || activityTagNames.length === 0) {
+                        activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
+                    }
+                    
+                    // Limit to 5 tags for readability
+                    activityTagNames = activityTagNames.slice(0, 5);
+                    tagActivity = tagActivity.slice(0, 5);
+                    
+                    console.log('Tag activity data:', tagActivity);
+                    console.log('Activity tag names:', activityTagNames);
+                } catch (e) {
+                    console.error('Error parsing tag activity data:', e);
+                    // Sample fallback data
+                    activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
+                    tagActivity = [
+                        [12, 15, 18, 22, 25, 30],
+                        [8, 10, 12, 15, 18, 20],
+                        [20, 18, 16, 14, 15, 17],
+                        [5, 8, 10, 12, 15, 18],
+                        [15, 13, 12, 10, 8, 10]
+                    ];
+                }
+                
+                // Generate time labels (last 6 months)
+                var timeLabels = [];
+                var now = new Date();
+                for (var i = 5; i >= 0; i--) {
+                    var month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    var monthName = month.toLocaleString('default', { month: 'short' });
+                    timeLabels.push(monthName);
+                }
+                
+                // Create datasets for each tag
+                var colors = [
+                    'rgba(79, 172, 254, 0.7)',
+                    'rgba(0, 230, 118, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(255, 87, 34, 0.7)',
+                    'rgba(156, 39, 176, 0.7)'
+                ];
+                
+                var borderColors = [
+                    'rgba(79, 172, 254, 1)',
+                    'rgba(0, 230, 118, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(255, 87, 34, 1)',
+                    'rgba(156, 39, 176, 1)'
+                ];
+                
+                var tagDatasets = [];
+                for (var i = 0; i < activityTagNames.length; i++) {
+                    var tagName = activityTagNames[i];
+                    tagDatasets.push({
+                        label: tagName,
+                        data: tagActivity[i] || [0, 0, 0, 0, 0, 0],
+                        borderColor: borderColors[i % borderColors.length],
+                        backgroundColor: colors[i % colors.length],
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false,
+                        pointRadius: 4,
+                        pointBackgroundColor: borderColors[i % borderColors.length]
+                    });
+                }
+                
+                new Chart(tagActivityCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timeLabels,
+                        datasets: tagDatasets
                     },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: 'rgba(255, 255, 255, 0.9)'
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Usage Count',
+                                    color: 'rgba(255, 255, 255, 0.9)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
                             }
                         },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.9)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+// Filter table function
+function filterTable() {
+            var tagFilter = document.getElementById('tagFilter');
+            var tag = 'all';
+            if (tagFilter && tagFilter.value) {
+                tag = tagFilter.value;
+            }
+            
+            var ratingFilter = document.getElementById('ratingFilter');
+            var minRating = 0;
+            if (ratingFilter && ratingFilter.value) {
+                minRating = parseFloat(ratingFilter.value);
+            }
+            
+            var sortFilter = document.getElementById('sortFilter');
+            var sortBy = 'name';
+            if (sortFilter && sortFilter.value) {
+                sortBy = sortFilter.value;
+            }
+            
+            var rows = document.querySelectorAll('#productsTable tbody tr');
+            var visibleCount = 0;
+            
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var tagsAttr = row.getAttribute('data-tags');
+                var rowTags = [];
+                if (tagsAttr) {
+                    rowTags = tagsAttr.split(',');
+                }
+                
+                var rating = 0;
+                if (row.getAttribute('data-rating')) {
+                    rating = parseFloat(row.getAttribute('data-rating'));
+                }
+                
+                var tagMatch = (tag === 'all');
+                if (!tagMatch) {
+                    for (var j = 0; j < rowTags.length; j++) {
+                        if (rowTags[j] === tag) {
+                            tagMatch = true;
+                            break;
                         }
                     }
                 }
-            });
-        }
-        
-        // Tag Correlation Network Chart removed to match the required specification
-        // Chart completely removed to match the specified requirements
-    }
-    
-    function filterTable() {
-        const tag = document.getElementById('tagFilter')?.value || 'all';
-        const minRating = parseFloat(document.getElementById('ratingFilter')?.value || '0');
-        const sortOption = document.getElementById('sortFilter')?.value || 'rating';
-        
-        // Apply filters to table rows
-        const tableRows = document.querySelectorAll('#topRatedProductsTable tbody tr');
-        let filteredRows = [];
-        
-        tableRows.forEach(row => {
-            // Handle tags safely - they might be JSON or comma-separated
-            let rowTags = [];
-            const tagsAttr = row.getAttribute('data-tags');
-            
-            if (tagsAttr) {
-                try {
-                    // Try to parse as JSON if it's formatted that way
-                    rowTags = JSON.parse(tagsAttr);
-                } catch (e) {
-                    // Otherwise split by comma
-                    rowTags = tagsAttr.split(',').map(t => t.trim());
-                }
-            }
-            
-            const rowRating = parseFloat(row.getAttribute('data-rating') || '0');
-            
-            const tagMatch = tag === 'all' || rowTags.includes(tag);
-            const ratingMatch = rowRating >= minRating;
-            
-            if (tagMatch && ratingMatch) {
-                row.style.display = '';
-                filteredRows.push(row);
-            } else {
-                row.style.display = 'none';
-            }
-        });
-        
-        // Sort the filtered rows based on the selected sort option
-        if (filteredRows.length > 0) {
-            // Sort based on the selected option
-            filteredRows.sort((a, b) => {
-                if (sortOption === 'name') {
-                    const aName = a.getAttribute('data-name') || '';
-                    const bName = b.getAttribute('data-name') || '';
-                    return aName.localeCompare(bName);
-                } else if (sortOption === 'rating') {
-                    const aRating = parseFloat(a.getAttribute('data-rating') || '0');
-                    const bRating = parseFloat(b.getAttribute('data-rating') || '0');
-                    return bRating - aRating; // Higher rating first
-                } else { // Default to rating
-                    const aRating = parseFloat(a.getAttribute('data-rating') || '0');
-                    const bRating = parseFloat(b.getAttribute('data-rating') || '0');
-                    return bRating - aRating;
-                }
-            });
-            
-            // Clear the table
-            const tbody = document.querySelector('#topRatedProductsTable tbody');
-            if (tbody) {
-                tbody.innerHTML = '';
                 
-                // Add the sorted rows back
-                filteredRows.forEach(row => {
-                    tbody.appendChild(row);
+                var ratingMatch = (rating >= minRating);
+                
+                if (tagMatch && ratingMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+            
+            // Update visible count
+            var countElement = document.getElementById('visibleCount');
+            if (countElement) {
+                countElement.textContent = visibleCount;
+            }
+            
+            // Sort the table
+            var tbody = document.querySelector('#productsTable tbody');
+            if (tbody) {
+                var visibleRows = [];
+                for (var i = 0; i < rows.length; i++) {
+                    if (rows[i].style.display !== 'none') {
+                        visibleRows.push(rows[i]);
+                    }
+                }
+                
+                visibleRows.sort(function(a, b) {
+                    if (sortBy === 'rating') {
+                        var ratingA = 0;
+                        var ratingB = 0;
+                        
+                        if (a.getAttribute('data-rating')) {
+                            ratingA = parseFloat(a.getAttribute('data-rating'));
+                        }
+                        
+                        if (b.getAttribute('data-rating')) {
+                            ratingB = parseFloat(b.getAttribute('data-rating'));
+                        }
+                        
+                        return ratingB - ratingA; // Descending order for ratings
+                    } else if (sortBy === 'name') {
+                        var nameA = '';
+                        var nameB = '';
+                        
+                        var firstCellA = a.querySelector('td:first-child');
+                        if (firstCellA && firstCellA.textContent) {
+                            nameA = firstCellA.textContent;
+                        }
+                        
+                        var firstCellB = b.querySelector('td:first-child');
+                        if (firstCellB && firstCellB.textContent) {
+                            nameB = firstCellB.textContent;
+                        }
+                        
+                        return nameA.localeCompare(nameB); // Ascending order for names
+                    }
+                    return 0;
                 });
                 
-                // Update the count
-                const countElement = document.getElementById('productCount');
-                if (countElement) {
-                    countElement.textContent = filteredRows.length;
+                // Re-append in sorted order
+                for (var i = 0; i < visibleRows.length; i++) {
+                    tbody.appendChild(visibleRows[i]);
                 }
             }
         }
-    }
+        
+// Filter by tag
+function filterByTag(tagName) {
+    var tagFilter = document.getElementById('tagFilter');
     
-    function filterByTag(tagName) {
-        const tagFilter = document.getElementById('tagFilter');
-        const selectedTag = document.getElementById('selectedTag');
-        
-        if (tagFilter) {
-            tagFilter.value = tagName || 'all';
+    if (tagFilter) {
+        if (!tagName) {
+            tagName = 'all';
         }
-        
-        if (selectedTag) {
-            selectedTag.textContent = tagName || 'All';
-        }
-        
+        tagFilter.value = tagName;
         filterTable();
     }
+}
+
+// Document ready event
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize video background by setting src from data-src
+    var videoElement = document.querySelector('.video-background video');
+    if (videoElement && videoElement.getAttribute('data-src')) {
+        videoElement.src = videoElement.getAttribute('data-src');
+        videoElement.addEventListener('error', function(e) {
+            console.error('Error loading video:', e);
+        });
+        videoElement.addEventListener('loadeddata', function() {
+            console.log('Video loaded successfully');
+        });
+    }
+    
+    // Update progress bars when page loads
+    updateBarIndicators();
+    
+    // Initialize charts
+    initializeCharts();
+    
+    // Initialize filter functionality 
+    var applyFilterBtn = document.getElementById('applyFilter');
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', function(){
+            filterTable();
+        });
+    }
+    
+    // Add tag filter functionality
+    var tags = document.querySelectorAll('.tag');
+    if (tags && tags.length > 0) {
+        for (var i = 0; i < tags.length; i++) {
+            tags[i].addEventListener('click', function() {
+                filterByTag(this.textContent.trim());
+            });
+        }
+    }
+});
 </script>
 
-<!-- Add Font Awesome for stars -->
-
-{% endblock %}
+{% endblock content %}
