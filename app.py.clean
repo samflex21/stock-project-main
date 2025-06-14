@@ -940,243 +940,198 @@ def api_low_stock():
     low_stock_data = rows_to_dict_list(conn.execute(low_stock_query).fetchall())
     conn.close()
     
+    return jsonify(low_stock_data)
+
+# --- Analytical Dashboard ---
 @app.route('/dashboard/analytical')
 @app.route('/dashboard_analytical')
 def dashboard_analytical():
-    try:
-        import json
+    conn = get_db_connection()
+    
+    # Top-rated products by tag
+    tag_ratings_query = """
+    SELECT 
+        t.TagName,
+        p.[Product Name] as ProductName,
+        AVG(r.Rating) AS AvgRating,
+        COUNT(r.Rating) AS RatingCount
+    FROM Product_Tags pt
+    JOIN Tags t ON pt.TagID = t.TagID
+    JOIN Products p ON pt.ProductID = p.[Product ID]
+    JOIN Product_Ratings r ON pt.ProductID = r.ProductID
+    GROUP BY t.TagName, p.[Product Name]
+    HAVING RatingCount >= 1
+    ORDER BY AvgRating DESC
+    LIMIT 20
+    """
+    
+    tag_ratings = rows_to_dict_list(conn.execute(tag_ratings_query).fetchall())
+    
+    # Popular tags (for word cloud)
+    popular_tags_query = """
+    SELECT 
+        t.TagName,
+        COUNT(pt.ProductID) AS TagUsage
+    FROM Product_Tags pt
+    JOIN Tags t ON pt.TagID = t.TagID
+    GROUP BY t.TagName
+    ORDER BY TagUsage DESC
+    LIMIT 30
+    """
+    
+    popular_tags = rows_to_dict_list(conn.execute(popular_tags_query).fetchall())
+    
+    # Rating distribution by tag
+    rating_distribution_query = """
+    SELECT 
+        t.TagName,
+        r.Rating,
+        COUNT(*) AS CountPerRating
+    FROM Product_Tags pt
+    JOIN Tags t ON pt.TagID = t.TagID
+    JOIN Product_Ratings r ON pt.ProductID = r.ProductID
+    GROUP BY t.TagName, r.Rating
+    ORDER BY t.TagName, r.Rating
+    """
+    
+    rating_distribution = rows_to_dict_list(conn.execute(rating_distribution_query).fetchall())
+    
+    # Get tags for filter
+    tags = rows_to_dict_list(conn.execute(
+        "SELECT DISTINCT TagName FROM Tags ORDER BY TagName"
+    ).fetchall())
+    
+    # Move conn.close() to the end of the function
+    # conn.close()
+    
+    # Prepare data for charts
+    tag_names = [row['TagName'] for row in popular_tags]
+    tag_usage = [row['TagUsage'] for row in popular_tags]
+    
+    # Process rating distribution for visualization
+    rating_data = {}
+    for row in rating_distribution:
+        tag = row['TagName']
+        rating = row['Rating']
+        count = row['CountPerRating']
+        if tag not in rating_data:
+            rating_data[tag] = {1:0, 2:0, 3:0, 4:0, 5:0}
+        rating_data[tag][rating] = count
         
-        # Get database connection
-        conn = get_db_connection()
+    # Calculate rating distribution counts for pie chart
+    # Initialize with zeros for 5 star ratings (5,4,3,2,1)
+    rating_dist = [0, 0, 0, 0, 0]
+    rating_count_query = """
+    SELECT 
+        Rating,
+        COUNT(*) as Count
+    FROM Product_Ratings
+    GROUP BY Rating
+    ORDER BY Rating DESC
+    """
+    rating_counts = conn.execute(rating_count_query).fetchall()
+    
+    # Fill in the data we have - ensure we have at least some data for visualization
+    if len(rating_counts) == 0:
+        # Add sample data if no ratings exist
+        rating_dist = [10, 15, 8, 5, 2]  # Sample distribution
+    else:
+        for row in rating_counts:
+            if 1 <= row['Rating'] <= 5:
+                # Arrays are 0-indexed, so Rating 5 goes to index 0, Rating 4 to index 1, etc.
+                rating_dist[5 - row['Rating']] = row['Count']
         
-        # Top-rated products by tag
-        try:
-            tag_ratings_query = """
-            SELECT 
-                t.TagName,
-                p.[Product Name] as ProductName,
-                AVG(r.Rating) AS AvgRating,
-                COUNT(r.Rating) AS RatingCount
-            FROM Product_Tags pt
-            JOIN Tags t ON pt.TagID = t.TagID
-            JOIN Products p ON pt.ProductID = p.[Product ID]
-            JOIN Product_Ratings r ON pt.ProductID = r.ProductID
-            GROUP BY t.TagName, p.[Product Name]
-            HAVING RatingCount >= 1
-            ORDER BY AvgRating DESC
-            LIMIT 20
-            """
-            
-            tag_ratings = rows_to_dict_list(conn.execute(tag_ratings_query).fetchall())
-        except Exception as e:
-            print(f"Error fetching tag ratings: {str(e)}")
-            tag_ratings = []
-        
-        # Popular tags (for word cloud)
-        try:
-            popular_tags_query = """
-            SELECT 
-                t.TagName,
-                COUNT(pt.ProductID) AS TagUsage
-            FROM Product_Tags pt
-            JOIN Tags t ON pt.TagID = t.TagID
-            GROUP BY t.TagName
-            ORDER BY TagUsage DESC
-            LIMIT 30
-            """
-            
-            popular_tags = rows_to_dict_list(conn.execute(popular_tags_query).fetchall())
-        except Exception as e:
-            print(f"Error fetching popular tags: {str(e)}")
-            popular_tags = []
-        
-        # Rating distribution by tag
-        try:
-            rating_distribution_query = """
-            SELECT 
-                t.TagName,
-                r.Rating,
-                COUNT(*) AS CountPerRating
-            FROM Product_Tags pt
-            JOIN Tags t ON pt.TagID = t.TagID
-            JOIN Product_Ratings r ON pt.ProductID = r.ProductID
-            GROUP BY t.TagName, r.Rating
-            ORDER BY t.TagName, r.Rating
-            """
-            
-            rating_distribution = rows_to_dict_list(conn.execute(rating_distribution_query).fetchall())
-        except Exception as e:
-            print(f"Error fetching rating distribution: {str(e)}")
-            rating_distribution = []
-        
-        # Get tags for filter
-        try:
-            tags = rows_to_dict_list(conn.execute(
-                "SELECT DISTINCT TagName FROM Tags ORDER BY TagName"
-            ).fetchall())
-        except Exception as e:
-            print(f"Error fetching tags: {str(e)}")
-            tags = []
-        
-        # Get total products
-        try:
-            total_products_query = "SELECT COUNT(*) as count FROM Products"
-            total_products_result = conn.execute(total_products_query).fetchone()
-            total_products = total_products_result['count'] if total_products_result else 0
-        except Exception as e:
-            print(f"Error fetching total products: {str(e)}")
-            total_products = 0
-        
-        # Get total tags
-        try:
-            total_tags_query = "SELECT COUNT(*) as count FROM Tags"
-            total_tags_result = conn.execute(total_tags_query).fetchone()
-            total_tags = total_tags_result['count'] if total_tags_result else 0
-        except Exception as e:
-            print(f"Error fetching total tags: {str(e)}")
-            total_tags = 0
-        
-        # Calculate average rating across all products
-        try:
-            avg_rating_query = "SELECT AVG(Rating) as avg_rating FROM Product_Ratings"
-            avg_rating_result = conn.execute(avg_rating_query).fetchone()
-            avg_rating = round(float(avg_rating_result['avg_rating']), 1) if avg_rating_result and avg_rating_result['avg_rating'] else 0
-        except Exception as e:
-            print(f"Error fetching average rating: {str(e)}")
-            avg_rating = 0
-        
-        # Get lowest rated tag
-        try:
-            lowest_rated_tag_query = """
-            SELECT 
-                t.TagName,
-                AVG(r.Rating) AS AvgRating
-            FROM Product_Tags pt
-            JOIN Tags t ON pt.TagID = t.TagID
-            JOIN Product_Ratings r ON pt.ProductID = r.ProductID
-            GROUP BY t.TagName
-            HAVING COUNT(r.Rating) > 0
-            ORDER BY AvgRating ASC
-            LIMIT 1
-            """
-            lowest_rated_tag_result = conn.execute(lowest_rated_tag_query).fetchone()
-            lowest_rated_tag = dict(lowest_rated_tag_result) if lowest_rated_tag_result else {'TagName': 'None', 'AvgRating': 0}
-        except Exception as e:
-            print(f"Error fetching lowest rated tag: {str(e)}")
-            lowest_rated_tag = {'TagName': 'None', 'AvgRating': 0}
-        
-        # Get most tagged product count
-        try:
-            most_tags_query = """
-            SELECT 
-                p.[Product Name] as ProductName,
-                COUNT(pt.TagID) as TagCount
-            FROM Products p
-            JOIN Product_Tags pt ON p.[Product ID] = pt.ProductID
-            GROUP BY p.[Product ID], p.[Product Name]
-            ORDER BY TagCount DESC
-            LIMIT 1
-            """
-            most_tags_result = conn.execute(most_tags_query).fetchone()
-            most_tags_count = most_tags_result['TagCount'] if most_tags_result else 0
-        except Exception as e:
-            print(f"Error fetching product with most tags: {str(e)}")
-            most_tags_count = 0
-        
-        # Calculate rating distribution counts for pie chart
-        try:
-            rating_count_query = """
-            SELECT 
-                Rating,
-                COUNT(*) as Count
-            FROM Product_Ratings
-            GROUP BY Rating
-            ORDER BY Rating DESC
-            """
-            rating_counts = conn.execute(rating_count_query).fetchall()
-            
-            # Initialize with zeros for 5 star ratings (5,4,3,2,1)
-            rating_dist = [0, 0, 0, 0, 0]
-            
-            # Fill in the data we have
-            if len(rating_counts) > 0:
-                for row in rating_counts:
-                    if 1 <= row['Rating'] <= 5:
-                        # Arrays are 0-indexed, so Rating 5 goes to index 0, Rating 4 to index 1, etc.
-                        rating_dist[5 - row['Rating']] = row['Count']
-            else:
-                # Add sample data if no ratings exist
-                rating_dist = [10, 15, 8, 5, 2]  # Sample distribution
-        except Exception as e:
-            print(f"Error calculating rating distribution: {str(e)}")
-            rating_dist = [10, 15, 8, 5, 2]  # Default sample distribution
-        
-        # Process rating distribution for visualization
-        rating_data = {}
-        try:
-            for row in rating_distribution:
-                tag = row['TagName']
-                rating = row['Rating']
-                count = row['CountPerRating']
-                if tag not in rating_data:
-                    rating_data[tag] = {1:0, 2:0, 3:0, 4:0, 5:0}
-                rating_data[tag][rating] = count
-        except Exception as e:
-            print(f"Error processing rating distribution: {str(e)}")
-            # Add sample data
-            rating_data = {
-                "Quality": {1:2, 2:5, 3:10, 4:20, 5:15},
-                "Price": {1:3, 2:7, 3:15, 4:12, 5:8}
-            }
-        
-        # Calculate recommendation strength based on average rating
-        if avg_rating > 0:
-            # Simple formula: normalize average rating to be between 0 and 1
-            recommendation_strength = min(avg_rating / 5.0, 1.0)
-        else:
-            recommendation_strength = 0.65  # Default value
-            
-        # Close the database connection
-        conn.close()
-        
-        # Prepare data for charts
-        tag_names = [row['TagName'] for row in popular_tags] if popular_tags else ['Tag1', 'Tag2', 'Tag3', 'Tag4', 'Tag5']
-        tag_usage = [row['TagUsage'] for row in popular_tags] if popular_tags else [25, 20, 15, 12, 10]
-        
-        # Calculate tag activity for radar chart (using tag usage data)
-        tag_activity = tag_usage[:10] if len(tag_usage) >= 10 else tag_usage
-        
-        # Generate data for tag ratings chart
-        tag_ratings_data = []
-        for tag in tag_names[:10]:  # Limit to top 10 tags
-            avg_tag_rating = 0
-            for item in tag_ratings:
-                if item['TagName'] == tag:
-                    avg_tag_rating = item.get('AvgRating', 0)
-                    break
-            tag_ratings_data.append(avg_tag_rating)
-        
-        # Render the template with all the data
-        return render_template(
-            'dashboard_analytical.html',
-            tag_ratings=tag_ratings,
-            popular_tags=popular_tags,
-            tag_names=json.dumps(tag_names[:10]),  # Limit to top 10 for chart readability
-            tag_ratings_data=json.dumps(tag_ratings_data),
-            tag_activity=json.dumps(tag_activity),
-            rating_distribution=json.dumps(rating_dist),
-            rating_data=json.dumps(rating_data),
-            tags=tags,
-            total_products=total_products,
-            total_tags=total_tags,
-            avg_rating=avg_rating,
-            lowest_rated_tag=lowest_rated_tag,
-            most_tags_count=most_tags_count,
-            recommendation_strength=recommendation_strength
-        )
-    except Exception as e:
-        print(f"Error in dashboard_analytical: {str(e)}")
-        return render_template('error.html', error=str(e)), 500
+        # Ensure there's always some data for visualization
+        if sum(rating_dist) == 0:
+            rating_dist = [10, 15, 8, 5, 2]
+    
+    # Calculating additional metrics for the dashboard cards
+    
+    # Get total products
+    total_products_query = "SELECT COUNT(*) as count FROM Products"
+    total_products = conn.execute(total_products_query).fetchone()['count']
+    
+    # Get total tags
+    total_tags_query = "SELECT COUNT(*) as count FROM Tags"
+    total_tags = conn.execute(total_tags_query).fetchone()['count']
+    
+    # Calculate average rating across all products
+    avg_rating_query = "SELECT AVG(Rating) as avg_rating FROM Product_Ratings"
+    avg_rating_result = conn.execute(avg_rating_query).fetchone()
+    avg_rating = avg_rating_result['avg_rating'] if avg_rating_result['avg_rating'] is not None else 0
+    
+    # Get lowest rated tag
+    lowest_rated_tag_query = """
+    SELECT 
+        t.TagName,
+        AVG(r.Rating) AS AvgRating
+    FROM Product_Tags pt
+    JOIN Tags t ON pt.TagID = t.TagID
+    JOIN Product_Ratings r ON pt.ProductID = r.ProductID
+    GROUP BY t.TagName
+    HAVING COUNT(r.Rating) > 0
+    ORDER BY AvgRating ASC
+    LIMIT 1
+    """
+    lowest_rated_tag_result = conn.execute(lowest_rated_tag_query).fetchone()
+    lowest_rated_tag = lowest_rated_tag_result if lowest_rated_tag_result else {'TagName': 'None', 'AvgRating': 0}
+    
+    # Get most tagged product count
+    most_tags_query = """
+    SELECT 
+        p.[Product Name] as ProductName,
+        COUNT(pt.TagID) as TagCount
+    FROM Products p
+    JOIN Product_Tags pt ON p.[Product ID] = pt.ProductID
+    GROUP BY p.[Product ID], p.[Product Name]
+    ORDER BY TagCount DESC
+    LIMIT 1
+    """
+    most_tags_result = conn.execute(most_tags_query).fetchone()
+    most_tags_count = most_tags_result['TagCount'] if most_tags_result else 0
+    
+    # Calculate recommendation strength (simple metric based on rating distribution)
+    recommendation_strength = 0.0
+    if avg_rating > 0:
+        # Simple formula: normalize average rating to be between 0 and 1
+        recommendation_strength = min(avg_rating / 5.0, 1.0)
 
+    # Prepare data for charts
+    tag_names = [row['TagName'] for row in popular_tags]
+    tag_usage = [row['TagUsage'] for row in popular_tags]
+    
+    # Close the database connection at the end after all queries are complete
+    conn.close()
+    
+    # Calculate tag activity for radar chart (reusing tag_usage data)
+    tag_activity = tag_usage[:10] if len(tag_usage) > 10 else tag_usage
+    
+    # Generate data for tag ratings (for bar chart)
+    tag_ratings_data = []
+    for tag in tag_names[:10]:  # Limit to top 10 tags
+        avg_tag_rating = 0
+        for item in tag_ratings:
+            if item['TagName'] == tag:
+                avg_tag_rating = item.get('AvgRating', 0)
+                break
+        tag_ratings_data.append(avg_tag_rating)
+    
+    return render_template('dashboard_analytical.html',
+                           tag_ratings=tag_ratings,
+                           popular_tags=popular_tags,
+                           tag_names=json.dumps(tag_names[:10]),  # Limit to top 10 for chart readability
+                           tag_ratings_data=json.dumps(tag_ratings_data),
+                           tag_activity=json.dumps(tag_activity),
+                           rating_distribution=json.dumps(rating_dist),
+                           rating_data=json.dumps(rating_data),
+                           tags=tags,
+                           total_products=total_products,
+                           total_tags=total_tags,
+                           avg_rating=avg_rating,
+                           lowest_rated_tag=lowest_rated_tag,
+                           most_tags_count=most_tags_count,
+                           recommendation_strength=recommendation_strength)
+
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)

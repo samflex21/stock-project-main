@@ -1177,6 +1177,186 @@ def dashboard_analytical():
     except Exception as e:
         print(f"Error in dashboard_analytical: {str(e)}")
         return render_template('error.html', error=str(e)), 500
+                for row in rating_distribution_result:
+                    tag = row['TagName']
+                    rating = row['Rating']
+                    count = row['CountPerRating']
+                    if tag not in rating_data:
+                        rating_data[tag] = {1:0, 2:0, 3:0, 4:0, 5:0}
+                    rating_data[tag][rating] = count
+        except Exception as e:
+            print(f"Error fetching rating distribution by tag: {str(e)}")
+            
+        # Get metrics for dashboard cards
+        try:
+            # Total products
+            total_products_query = "SELECT COUNT(*) as count FROM Products"
+            total_products_result = conn.execute(total_products_query).fetchone()
+            if total_products_result:
+                total_products = total_products_result['count']
+                
+            # Total tags
+            total_tags_query = "SELECT COUNT(*) as count FROM Tags"
+            total_tags_result = conn.execute(total_tags_query).fetchone()
+            if total_tags_result:
+                total_tags = total_tags_result['count']
+                
+            # Average rating
+            avg_rating_query = "SELECT AVG(Rating) as avg_rating FROM Product_Ratings"
+            avg_rating_result = conn.execute(avg_rating_query).fetchone()
+            if avg_rating_result and avg_rating_result['avg_rating'] is not None:
+                avg_rating = round(float(avg_rating_result['avg_rating']), 1)
+                
+            # Lowest rated tag
+            lowest_rated_tag_query = """
+            SELECT 
+                t.TagName,
+                AVG(r.Rating) AS AvgRating
+            FROM Product_Tags pt
+            JOIN Tags t ON pt.TagID = t.TagID
+            JOIN Product_Ratings r ON pt.ProductID = r.ProductID
+            GROUP BY t.TagName
+            HAVING COUNT(r.Rating) > 0
+            ORDER BY AvgRating ASC
+            LIMIT 1
+            """
+            
+            lowest_rated_tag_result = conn.execute(lowest_rated_tag_query).fetchone()
+            if lowest_rated_tag_result:
+                lowest_rated_tag = lowest_rated_tag_result
+                
+            # Most tagged product count
+            most_tags_query = """
+            SELECT 
+                p.[Product Name] as ProductName,
+                COUNT(pt.TagID) as TagCount
+            FROM Products p
+            JOIN Product_Tags pt ON p.[Product ID] = pt.ProductID
+            GROUP BY p.[Product ID], p.[Product Name]
+            ORDER BY TagCount DESC
+            LIMIT 1
+            """
+            
+            most_tags_result = conn.execute(most_tags_query).fetchone()
+            if most_tags_result:
+                most_tags_count = most_tags_result['TagCount']
+                
+            # Calculate recommendation strength based on average rating
+            if avg_rating > 0:
+                # Simple formula: normalize average rating to be between 0 and 1
+                recommendation_strength = min(avg_rating / 5.0, 1.0)
+        except Exception as e:
+            print(f"Error fetching metrics for dashboard cards: {str(e)}")
+        
+        # Close the database connection at the end after all queries are complete
+        conn.close()
+        
+        # Calculate tag activity for radar chart (using popular tags data)
+        tag_activity = tag_usage[:10] if len(tag_usage) >= 10 else tag_usage
+        
+        # Generate data for tag ratings (for bar chart)
+        tag_ratings_data = []
+        for tag in tag_names[:10]:  # Limit to top 10 tags
+            avg_tag_rating = 0
+            for item in tag_ratings:
+                if item['TagName'] == tag:
+                    avg_tag_rating = item.get('AvgRating', 0)
+                    break
+            tag_ratings_data.append(avg_tag_rating)
+        
+        # Render the template with all the data
+        return render_template(
+            'dashboard_analytical.html',
+            tag_ratings=tag_ratings,
+            popular_tags=popular_tags,
+            tag_names=json.dumps(tag_names[:10]),  # Limit to top 10 for chart readability
+            tag_ratings_data=json.dumps(tag_ratings_data),
+            tag_activity=json.dumps(tag_activity),
+            rating_distribution=json.dumps(rating_dist),
+            rating_data=json.dumps(rating_data),
+            tags=tags,
+            total_products=total_products,
+            total_tags=total_tags,
+            avg_rating=avg_rating,
+            lowest_rated_tag=lowest_rated_tag,
+        
+    # Calculate recommendation strength based on average rating
+    if avg_rating > 0:
+        # Simple formula: normalize average rating to be between 0 and 1
+        recommendation_strength = min(avg_rating / 5.0, 1.0)
+except Exception as e:
+    print(f"Error fetching metrics for dashboard cards: {str(e)}")
+    
+# Close the database connection at the end after all queries are complete
+conn.close()
 
+# Calculate tag activity for radar chart (using popular tags data)
+tag_activity = tag_usage[:10] if len(tag_usage) >= 10 else tag_usage
+
+# Generate data for tag ratings (for bar chart)
+tag_ratings_data = []
+for tag in tag_names[:10]:  # Limit to top 10 tags
+    avg_tag_rating = 0
+    for item in tag_ratings:
+        if item['TagName'] == tag:
+            avg_tag_rating = item.get('AvgRating', 0)
+            break
+    tag_ratings_data.append(avg_tag_rating)
+
+# Render the template with all the data
+return render_template(
+    'dashboard_analytical.html',
+    tag_ratings=tag_ratings,
+    popular_tags=popular_tags,
+    tag_names=json.dumps(tag_names[:10]),  # Limit to top 10 for chart readability
+    tag_ratings_data=json.dumps(tag_ratings_data),
+    tag_activity=json.dumps(tag_activity),
+    rating_distribution=json.dumps(rating_dist),
+    rating_data=json.dumps(rating_data),
+    tags=tags,
+    total_products=total_products,
+    total_tags=total_tags,
+    avg_rating=avg_rating,
+    lowest_rated_tag=lowest_rated_tag,
+    most_tags_count=most_tags_count,
+    recommendation_strength=recommendation_strength
+)
+        rating_distribution_json = json.dumps([{'rating': item['Rating'], 'count': item['Count']} for item in rating_dist])
+        category_names_json = json.dumps(category_names)
+        category_ratings_json = json.dumps(category_ratings)
+        
+        # Render template with all required data
+        return render_template('dashboard_analytical.html',
+                              tag_ratings=tag_ratings,
+                              popular_tags=popular_tags,
+                              tag_names=tag_names_json,
+                              tag_ratings_data=tag_ratings_data_json,
+                              tag_activity=tag_activity_json,
+                              rating_distribution=rating_distribution_json,
+                              category_names=category_names_json,
+                              category_ratings=category_ratings_json,
+                              tags=tags,
+                              total_products=total_products,
+                              total_tags=total_tags,
+                              avg_rating=avg_rating,
+                              lowest_rated_tag=lowest_rated_tag,
+                              most_tags_count=most_tags_count,
+                              recommendation_strength=recommendation_strength)
+    except Exception as e:
+        # Print error for debugging
+        error_message = f"Error in dashboard_analytical: {str(e)}"
+        print(error_message)
+        
+        # If we have an active connection when an error occurs, close it
+        try:
+            if 'conn' in locals() and conn:
+                conn.close()
+        except Exception:
+            pass
+        
+        # Return error template
+        return render_template('error.html', error=str(e)), 500
+
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)
