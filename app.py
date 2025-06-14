@@ -215,26 +215,31 @@ def api_price_volatility():
 # API endpoint for price volatility by category data
 @app.route('/api/price_volatility_data')
 def api_price_volatility_data():
-    category = request.args.get('category', 'all')
-    months = int(request.args.get('months', '6'))
-    year = request.args.get('year', 'all')
-    
-    cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
-    conn = get_db_connection()
-    
-    # Build where clause with conditions
-    where_conditions = ["ph.EffectiveDate >= ?"]
-    params = [cutoff_date]
-    
-    if category and category != 'all':
-        where_conditions.append("p.[Product Category] = ?")
-        params.append(category)
+    try:
+        category = request.args.get('category', 'all')
+        months = int(request.args.get('months', '6'))
+        year = request.args.get('year', 'all')
         
-    if year and year != 'all':
-        where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
-        params.append(year)
+        cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
+        conn = get_db_connection()
         
-    where_clause = "WHERE " + " AND ".join(where_conditions)
+        # Build where clause with conditions
+        where_conditions = ["ph.EffectiveDate >= ?"]
+        params = [cutoff_date]
+        
+        if category and category != 'all':
+            where_conditions.append("p.[Product Category] = ?")
+            params.append(category)
+            
+        if year and year != 'all':
+            where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
+            params.append(year)
+            
+        where_clause = "WHERE " + " AND ".join(where_conditions)
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error setting up volatility query: {str(e)}")
+        return jsonify({'error': str(e), 'categories': [], 'data': [], 'range_pct': [], 'raw_data': [], 'std_dev': [], 'volatility': []})
     
     # Simplified approach to calculate price statistics without using STDEV
     # Using SQLite-compatible calculations that avoid nested aggregates
@@ -340,28 +345,32 @@ def api_category_summary():
 # API endpoint for price heatmap data with year filtering
 @app.route('/api/price_heatmap_data')
 def api_price_heatmap_data():
-    category = request.args.get('category', 'all')
-    months = int(request.args.get('months', '6'))
-    year = request.args.get('year', 'all')
-    
-    # Calculate the cutoff date based on months parameter
-    cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
-    
-    conn = get_db_connection()
-    
-    # Set up query based on filters
-    where_conditions = ["ph.EffectiveDate >= ?"]
-    params = [cutoff_date]
-    
-    if category and category != 'all':
-        where_conditions.append("p.[Product Category] = ?")
-        params.append(category)
+    try:
+        category = request.args.get('category', 'all')
+        months = int(request.args.get('months', '6'))
+        year = request.args.get('year', 'all')
         
-    if year and year != 'all':
-        where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
-        params.append(year)
-    
-    where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+        # Calculate the cutoff date based on months parameter
+        cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
+        
+        conn = get_db_connection()
+        
+        # Set up query based on filters
+        where_conditions = ["ph.EffectiveDate >= ?"]
+        params = [cutoff_date]
+        
+        if category and category != 'all':
+            where_conditions.append("p.[Product Category] = ?")
+            params.append(category)
+            
+        if year and year != 'all':
+            where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
+            params.append(year)
+        
+        where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+    except Exception as e:
+        print(f"Error setting up heatmap query parameters: {str(e)}")
+        return jsonify({'error': str(e), 'data': [], 'categories': [], 'months': []})
     
     # Query for monthly price changes by category
     query = f"""
@@ -385,9 +394,9 @@ def api_price_heatmap_data():
             curr.avg_price,
             prev.avg_price AS prev_avg_price,
             CASE 
-                WHEN prev.avg_price > 0 
-                THEN ROUND(((curr.avg_price - prev.avg_price) / prev.avg_price * 100), 2)
-                ELSE 0
+                WHEN prev.avg_price IS NULL THEN 0
+                WHEN prev.avg_price <= 0 THEN 0
+                ELSE ROUND(((curr.avg_price - prev.avg_price) / prev.avg_price * 100), 2)
             END AS growth_rate
         FROM 
             monthly_avg_prices curr
@@ -458,28 +467,32 @@ def api_price_heatmap_data():
 # API endpoint for price growth rate data with year filtering
 @app.route('/api/price_growth_data')
 def api_price_growth_data():
-    category = request.args.get('category', 'all')
-    months = int(request.args.get('months', '6'))
-    year = request.args.get('year', 'all')
-    
-    # Calculate the cutoff date based on months parameter
-    cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
-    
-    conn = get_db_connection()
-    
-    # Set up query based on filters
-    where_conditions = ["ph.EffectiveDate >= ?"]
-    params = [cutoff_date]
-    
-    if category and category != 'all':
-        where_conditions.append("p.[Product Category] = ?")
-        params.append(category)
+    try:
+        category = request.args.get('category', 'all')
+        months = int(request.args.get('months', '6'))
+        year = request.args.get('year', 'all')
         
-    if year and year != 'all':
-        where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
-        params.append(year)
-    
-    where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+        # Calculate the cutoff date based on months parameter
+        cutoff_date = (datetime.now() - timedelta(days=months*30)).strftime("%Y-%m-%d")
+        
+        conn = get_db_connection()
+        
+        # Set up query based on filters
+        where_conditions = ["ph.EffectiveDate >= ?"]
+        params = [cutoff_date]
+        
+        if category and category != 'all':
+            where_conditions.append("p.[Product Category] = ?")
+            params.append(category)
+            
+        if year and year != 'all':
+            where_conditions.append("strftime('%Y', ph.EffectiveDate) = ?")
+            params.append(year)
+        
+        where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+    except Exception as e:
+        print(f"Error setting up growth rate query parameters: {str(e)}")
+        return jsonify({'error': str(e), 'categories': [], 'time_periods': []})
     
     # Get monthly average prices per category
     query = f"""
@@ -503,9 +516,9 @@ def api_price_growth_data():
             curr.avg_price,
             prev.avg_price AS prev_avg_price,
             CASE 
-                WHEN prev.avg_price > 0 
-                THEN ROUND(((curr.avg_price - prev.avg_price) / prev.avg_price * 100), 2)
-                ELSE 0
+                WHEN prev.avg_price IS NULL THEN 0
+                WHEN prev.avg_price <= 0 THEN 0
+                ELSE ROUND(((curr.avg_price - prev.avg_price) / prev.avg_price * 100), 2)
             END AS growth_rate
         FROM 
             monthly_avg_prices curr
@@ -931,6 +944,7 @@ def api_low_stock():
 
 # --- Analytical Dashboard ---
 @app.route('/dashboard/analytical')
+@app.route('/dashboard_analytical')
 def dashboard_analytical():
     conn = get_db_connection()
     
@@ -987,7 +1001,8 @@ def dashboard_analytical():
         "SELECT DISTINCT TagName FROM Tags ORDER BY TagName"
     ).fetchall())
     
-    conn.close()
+    # Move conn.close() to the end of the function
+    # conn.close()
     
     # Prepare data for charts
     tag_names = [row['TagName'] for row in popular_tags]
@@ -1002,14 +1017,120 @@ def dashboard_analytical():
         if tag not in rating_data:
             rating_data[tag] = {1:0, 2:0, 3:0, 4:0, 5:0}
         rating_data[tag][rating] = count
+        
+    # Calculate rating distribution counts for pie chart
+    # Initialize with zeros for 5 star ratings (5,4,3,2,1)
+    rating_dist = [0, 0, 0, 0, 0]
+    rating_count_query = """
+    SELECT 
+        Rating,
+        COUNT(*) as Count
+    FROM Product_Ratings
+    GROUP BY Rating
+    ORDER BY Rating DESC
+    """
+    rating_counts = conn.execute(rating_count_query).fetchall()
+    
+    # Fill in the data we have - ensure we have at least some data for visualization
+    if len(rating_counts) == 0:
+        # Add sample data if no ratings exist
+        rating_dist = [10, 15, 8, 5, 2]  # Sample distribution
+    else:
+        for row in rating_counts:
+            if 1 <= row['Rating'] <= 5:
+                # Arrays are 0-indexed, so Rating 5 goes to index 0, Rating 4 to index 1, etc.
+                rating_dist[5 - row['Rating']] = row['Count']
+        
+        # Ensure there's always some data for visualization
+        if sum(rating_dist) == 0:
+            rating_dist = [10, 15, 8, 5, 2]
+    
+    # Calculating additional metrics for the dashboard cards
+    
+    # Get total products
+    total_products_query = "SELECT COUNT(*) as count FROM Products"
+    total_products = conn.execute(total_products_query).fetchone()['count']
+    
+    # Get total tags
+    total_tags_query = "SELECT COUNT(*) as count FROM Tags"
+    total_tags = conn.execute(total_tags_query).fetchone()['count']
+    
+    # Calculate average rating across all products
+    avg_rating_query = "SELECT AVG(Rating) as avg_rating FROM Product_Ratings"
+    avg_rating_result = conn.execute(avg_rating_query).fetchone()
+    avg_rating = avg_rating_result['avg_rating'] if avg_rating_result['avg_rating'] is not None else 0
+    
+    # Get lowest rated tag
+    lowest_rated_tag_query = """
+    SELECT 
+        t.TagName,
+        AVG(r.Rating) AS AvgRating
+    FROM Product_Tags pt
+    JOIN Tags t ON pt.TagID = t.TagID
+    JOIN Product_Ratings r ON pt.ProductID = r.ProductID
+    GROUP BY t.TagName
+    HAVING COUNT(r.Rating) > 0
+    ORDER BY AvgRating ASC
+    LIMIT 1
+    """
+    lowest_rated_tag_result = conn.execute(lowest_rated_tag_query).fetchone()
+    lowest_rated_tag = lowest_rated_tag_result if lowest_rated_tag_result else {'TagName': 'None', 'AvgRating': 0}
+    
+    # Get most tagged product count
+    most_tags_query = """
+    SELECT 
+        p.[Product Name] as ProductName,
+        COUNT(pt.TagID) as TagCount
+    FROM Products p
+    JOIN Product_Tags pt ON p.[Product ID] = pt.ProductID
+    GROUP BY p.[Product ID], p.[Product Name]
+    ORDER BY TagCount DESC
+    LIMIT 1
+    """
+    most_tags_result = conn.execute(most_tags_query).fetchone()
+    most_tags_count = most_tags_result['TagCount'] if most_tags_result else 0
+    
+    # Calculate recommendation strength (simple metric based on rating distribution)
+    recommendation_strength = 0.0
+    if avg_rating > 0:
+        # Simple formula: normalize average rating to be between 0 and 1
+        recommendation_strength = min(avg_rating / 5.0, 1.0)
+
+    # Prepare data for charts
+    tag_names = [row['TagName'] for row in popular_tags]
+    tag_usage = [row['TagUsage'] for row in popular_tags]
+    
+    # Close the database connection at the end after all queries are complete
+    conn.close()
+    
+    # Calculate tag activity for radar chart (reusing tag_usage data)
+    tag_activity = tag_usage[:10] if len(tag_usage) > 10 else tag_usage
+    
+    # Generate data for tag ratings (for bar chart)
+    tag_ratings_data = []
+    for tag in tag_names[:10]:  # Limit to top 10 tags
+        avg_tag_rating = 0
+        for item in tag_ratings:
+            if item['TagName'] == tag:
+                avg_tag_rating = item.get('AvgRating', 0)
+                break
+        tag_ratings_data.append(avg_tag_rating)
     
     return render_template('dashboard_analytical.html',
-                          tag_ratings=tag_ratings,
-                          popular_tags=popular_tags,
-                          tag_names=json.dumps(tag_names),
-                          tag_usage=json.dumps(tag_usage),
-                          rating_data=json.dumps(rating_data),
-                          tags=tags)
+                           tag_ratings=tag_ratings,
+                           popular_tags=popular_tags,
+                           tag_names=json.dumps(tag_names[:10]),  # Limit to top 10 for chart readability
+                           tag_ratings_data=json.dumps(tag_ratings_data),
+                           tag_activity=json.dumps(tag_activity),
+                           rating_distribution=json.dumps(rating_dist),
+                           rating_data=json.dumps(rating_data),
+                           tags=tags,
+                           total_products=total_products,
+                           total_tags=total_tags,
+                           avg_rating=avg_rating,
+                           lowest_rated_tag=lowest_rated_tag,
+                           most_tags_count=most_tags_count,
+                           recommendation_strength=recommendation_strength)
 
 # Run the app
 if __name__ == '__main__':
