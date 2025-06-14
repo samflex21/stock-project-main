@@ -580,7 +580,7 @@
 {% block content %}
 <!-- Video Background -->
 <div class="video-background">
-    <video data-src="/static/videos/Financial Background Video Data Visuals - High Resolution.mp4" muted loop playsinline autoplay></video>
+    <video data-src="/static/videos/Financial Background Video Data Visuals - High Resolution.mp4" muted loop playsinline autoplay preload="auto"></video>
 </div>
 
 <div class="container-fluid px-4 pt-4">
@@ -730,26 +730,12 @@
 
 <!-- Section 3: Rating Analysis -->
 <div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Rating Analysis</h2>
-    <p class="text-white-50 mb-4"><i class="fas fa-chart-bar me-2"></i>Analysis of ratings by tag and distribution.</p>
+    <h2 class="text-white mb-3">Rating Distribution</h2>
+    <p class="text-white-50 mb-4"><i class="fas fa-chart-bar me-2"></i>Analysis of product rating distribution.</p>
 
     <div class="row">
-        <!-- Average Rating by Tag -->
-        <div class="col-lg-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-star me-2"></i>Average Rating by Tag</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="avgRatingByTagChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
         <!-- Rating Distribution -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-12 mb-4">
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Rating Distribution</h5>
@@ -769,7 +755,7 @@
 <!-- Section 4: Top Rated Products by Category -->
 <div class="glass-panel mb-4">
     <h2 class="text-white mb-3">Top Rated Products by Category</h2>
-    <p class="text-white-50 mb-4">Bar chart showing highest rated products across categories.</p>
+    <p class="text-white-50 mb-4">Column chart showing highest rated products across categories.</p>
     
     <div class="card">
         <div class="card-header">
@@ -892,22 +878,36 @@ function initializeCharts() {
         if (topRatedProductsCtx) {
             var categoryNames = [];
             var categoryRatings = [];
+            var hasValidCategoryData = false;
             
             try {
-                // Use safe JSON.parse with proper escaping
-                categoryNames = JSON.parse('{{ category_names|tojson|safe }}');
-                categoryRatings = JSON.parse('{{ category_ratings|tojson|safe }}');
+                // Get data from backend or use sample data
+                const categoryDataStr = '{{ category_names|safe }}';
+                const categoryRatingsStr = '{{ category_ratings|safe }}';
+                
+                // Parse the JSON strings into JavaScript arrays
+                if (categoryDataStr && categoryDataStr !== 'null') {
+                    categoryNames = JSON.parse(categoryDataStr);
+                }
+                
+                if (categoryRatingsStr && categoryRatingsStr !== 'null') {
+                    categoryRatings = JSON.parse(categoryRatingsStr);
+                }
+                
                 console.log('Category Names:', categoryNames);
                 console.log('Category Ratings:', categoryRatings);
                 
-                // If we have no data, use sample data
-                if (!categoryNames || categoryNames.length === 0 || !categoryRatings || categoryRatings.length === 0) {
-                    console.warn('No category data found, using sample data');
-                    categoryNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
-                    categoryRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
+                // Check if we have at least one valid data point
+                if (categoryNames && categoryNames.length > 0 && 
+                    categoryRatings && categoryRatings.length > 0) {
+                    hasValidCategoryData = true;
                 }
             } catch (e) {
                 console.error('Error parsing category data:', e);
+            }
+            
+            if (!hasValidCategoryData) {
+                console.warn('No valid category data found, using sample data');
                 // Sample fallback data
                 categoryNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
                 categoryRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
@@ -933,7 +933,7 @@ function initializeCharts() {
             }
             
             new Chart(topRatedProductsCtx, {
-                type: 'bar',
+                type: 'bar', // Using bar type with x axis for vertical columns
                 data: {
                     labels: sortedNames,
                     datasets: [{
@@ -960,6 +960,7 @@ function initializeCharts() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    indexAxis: 'x', // Explicitly set to 'x' for column chart
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -970,8 +971,7 @@ function initializeCharts() {
                                 color: 'rgba(255, 255, 255, 0.9)'
                             },
                             ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                stepSize: 1
+                                color: 'rgba(255, 255, 255, 0.7)'
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)'
@@ -995,102 +995,20 @@ function initializeCharts() {
             });
         }
         
-        // Average Rating by Tag Chart
-        const avgRatingCtx = document.getElementById('avgRatingByTagChart')?.getContext('2d');
-        if (avgRatingCtx) {
-            let tagNames = [];
-            let tagRatingsData = [];
-            
-            try {
-                // Get the raw data as strings and then parse them
-                const tagNamesStr = '{{ tag_names|tojson|safe }}';
-                const tagRatingsDataStr = '{{ tag_ratings_data|tojson|safe }}';
-                console.log('Raw tag_names JSON string:', tagNamesStr);
-                console.log('Raw tag_ratings_data JSON string:', tagRatingsDataStr);
-                
-                // Check if we have valid JSON strings
-                if (tagNamesStr && tagNamesStr !== '[]' && tagNamesStr !== 'null') {
-                    tagNames = JSON.parse(tagNamesStr);
-                }
-                
-                if (tagRatingsDataStr && tagRatingsDataStr !== '[]' && tagRatingsDataStr !== 'null') {
-                    tagRatingsData = JSON.parse(tagRatingsDataStr);
-                }
-                    
-                    // If we have no meaningful data, use sample data for visualization
-                if (!tagNames || tagNames.length === 0 || !tagRatingsData || tagRatingsData.length === 0) {
-                    console.warn('No tag ratings data found, using sample data');
-                    tagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Garden', 'Office', 'Auto'];
-                    tagRatingsData = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
-                }
-            } catch (e) {
-                console.error('Error parsing tag data:', e);
-                // Fallback sample data
-                tagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Garden', 'Office', 'Auto'];
-                tagRatingsData = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
-            }
-                
-                // Detailed debug output to check data format
-                console.log('Tag Names (type: ' + typeof tagNames + ', length: ' + (tagNames ? tagNames.length : 0) + '):', tagNames);
-                console.log('Tag Ratings Data (type: ' + typeof tagRatingsData + ', length: ' + (tagRatingsData ? tagRatingsData.length : 0) + '):', tagRatingsData);
-            
-                new Chart(avgRatingCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: tagNames,
-                        datasets: [{
-                            label: 'Average Rating',
-                            data: tagRatingsData,
-                            backgroundColor: 'rgba(79, 172, 254, 0.7)',
-                            borderColor: 'rgba(79, 172, 254, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                suggestedMax: 5,
-                                title: {
-                                    display: true,
-                                    text: 'Rating (0-5)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: 'rgba(255, 255, 255, 0.9)'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Rating Distribution Chart
-            const ratingDistCtx = document.getElementById('ratingDistributionChart')?.getContext('2d');
+        // Rating Distribution Chart
+            var ratingDistCtx = document.getElementById('ratingDistributionChart');
             if (ratingDistCtx) {
-                let ratingLabels = ['1★', '2★', '3★', '4★', '5★'];
-                let ratingDistribution = [0, 0, 0, 0, 0]; // Default empty data
+                ratingDistCtx = ratingDistCtx.getContext('2d');
+                var ratingLabels = ['1★', '2★', '3★', '4★', '5★'];
+                var ratingDistribution = [0, 0, 0, 0, 0]; // Default empty data
                 
                 try {
-                    // Get rating distribution data from Flask
-                    const ratingDistStr = '{{ rating_distribution|tojson|safe }}';
+                    // Parse rating distribution data from flask
+                    var ratingDistStr = '{{ rating_distribution|safe }}';
                     console.log('Raw rating distribution JSON:', ratingDistStr);
                     
                     if (ratingDistStr && ratingDistStr !== '[]' && ratingDistStr !== 'null') {
-                        const parsedDist = JSON.parse(ratingDistStr);
+                        var parsedDist = JSON.parse(ratingDistStr);
                         if (parsedDist && parsedDist.length === 5) {
                             ratingDistribution = parsedDist;
                         }
@@ -1171,9 +1089,9 @@ function initializeCharts() {
                 var activityTagNames = [];
                 
                 try {
-                    // Get tag activity data
-                    const tagActivityStr = '{{ tag_activity|tojson|safe }}';
-                    const activityTagNamesStr = '{{ tag_names|tojson|safe }}';
+                    // Get tag activity data from Flask
+                    var tagActivityStr = '{{ tag_activity|safe }}';
+                    var activityTagNamesStr = '{{ tag_names|safe }}';
                     
                     console.log('Raw tag activity JSON:', tagActivityStr);
                     console.log('Raw activity tag names JSON:', activityTagNamesStr);
@@ -1232,7 +1150,7 @@ function initializeCharts() {
                 }
                 
                 // Create datasets for each tag
-                var colors = [
+                var chartColors = [
                     'rgba(79, 172, 254, 0.7)',
                     'rgba(0, 230, 118, 0.7)',
                     'rgba(255, 193, 7, 0.7)',
@@ -1240,7 +1158,7 @@ function initializeCharts() {
                     'rgba(156, 39, 176, 0.7)'
                 ];
                 
-                var borderColors = [
+                var chartBorders = [
                     'rgba(79, 172, 254, 1)',
                     'rgba(0, 230, 118, 1)',
                     'rgba(255, 193, 7, 1)',
@@ -1310,6 +1228,51 @@ function initializeCharts() {
         }
         
 // Filter table function
+// Update progress bars and indicators for metric cards
+function updateBarIndicators() {
+    console.log('Updating progress bars and indicators...');
+    
+    // Get all progress bars
+    var progressBars = document.querySelectorAll('.progress-bar');
+    
+    // Update each progress bar with smooth animation
+    for (var i = 0; i < progressBars.length; i++) {
+        var bar = progressBars[i];
+        var value = parseFloat(bar.getAttribute('data-value')) || 0;
+        var max = parseFloat(bar.getAttribute('data-max')) || 100;
+        
+        // Calculate percentage (0-100)
+        var percent = (value / max) * 100;
+        
+        // Ensure a minimum width for visibility
+        percent = Math.max(percent, 3);
+        
+        // Set width with smooth transition
+        (function(bar, percent) {
+            setTimeout(function() {
+                bar.style.width = percent + '%';
+            }, 100);
+        })(bar, percent);
+    }
+    
+    // Update circular indicators if any exist
+    var indicators = document.querySelectorAll('.circular-indicator');
+    for (var j = 0; j < indicators.length; j++) {
+        var indicator = indicators[j];
+        var value = parseFloat(indicator.getAttribute('data-value')) || 0;
+        var max = parseFloat(indicator.getAttribute('data-max')) || 100;
+        
+        // Calculate percentage for the indicator
+        var pct = Math.min((value / max) * 100, 100);
+        
+        // Update indicator display
+        var displayElement = indicator.querySelector('.indicator-value');
+        if (displayElement) {
+            displayElement.textContent = Math.round(pct) + '%';
+        }
+    }
+}
+
 function filterTable() {
             var tagFilter = document.getElementById('tagFilter');
             var tag = 'all';
@@ -1436,16 +1399,24 @@ function filterByTag(tagName) {
 
 // Document ready event
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize video background by setting src from data-src
+    // Initialize video background with error handling
     var videoElement = document.querySelector('.video-background video');
     if (videoElement && videoElement.getAttribute('data-src')) {
-        videoElement.src = videoElement.getAttribute('data-src');
-        videoElement.addEventListener('error', function(e) {
-            console.error('Error loading video:', e);
-        });
-        videoElement.addEventListener('loadeddata', function() {
-            console.log('Video loaded successfully');
-        });
+        try {
+            videoElement.src = videoElement.getAttribute('data-src');
+            videoElement.addEventListener('error', function(e) {
+                console.error('Error loading video:', e);
+                // Add a fallback background if video fails to load
+                document.querySelector('.video-background').style.backgroundColor = 'rgba(8, 23, 54, 0.9)';
+            });
+            videoElement.addEventListener('loadeddata', function() {
+                console.log('Video loaded successfully');
+            });
+        } catch(e) {
+            console.error('Video initialization error:', e);
+            // Add fallback styling
+            document.querySelector('.video-background').style.backgroundColor = 'rgba(8, 23, 54, 0.9)';
+        }
     }
     
     // Update progress bars when page loads

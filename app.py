@@ -1562,7 +1562,6 @@ def dashboard_analytical():
             most_tags_count=most_tags_count,
             recommendation_strength=recommendation_strength
         )
-        return template
     except Exception as e:
         print(f"Error in dashboard_analytical: {str(e)}")
         return render_template('error.html', error=str(e)), 500
