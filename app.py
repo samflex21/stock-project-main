@@ -827,12 +827,51 @@ def api_price_growth_data_old():
 def dashboard_tactical():
     conn = get_db_connection()
     
-    # Expiration window removed since we no longer have expiring products section
-    # expiration_window = request.args.get('expiration_window', '30')
+    # Get total number of products
+    total_products_query = "SELECT COUNT(*) AS TotalProducts FROM Products"
+    total_products = conn.execute(total_products_query).fetchone()['TotalProducts']
     
-    # Products expiring soon query removed as requested
+    # Get average stock level per product
+    avg_stock_query = """
+    SELECT AVG(StockQuantity) AS AvgStock 
+    FROM Inventory
+    """
+    avg_stock = round(conn.execute(avg_stock_query).fetchone()['AvgStock'], 1)
     
-    # Stock levels by category
+    # Get number of products near expiry (within 30 days)
+    expiry_window = 30
+    near_expiry_query = f"""
+    SELECT COUNT(*) AS NearExpiryCount 
+    FROM Inventory 
+    WHERE julianday(ExpirationDate) - julianday('now') <= {expiry_window}
+    AND julianday(ExpirationDate) - julianday('now') >= 0
+    """
+    near_expiry_count = conn.execute(near_expiry_query).fetchone()['NearExpiryCount']
+    
+    # Get average product price
+    avg_price_query = """
+    SELECT AVG(p.Price) AS AvgPrice 
+    FROM Products p
+    """
+    avg_price = round(conn.execute(avg_price_query).fetchone()['AvgPrice'], 2)
+    
+    # Get top category by stock quantity
+    top_category_query = """
+    SELECT 
+        p.[Product Category] as CategoryName,
+        SUM(i.StockQuantity) AS TotalStock
+    FROM Inventory i
+    JOIN Products p ON i.ProductID = p.[Product ID]
+    GROUP BY p.[Product Category]
+    ORDER BY TotalStock DESC
+    LIMIT 1
+    """
+    
+    top_category = conn.execute(top_category_query).fetchone()
+    top_category_name = top_category['CategoryName'] if top_category else 'N/A'
+    top_category_stock = top_category['TotalStock'] if top_category else 0
+    
+    # Get stock levels by category for context
     stock_query = """
     SELECT 
         p.[Product Category] as CategoryName,
@@ -845,17 +884,32 @@ def dashboard_tactical():
     
     stock_data = rows_to_dict_list(conn.execute(stock_query).fetchall())
     
-    # Low stock products query removed as requested
-    
     # Get categories for filter
     categories = rows_to_dict_list(conn.execute(
         "SELECT DISTINCT [Product Category] AS CategoryName FROM Products ORDER BY [Product Category]"
     ).fetchall())
     
+    # Calculate max values for progress indicators
+    max_stock = 100  # Baseline max average stock
+    if avg_stock > 80:
+        max_stock = round(avg_stock * 1.25)
+        
+    max_price = 1000  # Baseline max price
+    if avg_price > 800:
+        max_price = round(avg_price * 1.25)
+    
     conn.close()
     
     return render_template('dashboard_tactical.html', 
-                          categories=categories)
+                          categories=categories,
+                          total_products=total_products,
+                          avg_stock=avg_stock,
+                          near_expiry_count=near_expiry_count,
+                          avg_price=avg_price,
+                          top_category_name=top_category_name,
+                          top_category_stock=top_category_stock,
+                          max_stock=max_stock,
+                          max_price=max_price)
 
 # AJAX endpoint for expiring products data
 @app.route('/api/expiring_products')

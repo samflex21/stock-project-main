@@ -4,6 +4,34 @@
 
 {% block head %}
 <style>
+    /* Override base template dark background */
+    html, body, .container, .container-fluid, main, .content, .content-wrapper, .dashboard-wrapper,
+    .row, .col, div[class^="col-"], .card-body, .card-footer, #main-content, .page-content,
+    .dashboard, section, .tab-content, .tab-pane, .section-header, .sidebar,
+    .card-wrapper, .dashboard-content, .chart-container {
+        background-color: transparent !important;
+        background: none !important;
+    }
+    
+    /* Prevent the body::before background overlay from base.html */
+    body::before {
+        background-color: transparent !important;
+        background: none !important;
+        content: none !important;
+        display: none !important;
+    }
+
+    /* Hide the default navbar for this page only */
+    nav.navbar {
+        display: none !important;
+    }
+    
+    /* Reset container margin-top to account for missing navbar */
+    .container.mt-4 {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    
     /* Video background styles */
     .video-background {
         position: fixed;
@@ -13,7 +41,7 @@
         height: 100%;
         z-index: -1;
         overflow: hidden;
-        background-color: #050505; /* Darker fallback color if video doesn't load */
+        background-color: white; /* White fallback color if video doesn't load */
     }
     
     .video-background video {
@@ -26,7 +54,123 @@
         left: 50%;
         transform: translate(-50%, -50%);
         object-fit: cover;
-        opacity: 0.8; /* Slightly visible video */
+        opacity: 1.0; /* Fully visible video */
+    }
+    
+    /* Glass sidebar styles */
+    .glass-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 280px;
+        height: 100vh;
+        background-color: rgba(220, 220, 220, 0.7);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-right: 1px solid rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        padding: 20px;
+        overflow-y: auto;
+    }
+    
+    .sidebar-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .sidebar-logo {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .sidebar-logo i {
+        font-size: 24px;
+        margin-right: 10px;
+        color: #000;
+    }
+    
+    .sidebar-logo h3 {
+        color: #000 !important;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: none;
+    }
+    
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 30px;
+    }
+    
+    .sidebar-nav li {
+        margin-bottom: 5px;
+    }
+    
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        color: rgba(0, 0, 0, 0.8);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    
+    .sidebar-nav a:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .sidebar-nav a.active {
+        background-color: rgba(0, 0, 0, 0.1);
+        color: #000;
+        font-weight: 700;
+    }
+    
+    .sidebar-nav i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    .sidebar-divider {
+        height: 1px;
+        background-color: rgba(0, 0, 0, 0.1);
+        margin: 15px 0;
+    }
+    
+    .filter-section {
+        padding: 0;
+    }
+    
+    .filter-section h5 {
+        color: #000 !important;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+    
+    .filter-section label {
+        color: rgba(0, 0, 0, 0.8) !important;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    .filter-section select {
+        background-color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        color: #000;
+        margin-bottom: 15px;
+    }
+    
+    .filter-section select option {
+        background-color: #333;
+        color: white;
     }
     
     /* Semi-transparent cards that show the video background */
@@ -39,15 +183,24 @@
         border-radius: 10px;
     }
     
-    /* Make text dark for better readability */
-    body, h1, h2, h3, h4, h5, p, .card-title, .card-text {
+    /* Content wrapper adjusted for sidebar - fully transparent */
+    .content-wrapper {
+        margin-left: 280px;
+        width: calc(100% - 280px);
+        min-height: 100vh;
+        padding: 20px;
+        background-color: transparent !important;
+    }
+    
+    /* Make text dark for better readability in cards */
+    .card-title, .card-text {
         color: #333 !important;
     }
     
     /* Set background color to transparent for all containers */
-    html, body, .container, .container-fluid, main, .content, .content-wrapper, .dashboard-wrapper,
-    .row, .col, div[class^="col-"], #main-content, .page-content,
-    .dashboard, section, .tab-content, .tab-pane {
+    html, body, .container, .container-fluid, main, .content,
+    .dashboard-wrapper, .row, .col, div[class^="col-"], #main-content,
+    .page-content, .dashboard, section, .tab-content, .tab-pane {
         background-color: transparent !important;
     }
     
@@ -88,21 +241,10 @@
     }
     
     .section-header {
-        background-color: rgba(248, 249, 250, 0.8);
+        background-color: transparent !important;
         border-left: 4px solid #0d6efd;
         padding: 10px 15px;
         margin-bottom: 20px;
-    }
-    
-    /* Navbar styling */
-    .navbar {
-        background-color: rgba(33, 37, 41, 0.8) !important;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    .navbar-light .navbar-nav .nav-link {
-        color: #fff !important;
     }
     
     /* Page title styling */
@@ -110,6 +252,42 @@
         color: #fff !important;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         margin-top: 1rem;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 992px) {
+        .glass-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .glass-sidebar.show {
+            transform: translateX(0);
+        }
+        
+        .content-wrapper {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .sidebar-toggle {
+            display: block;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+        }
+    }
+    
+    @media (min-width: 993px) {
+        .sidebar-toggle {
+            display: none;
+        }
     }
 </style>
 {% endblock %}
@@ -123,85 +301,327 @@
     </video>
 </div>
 
-<h1 class="mb-4">Tactical Dashboard — Shipment Optimization</h1>
+<!-- Mobile sidebar toggle button -->
+<button class="sidebar-toggle btn" id="sidebarToggle">
+    <i class="fas fa-bars"></i>
+</button>
 
-<!-- Filters -->
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Filters</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <label for="categoryFilter" class="form-label">Product Category</label>
-                <select class="form-select" id="categoryFilter">
-                    <option value="all">All Categories</option>
-                    {% for category in categories %}
-                    <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+<!-- Glass Sidebar -->
+<div class="glass-sidebar" id="glassSidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-chart-line"></i>
+            <h3>Stock Management</h3>
         </div>
     </div>
+    
+    <!-- Navigation Links -->
+    <ul class="sidebar-nav">
+        <li>
+            <a href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </li>
+        <li>
+            <a href="/dashboard/strategic">
+                <i class="fas fa-chess"></i> Strategic Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="/dashboard/tactical" class="active">
+                <i class="fas fa-tasks"></i> Tactical Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="/dashboard/analytical">
+                <i class="fas fa-chart-bar"></i> Analytical Dashboard
+            </a>
+        </li>
+    </ul>
+    
+    <div class="sidebar-divider"></div>
+    
+    <!-- Filters Section -->
+    <div class="filter-section">
+        <h5><i class="fas fa-filter me-2"></i>Filters</h5>
+        
+        <label for="categoryFilter" class="form-label">Product Category</label>
+        <select class="form-select" id="categoryFilter">
+            <option value="all">All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
+            {% endfor %}
+        </select>
+    </div>
 </div>
+
+<!-- Main Content - completely transparent -->
+<div class="content-wrapper" style="background: transparent !important; background-color: transparent !important;">
+    <h1 class="mb-4">Tactical Dashboard — Shipment Optimization</h1>
+
 
 <!-- Section 1: Context -->
-<div class="section-header">
-    <h2>Context</h2>
-    <p>This dashboard provides tactical insights for shipment optimization. Monitor expiring products, stock levels, and identify items requiring attention to minimize waste.</p>
-</div>
+<style>
+    /* Circular progress indicator styles */
+    /* Individual circular indicators will float on their own */
+    
+    .circular-indicator {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0px 5px 15px rgba(0, 0, 0, 0.1));
+    }
+    
+    .circle-bg {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        z-index: 1;
+    }
+    
+    .circle-progress {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        z-index: 0;
+    }
+    
+    .circle-content {
+        z-index: 2;
+        text-align: center;
+    }
+    
+    .circle-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #000;
+        margin-bottom: 5px;
+        text-shadow: none;
+    }
+    
+    .circle-title {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.9);
+        text-align: center;
+        font-weight: 600;
+        max-width: 120px;
+        text-shadow: none;
+    }
+    
+    .blue-progress .circle-progress { background: conic-gradient(#1a73e8 0%, #1a73e8 calc(var(--progress) * 1%), rgba(0,0,0,0.07) calc(var(--progress) * 1%), rgba(0,0,0,0.07) 100%); }
+    .blue-progress .circle-bg { border: 3px solid rgba(26, 115, 232, 0.3); }
+    
+    .green-progress .circle-progress { background: conic-gradient(#34a853 0%, #34a853 calc(var(--progress) * 1%), rgba(0,0,0,0.07) calc(var(--progress) * 1%), rgba(0,0,0,0.07) 100%); }
+    .green-progress .circle-bg { border: 3px solid rgba(52, 168, 83, 0.3); }
+    
+    .orange-progress .circle-progress { background: conic-gradient(#f9ab00 0%, #f9ab00 calc(var(--progress) * 1%), rgba(0,0,0,0.07) calc(var(--progress) * 1%), rgba(0,0,0,0.07) 100%); }
+    .orange-progress .circle-bg { border: 3px solid rgba(249, 171, 0, 0.3); }
+    
+    .purple-progress .circle-progress { background: conic-gradient(#8b46ff 0%, #8b46ff calc(var(--progress) * 1%), rgba(0,0,0,0.07) calc(var(--progress) * 1%), rgba(0,0,0,0.07) 100%); }
+    .purple-progress .circle-bg { border: 3px solid rgba(139, 70, 255, 0.3); }
+    
+    .red-progress .circle-progress { background: conic-gradient(#ea4335 0%, #ea4335 calc(var(--progress) * 1%), rgba(0,0,0,0.07) calc(var(--progress) * 1%), rgba(0,0,0,0.07) 100%); }
+    .red-progress .circle-bg { border: 3px solid rgba(234, 67, 53, 0.3); }
+</style>
 
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Products Expiring Soon</h5>
-                <p class="display-4">{{ expiring_products|length }}</p>
-                <p class="text-muted">Products expiring within {{ expiration_window }} days</p>
-            </div>
+<h2 class="mb-4" style="color: #000; font-weight: 700;">Progress</h2>
+
+<style>
+    /* New circle progress styles based on the reference image */
+    .metrics-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        flex-wrap: nowrap;
+        margin: 30px 0;
+        gap: 20px;
+        background: transparent;
+    }
+    
+    .metric-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 180px;
+        background: transparent;
+    }
+    
+    .metric-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .circle-progress-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+    }
+    
+    .circle-bg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #f0f0f0;
+    }
+    
+    .progress-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+    }
+    
+    .progress-value {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        color: #000;
+    }
+    
+    .metric-subtitle {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #555;
+        text-align: center;
+    }
+    
+    /* Circle colors */
+    .blue-ring { background: conic-gradient(#1a73e8 0%, #1a73e8 var(--progress), #f0f0f0 var(--progress), #f0f0f0 100%); }
+    .green-ring { background: conic-gradient(#34a853 0%, #34a853 var(--progress), #f0f0f0 var(--progress), #f0f0f0 100%); }
+    .red-ring { background: conic-gradient(#ea4335 0%, #ea4335 var(--progress), #f0f0f0 var(--progress), #f0f0f0 100%); }
+    .orange-ring { background: conic-gradient(#f9ab00 0%, #f9ab00 var(--progress), #f0f0f0 var(--progress), #f0f0f0 100%); }
+    .purple-ring { background: conic-gradient(#8b46ff 0%, #8b46ff var(--progress), #f0f0f0 var(--progress), #f0f0f0 100%); }
+</style>
+
+<!-- Single row of metrics with circular progress indicators -->
+<div class="metrics-container">
+    <!-- Completion / Total Products -->
+    <div class="metric-item">
+        <div class="metric-title">Total Products</div>
+        <div class="circle-progress-container">
+            <div class="circle-bg"></div>
+            <div class="progress-ring blue-ring" style="--progress: 75%"></div>
+            <div class="progress-value">{{ total_products }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Low Stock Items</h5>
-                <p class="display-4">{{ low_stock_products|length }}</p>
-                <p class="text-muted">Products with stock quantity ≤ 10</p>
-            </div>
+    
+    <!-- SPI / Average Stock Level -->
+    <div class="metric-item">
+        <div class="metric-title">Average Stock</div>
+        <div class="circle-progress-container">
+            <div class="circle-bg"></div>
+            <div class="progress-ring green-ring" style="--progress: {{ (avg_stock / max_stock * 100)|round }}%"></div>
+            <div class="progress-value">{{ avg_stock }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Total Stock Value</h5>
-                <p class="display-4">$25,750</p>
-                <p class="text-muted">Estimated value of current inventory</p>
-            </div>
+    
+    <!-- CPI / Near Expiry Products -->
+    <div class="metric-item">
+        <div class="metric-title">Near Expiry</div>
+        <div class="circle-progress-container">
+            <div class="circle-bg"></div>
+            <div class="progress-ring red-ring" style="--progress: {{ (near_expiry_count / total_products * 100 if total_products else 0)|round }}%"></div>
+            <div class="progress-value">{{ near_expiry_count }}</div>
+        </div>
+    </div>
+    
+    <!-- Average Price -->
+    <div class="metric-item">
+        <div class="metric-title">Average Price</div>
+        <div class="circle-progress-container">
+            <div class="circle-bg"></div>
+            <div class="progress-ring orange-ring" style="--progress: {{ (avg_price / max_price * 100)|round }}%"></div>
+            <div class="progress-value">${{ avg_price }}</div>
+        </div>
+    </div>
+    
+    <!-- Top Category -->
+    <div class="metric-item">
+        <div class="metric-title">Top Category</div>
+        <div class="circle-progress-container">
+            <div class="circle-bg"></div>
+            <div class="progress-ring purple-ring" style="--progress: 100%"></div>
+            <div class="progress-value" style="font-size: 18px;">{{ top_category_name }}</div>
         </div>
     </div>
 </div>
 
-<!-- Section 2: Main Section -->
-<div class="section-header">
-    <h2>Main Section</h2>
-    <p>Visualize key metrics to optimize shipment planning and minimize waste.</p>
+<!-- Section 1: Main -->
+<div class="dashboard-section" style="margin-bottom: 30px; padding: 20px; background: transparent !important;">
+    <h5 class="mb-3" style="color: #000; font-weight: 600;">Main Section</h5>
+    <p style="color: #000;">Visualize key metrics to optimize shipment planning and minimize waste.</p>
 </div>
-
 <!-- Content sections removed as requested -->
 
-<div class="card mb-4">
-    <div class="card-body text-center py-5">
-        <h4>Dashboard Simplified</h4>
-        <p class="text-muted">All chart visualizations and product tables have been removed as requested.</p>
-        <p class="text-muted">Use the Strategic or Analytical dashboards for detailed data visualization.</p>
+<div style="margin-bottom: 30px; padding: 20px; background: transparent !important;">
+    <div style="text-align: center; padding: 30px 0;">
+        <h4 style="color: #000;">Dashboard Simplified</h4>
+        <p style="color: rgba(0,0,0,0.7);">All chart visualizations and product tables have been removed as requested.</p>
+        <p style="color: rgba(0,0,0,0.7);">Use the Strategic or Analytical dashboards for detailed data visualization.</p>
     </div>
 </div>
 
 <!-- No charts as requested -->
+</div> <!-- Close the content-wrapper div -->
 {% endblock %}
 
 {% block scripts %}
 <script type="text/javascript">
+// Remove all dark backgrounds immediately on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Force transparent background on all elements
+    document.body.style.backgroundColor = 'transparent';
+    document.documentElement.style.backgroundColor = 'transparent';
+    document.body.style.background = 'none';
+    document.documentElement.style.background = 'none';
+
+    // Remove all background colors
+    const allElements = document.querySelectorAll('*');
+    allElements.forEach(el => {
+        if (el.classList.contains('video-background') || 
+            el.classList.contains('glass-sidebar') || 
+            el.classList.contains('circular-indicator') ||
+            el.classList.contains('circle-bg')) {
+            // Keep these elements' backgrounds
+            return;
+        }
+        el.style.setProperty('background-color', 'transparent', 'important');
+        el.style.setProperty('background', 'none', 'important');
+    });
+
+    // Make the content wrapper completely transparent
+    const contentWrapper = document.querySelector('.content-wrapper');
+    if (contentWrapper) {
+        contentWrapper.style.setProperty('background-color', 'transparent', 'important');
+        contentWrapper.style.setProperty('background', 'none', 'important');
+    }
+});
+
 // Filter products table by category
 document.getElementById('categoryFilter').addEventListener('change', function() {
     const category = this.value;
@@ -215,6 +635,25 @@ document.getElementById('categoryFilter').addEventListener('change', function() 
     });
 });
 
-// Expiration window handling removed as requested
+// Mobile sidebar toggle functionality
+const sidebarToggle = document.getElementById('sidebarToggle');
+const glassSidebar = document.getElementById('glassSidebar');
+
+if (sidebarToggle && glassSidebar) {
+    sidebarToggle.addEventListener('click', function() {
+        glassSidebar.classList.toggle('show');
+    });
+    
+    // Close sidebar when clicking outside of it (only on mobile)
+    document.addEventListener('click', function(event) {
+        const isMobile = window.innerWidth < 993;
+        const clickedInsideSidebar = glassSidebar.contains(event.target);
+        const clickedOnToggle = sidebarToggle.contains(event.target);
+        
+        if (isMobile && !clickedInsideSidebar && !clickedOnToggle && glassSidebar.classList.contains('show')) {
+            glassSidebar.classList.remove('show');
+        }
+    });
+}
 </script>
 {% endblock %}
