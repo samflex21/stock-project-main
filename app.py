@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Database helper function - Use absolute path to ensure consistent connections
 def get_db_connection():
     # Always use the absolute path to the database
-    db_path = r'C:\Users\samuel\Documents\final project\stock-project-main\stock-project.db'
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stock-project.db')
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     print(f"Connected to database at: {db_path}")
@@ -827,23 +827,10 @@ def api_price_growth_data_old():
 def dashboard_tactical():
     conn = get_db_connection()
     
-    # Default expiration window (30 days)
-    expiration_window = request.args.get('expiration_window', '30')
+    # Expiration window removed since we no longer have expiring products section
+    # expiration_window = request.args.get('expiration_window', '30')
     
-    # Products expiring soon
-    expiring_query = """
-    SELECT 
-        p.[Product Name] as ProductName,
-        p.[Product Category] as CategoryName,
-        i.StockQuantity,
-        i.ExpirationDate
-    FROM Inventory i
-    JOIN Products p ON i.ProductID = p.[Product ID]
-    WHERE i.ExpirationDate <= date('now', '+' || ? || ' days')
-    ORDER BY i.ExpirationDate ASC
-    """
-    
-    expiring_products = rows_to_dict_list(conn.execute(expiring_query, [expiration_window]).fetchall())
+    # Products expiring soon query removed as requested
     
     # Stock levels by category
     stock_query = """
@@ -858,19 +845,7 @@ def dashboard_tactical():
     
     stock_data = rows_to_dict_list(conn.execute(stock_query).fetchall())
     
-    # Low stock products
-    low_stock_query = """
-    SELECT 
-        p.[Product Name] as ProductName,
-        p.[Product Category] as CategoryName,
-        i.StockQuantity
-    FROM Inventory i
-    JOIN Products p ON i.ProductID = p.[Product ID]
-    WHERE i.StockQuantity <= 10
-    ORDER BY i.StockQuantity ASC
-    """
-    
-    low_stock_products = rows_to_dict_list(conn.execute(low_stock_query).fetchall())
+    # Low stock products query removed as requested
     
     # Get categories for filter
     categories = rows_to_dict_list(conn.execute(
@@ -879,17 +854,8 @@ def dashboard_tactical():
     
     conn.close()
     
-    # Prepare data for charts
-    category_names = [row['CategoryName'] for row in stock_data]
-    stock_quantities = [row['TotalStock'] for row in stock_data]
-    
     return render_template('dashboard_tactical.html', 
-                          expiring_products=expiring_products,
-                          low_stock_products=low_stock_products,
-                          categories=categories,
-                          category_names=json.dumps(category_names),
-                          stock_quantities=json.dumps(stock_quantities),
-                          expiration_window=expiration_window)
+                          categories=categories)
 
 # AJAX endpoint for expiring products data
 @app.route('/api/expiring_products')

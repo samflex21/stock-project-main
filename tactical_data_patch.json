@@ -1,0 +1,58 @@
+{
+  "timeline_data": [
+    {
+      "quarter_num": 0,
+      "quarter_label": "Q1 2025",
+      "expiring_count": 3317
+    },
+    {
+      "quarter_num": 1,
+      "quarter_label": "Q2 2025",
+      "expiring_count": 0
+    },
+    {
+      "quarter_num": 2,
+      "quarter_label": "Q3 2025",
+      "expiring_count": 0
+    },
+    {
+      "quarter_num": 3,
+      "quarter_label": "Q4 2025",
+      "expiring_count": 0
+    },
+    {
+      "quarter_num": 4,
+      "quarter_label": "Q1 2026",
+      "expiring_count": 3363
+    },
+    {
+      "quarter_num": 5,
+      "quarter_label": "Q2 2026",
+      "expiring_count": 0
+    },
+    {
+      "quarter_num": 6,
+      "quarter_label": "Q3 2026",
+      "expiring_count": 0
+    },
+    {
+      "quarter_num": 7,
+      "quarter_label": "Q4 2026",
+      "expiring_count": 0
+    }
+  ],
+  "category_data": [
+    {
+      "CategoryName": "Electronics",
+      "TotalStock": 170705
+    },
+    {
+      "CategoryName": "Clothing",
+      "TotalStock": 169548
+    },
+    {
+      "CategoryName": "Home Appliances",
+      "TotalStock": 166218
+    }
+  ]
+}

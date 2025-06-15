@@ -1,0 +1,32 @@
+{
+  "stock_data": [
+    {
+      "CategoryName": "Electronics",
+      "TotalStock": 170705,
+      "ProductCount": 3361,
+      "AvgStock": 50.8
+    },
+    {
+      "CategoryName": "Clothing",
+      "TotalStock": 169548,
+      "ProductCount": 3341,
+      "AvgStock": 50.7
+    },
+    {
+      "CategoryName": "Home Appliances",
+      "TotalStock": 166218,
+      "ProductCount": 3298,
+      "AvgStock": 50.4
+    }
+  ],
+  "category_names": [
+    "Electronics",
+    "Clothing",
+    "Home Appliances"
+  ],
+  "stock_quantities": [
+    170705,
+    169548,
+    166218
+  ]
+}
