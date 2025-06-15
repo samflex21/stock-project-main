@@ -9,7 +9,9 @@ app = Flask(__name__)
 
 # Database connection helper
 def get_db_connection():
-    conn = sqlite3.connect('stock-project.db')
+    # Using absolute path to ensure consistent database access
+    db_path = r"C:\Users\samuel\Documents\final project\stock-project-main\stock-project.db"
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -1575,9 +1577,38 @@ def dashboard_analytical():
             rating_dist_json = json.dumps([10, 15, 8, 5, 2])
             rating_data_json = json.dumps({"Quality": [2, 4, 8, 12, 6], "Value": [1, 3, 9, 8, 4]})
         
-        # Get category names and ratings
-        category_names = [tag['TagName'] for tag in tag_ratings[:10]] if tag_ratings else []
-        category_ratings = [tag['AvgRating'] for tag in tag_ratings[:10]] if tag_ratings else []
+        # Get category product ratings from database
+        try:
+            # Dedicated query for Top Rated Products by Category
+            category_query = """
+            SELECT 
+                p.Category,
+                AVG(r.Rating) AS AvgRating,
+                COUNT(r.ProductID) AS ProductCount
+            FROM Products p
+            JOIN Product_Ratings r ON p.[Product ID] = r.ProductID
+            WHERE p.Category IS NOT NULL AND p.Category != ''
+            GROUP BY p.Category
+            ORDER BY AVG(r.Rating) DESC
+            LIMIT 10
+            """
+            
+            category_data = rows_to_dict_list(conn.execute(category_query).fetchall())
+            
+            if category_data and len(category_data) > 0:
+                print(f"Successfully retrieved {len(category_data)} product categories with ratings")
+                category_names = [item['Category'] for item in category_data]
+                category_ratings = [round(float(item['AvgRating']), 2) for item in category_data]
+            else:
+                print("No category data found, using fallback data")
+                # Fallback to tag data if no categories found
+                category_names = [tag['TagName'] for tag in tag_ratings[:10]] if tag_ratings else []
+                category_ratings = [tag['AvgRating'] for tag in tag_ratings[:10]] if tag_ratings else []
+        except Exception as e:
+            print(f"Error fetching category data: {str(e)}")
+            # Fallback data
+            category_names = [tag['TagName'] for tag in tag_ratings[:10]] if tag_ratings else []
+            category_ratings = [tag['AvgRating'] for tag in tag_ratings[:10]] if tag_ratings else []
         
         return render_template(
             'dashboard_analytical.html',
