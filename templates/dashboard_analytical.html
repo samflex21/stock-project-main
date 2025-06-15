@@ -769,16 +769,35 @@
     </div>
 </div>
 
-<!-- Section 5: Deep Dive -->
+<!-- Section 5: Tag Usage Trends Over Time -->
 <div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Deep Dive</h2>
-    <p class="text-white-50 mb-4">Detailed analysis of product ratings and tag correlations.</p>
+    <h2 class="text-white mb-3">Tag Usage Trends Over Time</h2>
+    <p class="text-white-50 mb-4">Analysis of tag usage trends over time.</p>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 350px;">
+                <canvas id="tagActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- Top Rated Products -->
+<!-- Section 6: Deep Dive -->
 <div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Top Rated Products</h2>
-    <div class="table-responsive">
-        <table class="table">
+    <h2 class="text-white mb-3">Deep Dive Analysis</h2>
+    <p class="text-white-50 mb-4">Detailed product rating analysis and top performers.</p>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Top Rated Products</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
             <thead>
                 <tr>
                     <th>Product</th>
@@ -819,23 +838,8 @@
                     <td>{{ product.ReviewCount }}</td>
                 </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Tag Usage Trends Over Time -->
-<div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Tag Usage Trends Over Time</h2>
-    <p class="text-white-50 mb-4">Analysis of tag usage trends over time.</p>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
-        </div>
-        <div class="card-body">
-            <div class="chart-container" style="height: 350px;">
-                <canvas id="tagActivityChart"></canvas>
+                </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1096,17 +1100,26 @@ function initializeCharts() {
                     console.log('Raw tag activity JSON:', tagActivityStr);
                     console.log('Raw activity tag names JSON:', activityTagNamesStr);
                     
-                    if (tagActivityStr && tagActivityStr !== '[]' && tagActivityStr !== 'null') {
-                        tagActivity = JSON.parse(tagActivityStr);
+                    // Handle potential JSON parsing errors safely
+                    try {
+                        if (tagActivityStr && tagActivityStr !== '[]' && tagActivityStr !== 'null') {
+                            tagActivity = JSON.parse(tagActivityStr);
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing tag activity data:', parseError);
                     }
                     
-                    if (activityTagNamesStr && activityTagNamesStr !== '[]' && activityTagNamesStr !== 'null') {
-                        activityTagNames = JSON.parse(activityTagNamesStr);
+                    try {
+                        if (activityTagNamesStr && activityTagNamesStr !== '[]' && activityTagNamesStr !== 'null') {
+                            activityTagNames = JSON.parse(activityTagNamesStr);
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing activity tag names:', parseError);
                     }
                     
                     // If we have no data, use sample data
-                    if (!tagActivity || tagActivity.length === 0) {
-                        console.warn('No tag activity data found, using sample data');
+                    if (!tagActivity || !Array.isArray(tagActivity) || tagActivity.length === 0) {
+                        console.warn('No tag activity data found or invalid format, using sample data');
                         // Sample data for 5 tags over 6 months
                         tagActivity = [
                             [12, 15, 18, 22, 25, 30],  // Tag 1
@@ -1117,7 +1130,7 @@ function initializeCharts() {
                         ];
                     }
                     
-                    if (!activityTagNames || activityTagNames.length === 0) {
+                    if (!activityTagNames || !Array.isArray(activityTagNames) || activityTagNames.length === 0) {
                         activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
                     }
                     
@@ -1128,7 +1141,7 @@ function initializeCharts() {
                     console.log('Tag activity data:', tagActivity);
                     console.log('Activity tag names:', activityTagNames);
                 } catch (e) {
-                    console.error('Error parsing tag activity data:', e);
+                    console.error('Error in tag activity chart setup:', e);
                     // Sample fallback data
                     activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
                     tagActivity = [
@@ -1171,14 +1184,14 @@ function initializeCharts() {
                     var tagName = activityTagNames[i];
                     tagDatasets.push({
                         label: tagName,
-                        data: tagActivity[i] || [0, 0, 0, 0, 0, 0],
-                        borderColor: borderColors[i % borderColors.length],
-                        backgroundColor: colors[i % colors.length],
+                        data: (tagActivity[i] && Array.isArray(tagActivity[i])) ? tagActivity[i] : [0, 0, 0, 0, 0, 0],
+                        borderColor: chartBorders[i % chartBorders.length],
+                        backgroundColor: chartColors[i % chartColors.length],
                         borderWidth: 2,
                         tension: 0.4,
                         fill: false,
                         pointRadius: 4,
-                        pointBackgroundColor: borderColors[i % borderColors.length]
+                        pointBackgroundColor: chartBorders[i % chartBorders.length]
                     });
                 }
                 
