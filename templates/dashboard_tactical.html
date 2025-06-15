@@ -64,11 +64,11 @@
         top: 0;
         width: 280px;
         height: 100vh;
-        background: linear-gradient(135deg, rgba(20, 25, 50, 0.75), rgba(30, 40, 80, 0.8)) !important;
-        backdrop-filter: blur(15px) !important;
-        -webkit-backdrop-filter: blur(15px) !important;
-        border-right: 1px solid rgba(70, 90, 150, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 0, 20, 0.5);
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-right: 1px solid rgba(100, 150, 220, 0.15);
+        box-shadow: 0 8px 32px rgba(20, 40, 80, 0.25);
         z-index: 1000;
         padding: 20px;
         overflow-y: auto;
@@ -461,12 +461,12 @@
 <style>
     /* Glassmorphic container styling with gradient */
     .glassmorphic-container {
-        background: linear-gradient(135deg, rgba(20, 25, 50, 0.75), rgba(30, 40, 80, 0.8)) !important;
-        backdrop-filter: blur(15px) !important;
-        -webkit-backdrop-filter: blur(15px) !important;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
         border-radius: 15px;
-        border: 1px solid rgba(70, 90, 150, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 20, 0.5);
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(20, 40, 80, 0.25);
         padding: 20px;
         margin-bottom: 20px;
     }
@@ -499,15 +499,24 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-        padding: 10px;
-        min-width: 160px;
+        padding: 15px;
+        min-width: 170px;
+        min-height: 220px;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 15px;
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(20, 40, 80, 0.25);
+        margin: 0 10px 10px 0;
     }
     
     .metric-title {
         font-weight: 600;
         font-size: 16px;
         margin-bottom: 20px;
-        color: black;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     
     .circle-indicator {
