@@ -605,6 +605,45 @@
     .glass-panel {
         padding: 15px;
         margin-bottom: 20px;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    /* Improved spacing for charts */
+    .chart-container {
+        padding: 10px;
+    }
+    
+    /* Improved card styling */
+    .card {
+        border-radius: 10px;
+        margin-bottom: 0;
+    }
+    
+    /* Improved row spacing */
+    .row {
+        margin-right: -8px;
+        margin-left: -8px;
+    }
+    
+    .col, .col-lg-6, .col-12 {
+        padding-right: 8px;
+        padding-left: 8px;
+    }
+    
+    /* Card height consistency */
+    .card.h-100 {
+        height: calc(100% - 10px) !important;
+        margin: 5px 0;
+    }
+    
+    /* Tag cloud styling */
+    .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        gap: 8px;
+        padding: 5px;
     }
     
     /* Sidebar toggle button for mobile */
@@ -884,20 +923,20 @@
     
 </div>
 
-<!-- Tag Cloud and Rating Distribution Row -->
+<!-- All Four Charts in One Row -->
 <div class="row">
-    <!-- Section 2: Tag Cloud -->
-    <div class="col-lg-6 mb-4">
+    <!-- Section 1: Tag Cloud -->
+    <div class="col-lg-3 mb-4">
         <div class="glass-panel h-100">
             <h2 class="text-white mb-3">Tag Cloud</h2>
-            <p class="text-white-50 mb-3">Popular tags sized by frequency. Click on a tag to filter.</p>
+            <p class="text-white-50 mb-3">Popular tags sized by frequency.</p>
             
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fas fa-tags me-2"></i>Product Tags</h5>
                 </div>
                 <div class="card-body">
-                    <div class="tag-cloud" id="tagCloud">
+                    <div class="tag-cloud" id="tagCloud" style="height: 250px; overflow-y: auto;">
                         {% for tag in popular_tags[:30] %}
                         <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
                             <i class="fas fa-tag me-1"></i>{{ tag.TagName }}
@@ -909,60 +948,57 @@
         </div>
     </div>
 
-    <!-- Section 3: Rating Analysis -->
-    <div class="col-lg-6 mb-4">
+    <!-- Section 2: Rating Distribution -->
+    <div class="col-lg-3 mb-4">
         <div class="glass-panel h-100">
             <h2 class="text-white mb-3">Rating Distribution</h2>
-            <p class="text-white-50 mb-3">Analysis of product rating distribution.</p>
+            <p class="text-white-50 mb-3">Product ratings analysis.</p>
             
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Rating Distribution</h5>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="height: 300px;">
+                    <div class="chart-container" style="height: 250px;">
                         <canvas id="ratingDistributionChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Charts Section - Row with Two Charts -->
-<div class="row">
-    <!-- Section 4: Top Rated Products by Category -->
-    <div class="col-lg-6 mb-4">
+    
+    <!-- Section 3: Top Rated Products by Category -->
+    <div class="col-lg-3 mb-4">
         <div class="glass-panel h-100">
-            <h2 class="text-white mb-3">Top Rated Products by Category</h2>
-            <p class="text-white-50 mb-4">Column chart showing highest rated products across categories.</p>
+            <h2 class="text-white mb-3">Top Products</h2>
+            <p class="text-white-50 mb-3">Highest rated by category.</p>
             
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Top Rated Products by Category</h5>
+                    <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Products by Category</h5>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="height: 320px;">
-                        <canvas id="topRatedProductsChart"></canvas>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="productsByCategoryChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Section 5: Tag Usage Trends Over Time -->
-    <div class="col-lg-6 mb-4">
+    
+    <!-- Section 4: Tag Usage Trends -->
+    <div class="col-lg-3 mb-4">
         <div class="glass-panel h-100">
-            <h2 class="text-white mb-3">Tag Usage Trends Over Time</h2>
-            <p class="text-white-50 mb-4">Analysis of tag usage trends over time.</p>
+            <h2 class="text-white mb-3">Tag Trends</h2>
+            <p class="text-white-50 mb-3">Usage trends over time.</p>
             
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container" style="height: 320px;">
-                        <canvas id="tagActivityChart"></canvas>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="tagTrendsChart"></canvas>
                     </div>
                 </div>
             </div>
