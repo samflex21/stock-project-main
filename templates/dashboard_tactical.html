@@ -743,19 +743,40 @@ document.head.insertAdjacentHTML('beforeend', `
     </style>
 `);
 
-// Initialize all charts when DOM is loaded
+// Initialize Chart.js plugins
 document.addEventListener('DOMContentLoaded', function() {
-    // Chart 1: Stock Availability Matrix (Heatmap)
-    fetchStockMatrixData();
+    debugLog('DOM loaded, initializing charts');
     
-    // Chart 2: Expiring Products Over Time (Area Chart)
-    fetchExpiringProductsData();
-    
-    // Chart 3: Low Stock Warnings (Bubble Chart)
-    fetchLowStockData();
-    
-    // Chart 4: Stock Utilization Ratio by Tag (Donut Chart)
-    fetchStockUtilizationData();
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded! Adding script dynamically.');
+        
+        // Dynamically add Chart.js if missing
+        const chartScript = document.createElement('script');
+        chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js';
+        document.head.appendChild(chartScript);
+        
+        const matrixScript = document.createElement('script');
+        matrixScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.1/dist/chartjs-chart-matrix.min.js';
+        document.head.appendChild(matrixScript);
+        
+        // Wait for scripts to load
+        setTimeout(() => {
+            debugLog('Dynamically loaded Chart.js, initializing charts now');
+            // Fetch and create all charts
+            fetchStockMatrixData();
+            fetchExpiringProductsData();
+            fetchLowStockData();
+            fetchStockUtilizationData();
+        }, 1000);
+    } else {
+        debugLog('Chart.js found, initializing charts');
+        // Fetch and create all charts
+        fetchStockMatrixData();
+        fetchExpiringProductsData();
+        fetchLowStockData();
+        fetchStockUtilizationData();
+    }
 });
 
 // Error handler for chart data fetching
@@ -799,22 +820,51 @@ function fetchStockMatrixData() {
 
 // Create the Stock Availability Matrix chart
 function createStockMatrix(apiData) {
-    const ctx = document.getElementById('stockHeatmap').getContext('2d');
+    debugLog('Creating stock matrix chart with data', apiData);
+    const canvas = document.getElementById('stockHeatmap');
+    if (!canvas) {
+        console.error('Cannot find canvas element #stockHeatmap');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
     
-    // Use API data or fallback to sample data if missing
-    const categories = apiData?.categories || ['Electronics', 'Clothing', 'Furniture', 'Food', 'Books'];
-    const regions = apiData?.regions || ['North', 'South', 'East', 'West', 'Central'];
+    // Extract unique categories and regions from API data
+    let categories = [];
+    let regions = [];
+    
+    if (apiData && Array.isArray(apiData)) {
+        // Extract unique categories and regions from the data
+        apiData.forEach(item => {
+            if (item.CategoryName && !categories.includes(item.CategoryName)) {
+                categories.push(item.CategoryName);
+            }
+            if (item.Region && !regions.includes(item.Region)) {
+                regions.push(item.Region);
+            }
+        });
+    }
+    
+    // Fallback if no data
+    if (categories.length === 0) {
+        categories = ['Electronics', 'Clothing', 'Furniture', 'Food', 'Books'];
+    }
+    if (regions.length === 0) {
+        regions = ['North', 'South', 'East', 'West', 'Central'];
+    }
+    
+    debugLog('Categories:', categories);
+    debugLog('Regions:', regions);
     
     const data = [];
     
     // If we have API data
-    if (apiData && apiData.data && apiData.data.length > 0) {
-        // Map through the API data
+    if (apiData && Array.isArray(apiData) && apiData.length > 0) {
+        // Process data for each category and region
         for (let i = 0; i < categories.length; i++) {
             for (let j = 0; j < regions.length; j++) {
                 // Find matching data item
-                const item = apiData.data.find(d => d.category === categories[i] && d.region === regions[j]);
-                const stockLevel = item ? Math.min(Math.max(item.value, 0), 100) : 0;
+                const item = apiData.find(d => d.CategoryName === categories[i] && d.Region === regions[j]);
+                const stockLevel = item ? Math.min(Math.max(item.StockPercentage || 0, 0), 100) : 0;
                 
                 data.push({
                     x: j,
@@ -829,6 +879,7 @@ function createStockMatrix(apiData) {
         }
     } else {
         // Generate sample data as fallback
+        debugLog('Using fallback sample data for matrix chart');
         for (let i = 0; i < categories.length; i++) {
             for (let j = 0; j < regions.length; j++) {
                 const stockLevel = Math.floor(Math.random() * 100);
@@ -936,11 +987,44 @@ function fetchExpiringProductsData() {
 
 // Create the Expiring Products Over Time chart
 function createExpiringProductsChart(apiData) {
-    const ctx = document.getElementById('expiringProductsChart').getContext('2d');
+    debugLog('Creating expiring products chart with data', apiData);
+    const canvas = document.getElementById('expiringProductsChart');
+    if (!canvas) {
+        console.error('Cannot find canvas element #expiringProductsChart');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
     
-    // Use API data or fallback to sample data if missing
-    const months = apiData?.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const expiringProducts = apiData?.data || [5, 8, 12, 15, 20, 25, 18, 22, 30, 25, 22, 18];
+    let months = [];
+    let expiringProducts = [];
+    
+    if (apiData && Array.isArray(apiData)) {
+        // Extract month labels and counts from API data
+        apiData.forEach(item => {
+            if (item.Month) {
+                months.push(item.Month);
+            }
+            
+            // Use the ExpCount property or fallback to ProductCount
+            if (item.hasOwnProperty('ExpCount')) {
+                expiringProducts.push(item.ExpCount);
+            } else if (item.hasOwnProperty('ProductCount')) {
+                expiringProducts.push(item.ProductCount);
+            }
+        });
+    }
+    
+    // Fallback if no data
+    if (months.length === 0) {
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    }
+    
+    if (expiringProducts.length === 0) {
+        expiringProducts = [5, 8, 12, 15, 20, 25, 18, 22, 30, 25, 22, 18];
+    }
+    
+    debugLog('Months:', months);
+    debugLog('Expiring Products Data:', expiringProducts);
     
     new Chart(ctx, {
         type: 'line',
@@ -1031,18 +1115,46 @@ function fetchLowStockData() {
 
 // Create the Low Stock Warnings chart
 function createLowStockBubbleChart(apiData) {
-    const ctx = document.getElementById('lowStockBubbleChart').getContext('2d');
+    debugLog('Creating low stock bubble chart with data', apiData);
+    const canvas = document.getElementById('lowStockBubbleChart');
+    if (!canvas) {
+        console.error('Cannot find canvas element #lowStockBubbleChart');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
     
-    // Use API data or fallback to sample data if missing
-    const bubbleData = apiData?.data || [
-        { x: 10, y: 4.5, r: 15, label: 'Product A' },
-        { x: 15, y: 3.8, r: 8, label: 'Product B' },
-        { x: 8, y: 4.2, r: 20, label: 'Product C' },
-        { x: 5, y: 4.9, r: 10, label: 'Product D' },
-        { x: 20, y: 3.5, r: 15, label: 'Product E' },
-        { x: 3, y: 4.8, r: 25, label: 'Product F' },
-        { x: 12, y: 4.1, r: 12, label: 'Product G' }
-    ];
+    let bubbleData = [];
+    
+    if (apiData && Array.isArray(apiData)) {
+        // Transform API data into bubble chart format
+        bubbleData = apiData.map(item => {
+            // Calculate bubble size based on CategoryCount (or use default value)
+            const bubbleSize = item.CategoryCount ? Math.min(Math.max(item.CategoryCount * 2, 5), 30) : 10;
+            
+            return {
+                x: item.StockQuantity || 0,  // Stock quantity for x-axis
+                y: item.Rating || 3.5,      // Product rating for y-axis (default to 3.5 if missing)
+                r: bubbleSize,               // Bubble size represents category count
+                label: item.ProductName || 'Unknown Product'
+            };
+        });
+    }
+    
+    // Fallback if no data
+    if (bubbleData.length === 0) {
+        debugLog('Using fallback sample data for bubble chart');
+        bubbleData = [
+            { x: 10, y: 4.5, r: 15, label: 'Product A' },
+            { x: 15, y: 3.8, r: 8, label: 'Product B' },
+            { x: 8, y: 4.2, r: 20, label: 'Product C' },
+            { x: 5, y: 4.9, r: 10, label: 'Product D' },
+            { x: 20, y: 3.5, r: 15, label: 'Product E' },
+            { x: 3, y: 4.8, r: 25, label: 'Product F' },
+            { x: 12, y: 4.1, r: 12, label: 'Product G' }
+        ];
+    }
+    
+    debugLog('Processed bubble data:', bubbleData);
     
     new Chart(ctx, {
         type: 'bubble',
@@ -1149,20 +1261,58 @@ function fetchStockUtilizationData() {
         .catch(error => handleChartError('stockUtilizationChart', error));
 }
 
-// Create the Stock Utilization Ratio chart
+// Create the Stock Utilization Ratio by Tag chart
 function createStockUtilizationChart(apiData) {
-    const ctx = document.getElementById('stockUtilizationChart').getContext('2d');
+    debugLog('Creating stock utilization chart with data', apiData);
+    const canvas = document.getElementById('stockUtilizationChart');
+    if (!canvas) {
+        console.error('Cannot find canvas element #stockUtilizationChart');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
     
-    // Use API data or fallback to sample data if missing
-    const tags = apiData?.labels || ['Premium', 'Standard', 'Economy', 'Clearance', 'Limited'];
-    const utilization = apiData?.values || [85, 65, 45, 30, 90];  // Utilization percentages
+    let labels = [];
+    let data = [];
+    
+    if (apiData && Array.isArray(apiData)) {
+        // Extract labels and values from API data
+        apiData.forEach(item => {
+            // Use Tag or ProductTag as the label
+            if (item.Tag) {
+                labels.push(item.Tag);
+            } else if (item.ProductTag) {
+                labels.push(item.ProductTag);
+            }
+            
+            // Use UtilizationRatio or Percentage for the data
+            if (item.hasOwnProperty('UtilizationRatio')) {
+                data.push(item.UtilizationRatio);
+            } else if (item.hasOwnProperty('Percentage')) {
+                data.push(item.Percentage);
+            } else if (item.hasOwnProperty('StockQuantity')) {
+                data.push(item.StockQuantity);
+            }
+        });
+    }
+    
+    // Fallback if no data
+    if (labels.length === 0) {
+        labels = ['Perishable', 'Non-perishable', 'Fragile', 'Heavy', 'Electronics'];
+    }
+    
+    if (data.length === 0) {
+        data = [30, 25, 15, 20, 10];
+    }
+    
+    debugLog('Chart labels:', labels);
+    debugLog('Chart data:', data);  // Utilization percentages
     
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: tags,
+            labels: labels,
             datasets: [{
-                data: utilization,
+                data: data,
                 backgroundColor: [
                     'rgba(26, 115, 232, 0.8)',
                     'rgba(52, 168, 83, 0.8)',
