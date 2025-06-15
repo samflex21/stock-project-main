@@ -30,6 +30,16 @@
     .container.mt-4 {
         margin-top: 0 !important;
         padding-top: 0 !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden;
     }
     
     /* Video background styles */
@@ -42,6 +52,8 @@
         z-index: -1;
         overflow: hidden;
         background-color: white; /* White fallback color if video doesn't load */
+        margin: 0;
+        padding: 0;
     }
     
     .video-background video {
@@ -67,11 +79,12 @@
         background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
-        border-right: 1px solid rgba(100, 150, 220, 0.15);
-        box-shadow: 0 8px 32px rgba(20, 40, 80, 0.25);
+        border: none;
+        box-shadow: none;
         z-index: 1000;
         padding: 20px;
         overflow-y: auto;
+        margin: 0;
     }
     
     .sidebar-header {
@@ -187,11 +200,16 @@
     
     /* Content wrapper adjusted for sidebar - fully transparent */
     .content-wrapper {
-        margin-left: 280px;
+        margin: 0;
+        padding: 0;
         width: calc(100% - 280px);
         min-height: 100vh;
-        padding: 20px;
+        position: absolute;
+        left: 280px;
+        top: 0;
         background-color: transparent !important;
+        box-sizing: border-box;
+        border: none;
     }
     
     /* Make text dark for better readability in cards */
@@ -206,19 +224,93 @@
         background-color: transparent !important;
     }
     
-    /* Table styling with semi-transparent background */
+    /* Table styling with glassmorphic theme */
     table, thead, tbody, tr {
-        background-color: rgba(255, 255, 255, 0.7) !important;
+        background-color: transparent !important;
     }
     
     th, td {
         background-color: transparent !important;
-        color: #333 !important;
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    /* Low stock table glassmorphic style */
+    .low-stock-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 5px;
+    }
+    
+    .low-stock-table thead th {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.45), rgba(50, 70, 120, 0.5)) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        padding: 12px 15px;
+        font-weight: 600;
+        color: white !important;
+        border-bottom: 1px solid rgba(100, 150, 220, 0.15);
+        text-align: left;
+    }
+    
+    .low-stock-table tbody tr {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        box-shadow: 0 4px 16px rgba(20, 40, 80, 0.2);
+    }
+    
+    .low-stock-table tbody td {
+        padding: 12px 15px;
+        color: white !important;
+        border: none;
     }
     
     /* Style for badges to ensure visibility */
     .badge {
         font-weight: 600;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    /* Stock badge styling */
+    .stock-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        text-align: center;
+        min-width: 30px;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.5), rgba(50, 70, 120, 0.6)) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        box-shadow: 0 2px 8px rgba(20, 40, 80, 0.2);
+    }
+    
+    .stock-badge.critical {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.7), rgba(190, 30, 45, 0.8)) !important;
+    }
+    
+    .stock-badge.low {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.7), rgba(225, 163, 0, 0.8)) !important;
+    }
+    
+    /* Button styling in tables */
+    .table .btn-outline-primary {
+        color: white !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.4), rgba(50, 70, 120, 0.5)) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    
+    .table .btn-outline-primary:hover {
+        background: linear-gradient(135deg, rgba(50, 70, 120, 0.6), rgba(60, 80, 140, 0.7)) !important;
+        box-shadow: 0 4px 12px rgba(20, 40, 80, 0.3);
     }
     
     /* Keep some specific styling */
@@ -467,12 +559,30 @@
         border-radius: 15px;
         border: 1px solid rgba(100, 150, 220, 0.15);
         box-shadow: 0 8px 32px 0 rgba(20, 40, 80, 0.25);
-        padding: 20px;
+        padding: 15px;
         margin-bottom: 20px;
     }
     
+    /* Chart container specific styles */
+    .chart-container {
+        min-height: 480px;
+    }
+    
+    .chart-area {
+        position: relative;
+        height: 430px;
+        width: 100%;
+        margin: 0;
+    }
+    
+    .chart-title {
+        margin-bottom: 15px;
+    }
+    
     .context-section {
-        width: 90%;
+        width: 100%;
+        padding: 10px 10px;
+        margin: 0;
     }
     
     /* Metrics row layout */
@@ -557,26 +667,292 @@
     }
     
     .purple-indicator {
-        border: 12px solid #8b46ff;
+        border: 12px solid #a142f4;
+    }
+    
+    /* Deep Dive Section Styling */
+    .deep-dive-section {
+        margin-top: 15px;
+        width: 100%;
+        padding: 0 10px;
+    }
+    
+    .section-title {
+        color: white;
+        margin-bottom: 20px;
+        font-weight: 700;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .deep-dive-panel {
+        margin-bottom: 25px;
+        padding: 20px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(20, 40, 80, 0.25);
+    }
+    
+    .panel-title .badge {
+        margin-left: 10px;
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-group {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .filter-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: white;
+        font-size: 14px;
+    }
+    
+    .filter-group select, .filter-group input {
+        width: 100%;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        border-radius: 5px;
+        color: white;
+        box-shadow: 0 4px 16px rgba(20, 40, 80, 0.15);
+    }
+    
+    .filter-button {
+        align-self: flex-end;
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.7), rgba(25, 135, 255, 0.8)) !important;
+        border: 1px solid rgba(100, 150, 220, 0.3);
+        padding: 8px 20px;
+        margin-top: 19px;
+        box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
+    }
+    
+    .deep-dive-panel {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 15px;
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(20, 40, 80, 0.25);
+    }
+    
+    #lowStockTable {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        color: white;
+    }
+    
+    #lowStockTable thead th {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.5), rgba(50, 70, 120, 0.55)) !important;
+        padding: 12px 15px;
+        font-weight: 600;
+        border-bottom: 1px solid rgba(100, 150, 220, 0.15);
+    }
+    
+    #lowStockTable tbody tr {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.25), rgba(50, 70, 120, 0.3)) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+    }
+    
+    #lowStockTable tbody tr.low-stock {
+        border-left: 4px solid #ffc107;
+    }
+    
+    #lowStockTable tbody tr.critical-stock {
+        border-left: 4px solid #dc3545;
+    }
+    
+    #lowStockTable td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(100, 150, 220, 0.1);
+    }
+    
+    .stock-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stock-badge.critical {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.3), rgba(250, 70, 80, 0.4)) !important;
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        color: #ff8d8d;
+    }
+    
+    .stock-badge.low {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 205, 40, 0.4)) !important;
+        border: 1px solid rgba(255, 193, 7, 0.4);
+        color: #ffdb72;
+    }
+    
+    /* Timeline Styling */
+    .expiry-timeline {
+        overflow-x: auto;
+    }
+    
+    .timeline-container {
+        display: flex;
+        padding: 15px 0;
+        min-width: 600px;
+    }
+    
+    .timeline-group {
+        flex: 1;
+        padding: 0 10px;
+    }
+    
+    .timeline-header {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.5), rgba(50, 70, 120, 0.55)) !important;
+        padding: 10px 15px;
+        border-radius: 5px 5px 0 0;
+        color: white;
+        font-weight: 500;
+        text-align: center;
+        border-bottom: 1px solid rgba(100, 150, 220, 0.15);
+    }
+    
+    .timeline-items {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        padding: 10px;
+        height: 250px;
+        overflow-y: auto;
+        border-radius: 0 0 5px 5px;
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        border-top: none;
+    }
+    
+    .timeline-item {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border-left: 3px solid transparent;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.25), rgba(50, 70, 120, 0.3)) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border: 1px solid rgba(100, 150, 220, 0.1);
+    }
+    
+    .timeline-item.critical {
+        border-left-color: #dc3545;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.25);
+    }
+    
+    .timeline-item.warning {
+        border-left-color: #ffc107;
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.25);
+    }
+    
+    .timeline-item.normal {
+        border-left-color: #6c757d;
+        box-shadow: 0 0 10px rgba(108, 117, 125, 0.25);
+    }
+    
+    .item-header {
+        font-weight: 600;
+        color: white;
+    }
+    
+    .item-date {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 5px;
+    }
+    
+    /* Restock Recommendations Styling */
+    .restock-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 15px;
+    }
+    
+    .restock-item {
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border: 1px solid rgba(100, 150, 220, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(20, 40, 80, 0.25);
+    }
+    
+    .item-name {
+        font-weight: 600;
+        color: white;
+    }
+    
+    .item-category {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 13px;
+    }
+    
+    .progress {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .btn-xs {
+        padding: 1px 5px;
+        font-size: 12px;
+        border-radius: 3px;
+        margin-top: 5px;
     }
     
     /* Chart Grid Layout */
     .chart-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        grid-gap: 20px;
+        grid-gap: 15px;
         width: 100%;
         max-width: 100%;
-        padding: 10px;
+        padding: 0 10px;
+        margin: 0;
     }
     
     /* Special container for charts that must stay side by side */
     .side-by-side-charts {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        grid-gap: 20px;
+        grid-gap: 15px;
         width: 100%;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        padding: 0 10px;
+        margin-top: 0;
     }
     
     /* Keep side-by-side charts together even on smaller screens */
@@ -714,6 +1090,183 @@
         <div class="chart-area">
             <canvas id="stockUtilizationChart"></canvas>
             <div class="chart-loading">Loading data...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Deep Dive Section -->
+<div class="glassmorphic-container deep-dive-section">
+    <h3 class="section-title">Deep Dive Analysis</h3>
+    
+    <!-- Filters Row -->
+    <div class="filters-row mb-4">
+        <div class="filter-group">
+            <label for="categoryFilter">Category</label>
+            <select id="categoryFilter" class="form-select filter-select">
+                <option value="all">All Categories</option>
+                <option value="electronics">Electronics</option>
+                <option value="food">Food & Beverage</option>
+                <option value="clothing">Clothing</option>
+                <option value="health">Health & Beauty</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="stockLevelFilter">Stock Level</label>
+            <select id="stockLevelFilter" class="form-select filter-select">
+                <option value="all">All Levels</option>
+                <option value="critical">Critical (< 5)</option>
+                <option value="low">Low (< 10)</option>
+                <option value="medium">Medium (< 20)</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="expiryRangeFilter">Expiry Range</label>
+            <select id="expiryRangeFilter" class="form-select filter-select">
+                <option value="all">All Ranges</option>
+                <option value="7days">Next 7 Days</option>
+                <option value="14days">Next 14 Days</option>
+                <option value="30days">Next 30 Days</option>
+            </select>
+        </div>
+        
+        <button id="applyFilters" class="btn btn-primary filter-button">
+            Apply Filters
+        </button>
+    </div>
+    
+    <!-- Low Stock Products Table -->
+    <div class="deep-dive-panel">
+        <h4 class="panel-title">Low Stock Products <span class="badge bg-danger">Urgent</span></h4>
+        <div class="table-responsive">
+            <table id="lowStockTable" class="table table-borderless low-stock-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Stock Qty</th>
+                        <th>Category</th>
+                        <th>Rating</th>
+                        <th>Expiry Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="lowStockTableBody">
+                    <!-- Sample rows, will be populated with actual data -->
+                    <tr class="critical-stock">
+                        <td>Organic Whole Milk</td>
+                        <td><span class="stock-badge critical">2</span></td>
+                        <td>Food & Beverage</td>
+                        <td>★★★★☆</td>
+                        <td>Jun 20, 2025</td>
+                        <td><button class="btn btn-sm btn-outline-primary">Restock</button></td>
+                    </tr>
+                    <tr class="low-stock">
+                        <td>Premium Wireless Earbuds</td>
+                        <td><span class="stock-badge low">8</span></td>
+                        <td>Electronics</td>
+                        <td>★★★★★</td>
+                        <td>N/A</td>
+                        <td><button class="btn btn-sm btn-outline-primary">Restock</button></td>
+                    </tr>
+                    <tr class="critical-stock">
+                        <td>Natural Face Moisturizer</td>
+                        <td><span class="stock-badge critical">3</span></td>
+                        <td>Health & Beauty</td>
+                        <td>★★★★☆</td>
+                        <td>Dec 15, 2025</td>
+                        <td><button class="btn btn-sm btn-outline-primary">Restock</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Expiring Soon Timeline -->
+    <div class="deep-dive-panel">
+        <h4 class="panel-title">Expiring Soon Products <span class="badge bg-warning text-dark">Action Needed</span></h4>
+        <div class="expiry-timeline">
+            <div class="timeline-container" id="expiryTimeline">
+                <!-- Will be populated with actual data -->
+                <div class="timeline-group">
+                    <div class="timeline-header">Next 7 Days</div>
+                    <div class="timeline-items">
+                        <div class="timeline-item critical">
+                            <div class="item-header">Fresh Yogurt (20 units)</div>
+                            <div class="item-date">June 18, 2025</div>
+                            <button class="btn btn-xs btn-danger">Priority Ship</button>
+                        </div>
+                        <div class="timeline-item critical">
+                            <div class="item-header">Organic Eggs (15 units)</div>
+                            <div class="item-date">June 19, 2025</div>
+                            <button class="btn btn-xs btn-danger">Priority Ship</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-group">
+                    <div class="timeline-header">8-14 Days</div>
+                    <div class="timeline-items">
+                        <div class="timeline-item warning">
+                            <div class="item-header">Whole Wheat Bread (10 units)</div>
+                            <div class="item-date">June 23, 2025</div>
+                            <button class="btn btn-xs btn-warning">Plan Shipment</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-group">
+                    <div class="timeline-header">15-30 Days</div>
+                    <div class="timeline-items">
+                        <div class="timeline-item normal">
+                            <div class="item-header">Organic Milk (25 units)</div>
+                            <div class="item-date">July 10, 2025</div>
+                            <button class="btn btn-xs btn-secondary">Monitor</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Restock Recommendations -->
+    <div class="deep-dive-panel">
+        <h4 class="panel-title">Restock Recommendations</h4>
+        <div class="restock-container" id="restockRecommendations">
+            <!-- Will be populated with actual data -->
+            <div class="restock-item">
+                <div class="restock-info">
+                    <div class="item-name">Premium Coffee Beans</div>
+                    <div class="item-category">Food & Beverage</div>
+                </div>
+                <div class="restock-progress">
+                    <div class="progress-label">
+                        <span>Current: 3</span>
+                        <span>Recommended: 20</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 15%" aria-valuenow="3" aria-valuemin="0" aria-valuemax="20"></div>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-primary">Order Now</button>
+            </div>
+            
+            <div class="restock-item">
+                <div class="restock-info">
+                    <div class="item-name">Wireless Headphones</div>
+                    <div class="item-category">Electronics</div>
+                </div>
+                <div class="restock-progress">
+                    <div class="progress-label">
+                        <span>Current: 5</span>
+                        <span>Recommended: 15</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 33%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="15"></div>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-primary">Order Now</button>
+            </div>
         </div>
     </div>
 </div>
@@ -1503,6 +2056,351 @@ function createStockUtilizationChart(apiData) {
         if (isMobile && !clickedInsideSidebar && !clickedOnToggle && glassSidebar.classList.contains('show-sidebar')) {
             glassSidebar.classList.remove('show-sidebar');
         }
+    });
+    
+    // Deep Dive Section Functionality
+    // Initialize the deep dive section
+    function initDeepDiveSection() {
+        // Set up event listeners for filters
+        document.getElementById('applyFilters').addEventListener('click', applyFilters);
+        
+        // Initially load data
+        fetchLowStockProducts();
+        fetchExpiryProducts();
+        fetchRestockRecommendations();
+    }
+
+    // Filter application function
+    function applyFilters() {
+        const category = document.getElementById('categoryFilter').value;
+        const stockLevel = document.getElementById('stockLevelFilter').value;
+        const expiryRange = document.getElementById('expiryRangeFilter').value;
+        const tag = document.getElementById('tagFilter').value;
+        
+        console.log('Applying filters:', { category, stockLevel, expiryRange, tag });
+        
+        // Fetch filtered data
+        fetchLowStockProducts(category, stockLevel, tag);
+        fetchExpiryProducts(category, expiryRange);
+        fetchRestockRecommendations(category, stockLevel);
+    }
+
+    // Fetch low stock products
+    function fetchLowStockProducts(category = 'all', stockLevel = 'all', tag = 'all') {
+        // In a real application, you would fetch this data from your API
+        // For demonstration, we're using sample data
+        const sampleData = [
+            {
+                name: 'Organic Whole Milk',
+                stock: 2,
+                category: 'Food & Beverage',
+                rating: 4,
+                expiry: 'Jun 20, 2025',
+                critical: true
+            },
+            {
+                name: 'Premium Wireless Earbuds',
+                stock: 8,
+                category: 'Electronics',
+                rating: 5,
+                expiry: 'N/A',
+                critical: false
+            },
+            {
+                name: 'Natural Face Moisturizer',
+                stock: 3,
+                category: 'Health & Beauty',
+                rating: 4,
+                expiry: 'Dec 15, 2025',
+                critical: true
+            },
+            {
+                name: 'Organic Protein Bars',
+                stock: 5,
+                category: 'Food & Beverage',
+                rating: 3,
+                expiry: 'Sep 10, 2025',
+                critical: false
+            },
+            {
+                name: 'Bluetooth Smart Speaker',
+                stock: 4,
+                category: 'Electronics',
+                rating: 5,
+                expiry: 'N/A',
+                critical: true
+            }
+        ];
+        
+        // Filter the data based on selected filters
+        let filteredData = sampleData;
+        
+        if (category !== 'all') {
+            filteredData = filteredData.filter(item => item.category === category);
+        }
+        
+        if (stockLevel !== 'all') {
+            switch (stockLevel) {
+                case 'critical':
+                    filteredData = filteredData.filter(item => item.stock < 5);
+                    break;
+                case 'low':
+                    filteredData = filteredData.filter(item => item.stock < 10);
+                    break;
+                case 'medium':
+                    filteredData = filteredData.filter(item => item.stock < 20);
+                    break;
+            }
+        }
+        
+        // Update the table with filtered data
+        updateLowStockTable(filteredData);
+    }
+
+    // Update low stock table
+    function updateLowStockTable(data) {
+        const tableBody = document.getElementById('lowStockTableBody');
+        tableBody.innerHTML = '';
+        
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = item.critical ? 'critical-stock' : 'low-stock';
+            
+            // Generate rating stars
+            const stars = '\u2605'.repeat(item.rating) + '\u2606'.repeat(5 - item.rating);
+            
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td><span class="stock-badge ${item.critical ? 'critical' : 'low'}">${item.stock}</span></td>
+                <td>${item.category}</td>
+                <td>${stars}</td>
+                <td>${item.expiry}</td>
+                <td><button class="btn btn-sm btn-outline-primary">Restock</button></td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Fetch expiry products
+    function fetchExpiryProducts(category = 'all', expiryRange = 'all') {
+        // Sample data for demonstration
+        // In a real application, you would fetch this from your API
+        const next7Days = [
+            {
+                name: 'Fresh Yogurt',
+                units: 20,
+                date: 'June 18, 2025',
+                critical: true
+            },
+            {
+                name: 'Organic Eggs',
+                units: 15,
+                date: 'June 19, 2025',
+                critical: true
+            }
+        ];
+        
+        const next14Days = [
+            {
+                name: 'Whole Wheat Bread',
+                units: 10,
+                date: 'June 23, 2025',
+                critical: false
+            },
+            {
+                name: 'Fresh Orange Juice',
+                units: 12,
+                date: 'June 25, 2025',
+                critical: false
+            }
+        ];
+        
+        const next30Days = [
+            {
+                name: 'Organic Milk',
+                units: 25,
+                date: 'July 10, 2025',
+                critical: false
+            },
+            {
+                name: 'Chocolate Bars',
+                units: 30,
+                date: 'July 15, 2025',
+                critical: false
+            }
+        ];
+        
+        // Filter based on selected expiry range
+        let filteredData = {
+            next7Days,
+            next14Days,
+            next30Days
+        };
+        
+        // Update the timeline with filtered data
+        updateExpiryTimeline(filteredData);
+    }
+
+    // Update expiry timeline
+    function updateExpiryTimeline(data) {
+        const timeline = document.getElementById('expiryTimeline');
+        timeline.innerHTML = '';
+        
+        // Create 7 days section
+        const group7Days = document.createElement('div');
+        group7Days.className = 'timeline-group';
+        group7Days.innerHTML = `
+            <div class="timeline-header">Next 7 Days</div>
+            <div class="timeline-items" id="timeline7Days"></div>
+        `;
+        timeline.appendChild(group7Days);
+        
+        const items7Days = document.getElementById('timeline7Days');
+        data.next7Days.forEach(item => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = `timeline-item ${item.critical ? 'critical' : 'normal'}`;
+            timelineItem.innerHTML = `
+                <div class="item-header">${item.name} (${item.units} units)</div>
+                <div class="item-date">${item.date}</div>
+                <button class="btn btn-xs btn-danger">Priority Ship</button>
+            `;
+            items7Days.appendChild(timelineItem);
+        });
+        
+        // Create 8-14 days section
+        const group14Days = document.createElement('div');
+        group14Days.className = 'timeline-group';
+        group14Days.innerHTML = `
+            <div class="timeline-header">8-14 Days</div>
+            <div class="timeline-items" id="timeline14Days"></div>
+        `;
+        timeline.appendChild(group14Days);
+        
+        const items14Days = document.getElementById('timeline14Days');
+        data.next14Days.forEach(item => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item warning';
+            timelineItem.innerHTML = `
+                <div class="item-header">${item.name} (${item.units} units)</div>
+                <div class="item-date">${item.date}</div>
+                <button class="btn btn-xs btn-warning">Plan Shipment</button>
+            `;
+            items14Days.appendChild(timelineItem);
+        });
+        
+        // Create 15-30 days section
+        const group30Days = document.createElement('div');
+        group30Days.className = 'timeline-group';
+        group30Days.innerHTML = `
+            <div class="timeline-header">15-30 Days</div>
+            <div class="timeline-items" id="timeline30Days"></div>
+        `;
+        timeline.appendChild(group30Days);
+        
+        const items30Days = document.getElementById('timeline30Days');
+        data.next30Days.forEach(item => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item normal';
+            timelineItem.innerHTML = `
+                <div class="item-header">${item.name} (${item.units} units)</div>
+                <div class="item-date">${item.date}</div>
+                <button class="btn btn-xs btn-secondary">Monitor</button>
+            `;
+            items30Days.appendChild(timelineItem);
+        });
+    }
+
+    // Fetch restock recommendations
+    function fetchRestockRecommendations(category = 'all', stockLevel = 'all') {
+        // Sample data for demonstration
+        const sampleData = [
+            {
+                name: 'Premium Coffee Beans',
+                category: 'Food & Beverage',
+                current: 3,
+                recommended: 20,
+                percentage: 15
+            },
+            {
+                name: 'Wireless Headphones',
+                category: 'Electronics',
+                current: 5,
+                recommended: 15,
+                percentage: 33
+            },
+            {
+                name: 'Vitamin Supplements',
+                category: 'Health & Beauty',
+                current: 7,
+                recommended: 25,
+                percentage: 28
+            },
+            {
+                name: 'Organic Tea Bags',
+                category: 'Food & Beverage',
+                current: 4,
+                recommended: 18,
+                percentage: 22
+            }
+        ];
+        
+        // Filter based on selected category
+        let filteredData = sampleData;
+        
+        if (category !== 'all') {
+            filteredData = filteredData.filter(item => item.category === category);
+        }
+        
+        // Update the restock recommendations
+        updateRestockRecommendations(filteredData);
+    }
+
+    // Update restock recommendations
+    function updateRestockRecommendations(data) {
+        const container = document.getElementById('restockRecommendations');
+        container.innerHTML = '';
+        
+        data.forEach(item => {
+            const restockItem = document.createElement('div');
+            restockItem.className = 'restock-item';
+            
+            // Determine color class based on percentage
+            let colorClass = 'bg-danger';
+            if (item.percentage > 30) {
+                colorClass = 'bg-warning';
+            } else if (item.percentage > 60) {
+                colorClass = 'bg-success';
+            }
+            
+            restockItem.innerHTML = `
+                <div class="restock-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-category">${item.category}</div>
+                </div>
+                <div class="restock-progress">
+                    <div class="progress-label">
+                        <span>Current: ${item.current}</span>
+                        <span>Recommended: ${item.recommended}</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar ${colorClass}" role="progressbar" 
+                             style="width: ${item.percentage}%" 
+                             aria-valuenow="${item.current}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="${item.recommended}"></div>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-primary">Order Now</button>
+            `;
+            
+            container.appendChild(restockItem);
+        });
+    }
+
+    // Initialize the Deep Dive section when the page is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(initDeepDiveSection, 1000); // Slight delay to ensure all other scripts have run
     });
 </script>
 {% endblock %}
