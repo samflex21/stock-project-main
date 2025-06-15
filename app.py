@@ -919,26 +919,49 @@ def api_expiring_products():
     
     conn = get_db_connection()
     
-    # Base query with expiration window parameter
-    params = [expiration_window]
-    where_clause = "WHERE i.ExpirationDate <= date('now', '+' || ? || ' days')"
+    # Get filter parameters
+    days = request.args.get('days', '30')
+    category = request.args.get('category', 'all')
+    expiry_range = request.args.get('expiryRange', 'all')
+    tag = request.args.get('tag', 'all')
     
-    # Add category filter if provided
-    if category and category != 'All':
-        where_clause += " AND p.[Product Category] = ?"
-        params.append(category)
+    # Process days parameter based on expiry range
+    if expiry_range == '7days':
+        days = 7
+    elif expiry_range == '14days':
+        days = 14
+    elif expiry_range == '30days':
+        days = 30
+    else:
+        days = int(days)
     
-    query = f"""
+    params = [days]  # Start with basic parameter
+    
+    query = """
     SELECT 
-        p.[Product Name] as ProductName,
-        p.[Product Category] as CategoryName,
+        p.[Product Name], 
         i.StockQuantity,
-        i.ExpirationDate
+        p.[Product Category] as Category,
+        p.Rating,
+        datetime(i.ExpirationDate) as ExpirationDate,
+        julianday(i.ExpirationDate) - julianday('now') as DaysRemaining,
+        p.[Product ID] as ProductID
     FROM Inventory i
     JOIN Products p ON i.ProductID = p.[Product ID]
-    {where_clause}
-    ORDER BY i.ExpirationDate ASC
+    WHERE i.ExpirationDate IS NOT NULL
+    AND julianday(i.ExpirationDate) - julianday('now') <= ?
     """
+    
+    # Apply additional filters
+    if category != 'all':
+        query += " AND p.[Product Category] LIKE ?"
+        params.append(f'%{category}%')
+    
+    if tag != 'all':
+        query += " AND p.Tag LIKE ?"
+        params.append(f'%{tag}%')
+    
+    query += " ORDER BY i.ExpirationDate ASC LIMIT 30"
     
     expiring_products = rows_to_dict_list(conn.execute(query, params).fetchall())
     conn.close()
@@ -955,11 +978,53 @@ def api_stock_levels():
     
     return jsonify(stock_data)
 
-# AJAX endpoint for low stock products
+# AJAX endpoint for low stock products with filtering
 @app.route('/api/low_stock')
 def api_low_stock():
     conn = get_db_connection()
-    data = rows_to_dict_list(conn.execute("SELECT * FROM Low_Stock_View LIMIT 10").fetchall())
+    
+    # Get filter parameters
+    category = request.args.get('category', 'all')
+    stock_level = request.args.get('stockLevel', 'all')
+    tag = request.args.get('tag', 'all')
+    
+    # Base query
+    query = """
+    SELECT 
+        p.[Product Name], 
+        i.StockQuantity,
+        p.[Product Category] as Category,
+        p.Rating,
+        i.ExpirationDate,
+        p.[Product ID] as ProductID
+    FROM Inventory i
+    JOIN Products p ON i.ProductID = p.[Product ID]
+    WHERE 1=1
+    """
+    
+    params = []
+    
+    # Apply filters
+    if category != 'all':
+        query += " AND p.[Product Category] LIKE ?"
+        params.append(f'%{category}%')
+        
+    if stock_level == 'critical':
+        query += " AND i.StockQuantity < 5"
+    elif stock_level == 'low':
+        query += " AND i.StockQuantity < 10"
+    elif stock_level == 'medium':
+        query += " AND i.StockQuantity < 20"
+    else:
+        query += " AND i.StockQuantity < 30"
+        
+    if tag != 'all':
+        query += " AND p.Tag LIKE ?"
+        params.append(f'%{tag}%')
+    
+    query += " ORDER BY i.StockQuantity ASC LIMIT 20"
+    
+    data = rows_to_dict_list(conn.execute(query, params).fetchall())
     conn.close()
     return jsonify(data)
 
@@ -1176,6 +1241,95 @@ def api_low_stock_warnings():
     return jsonify({
         'data': formatted_data
     })
+
+# API endpoint for restock recommendations with filtering
+@app.route('/api/restock_recommendations')
+def api_restock_recommendations():
+    conn = get_db_connection()
+    
+    # Get filter parameters
+    category = request.args.get('category', 'all')
+    stock_level = request.args.get('stockLevel', 'all')
+    tag = request.args.get('tag', 'all')
+    
+    # Base query
+    query = """
+    SELECT 
+        p.[Product Name], 
+        i.StockQuantity as CurrentStock,
+        p.ReorderLevel,
+        p.IdealStock,
+        p.[Product Category] as Category,
+        p.Rating
+    FROM Inventory i
+    JOIN Products p ON i.ProductID = p.[Product ID]
+    WHERE i.StockQuantity < p.ReorderLevel
+    """
+    
+    params = []
+    
+    # Apply filters
+    if category != 'all':
+        query += " AND p.[Product Category] LIKE ?"
+        params.append(f'%{category}%')
+        
+    if stock_level == 'critical':
+        query += " AND i.StockQuantity < 5"
+    elif stock_level == 'low':
+        query += " AND i.StockQuantity < 10"
+    elif stock_level == 'medium':
+        query += " AND i.StockQuantity < 20"
+        
+    if tag != 'all':
+        query += " AND p.Tag LIKE ?"
+        params.append(f'%{tag}%')
+    
+    query += " ORDER BY i.StockQuantity ASC LIMIT 20"
+    
+    try:
+        restock_data = rows_to_dict_list(conn.execute(query, params).fetchall())
+        
+        # If no data with ReorderLevel and IdealStock, try a fallback query
+        if not restock_data:
+            # Fallback query without ReorderLevel and IdealStock
+            fallback_query = """
+            SELECT 
+                p.[Product Name], 
+                i.StockQuantity as CurrentStock,
+                CAST(i.StockQuantity * 2 AS INTEGER) as ReorderLevel,
+                CAST(i.StockQuantity * 3 AS INTEGER) as IdealStock,
+                p.[Product Category] as Category,
+                p.Rating
+            FROM Inventory i
+            JOIN Products p ON i.ProductID = p.[Product ID]
+            WHERE i.StockQuantity < 20
+            """
+            
+            if category != 'all':
+                fallback_query += " AND p.[Product Category] LIKE ?"
+                
+            fallback_query += " ORDER BY i.StockQuantity ASC LIMIT 20"
+            
+            restock_data = rows_to_dict_list(conn.execute(fallback_query, params).fetchall())
+    except Exception as e:
+        print(f"Error in restock recommendations query: {e}")
+        # Most basic fallback with minimal columns
+        basic_query = """
+        SELECT 
+            p.[Product Name], 
+            i.StockQuantity as CurrentStock,
+            20 as ReorderLevel,
+            30 as IdealStock,
+            p.[Product Category] as Category
+        FROM Inventory i
+        JOIN Products p ON i.ProductID = p.[Product ID]
+        WHERE i.StockQuantity < 20
+        LIMIT 20
+        """
+        restock_data = rows_to_dict_list(conn.execute(basic_query).fetchall())
+        
+    conn.close()
+    return jsonify(restock_data)
 
 # API endpoint for Stock Utilization Ratio by Tag (Donut Chart)
 @app.route('/api/stock_utilization_ratio')

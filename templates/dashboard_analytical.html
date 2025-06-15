@@ -574,6 +574,145 @@
     .progress-red {
         background: linear-gradient(90deg, #f44336 0%, #ff7961 100%);
     }
+    
+    /* Sidebar styles */
+    .glass-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        height: 100vh;
+        background: linear-gradient(135deg, rgba(40, 60, 100, 0.6), rgba(50, 70, 120, 0.7));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        z-index: 100;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+    }
+    
+    /* Main content adjustment for sidebar */
+    .main-content-with-sidebar {
+        margin-left: 300px;
+        width: calc(100% - 300px);
+        transition: margin-left 0.3s ease, width 0.3s ease;
+        padding: 15px;
+    }
+    
+    /* Improved glass panel styling */
+    .glass-panel {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    /* Sidebar toggle button for mobile */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 101;
+        background: rgba(40, 60, 100, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 5px;
+        padding: 5px 10px;
+        color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Logo and site title in sidebar */
+    .sidebar-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        margin-top: 10px;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Navigation links */
+    .sidebar-nav {
+        margin-bottom: 30px;
+    }
+    
+    .sidebar-nav-item {
+        display: block;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .sidebar-nav-item:hover, .sidebar-nav-item.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-nav-item i {
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+    
+    /* Filter section in sidebar */
+    .sidebar-filters {
+        margin-bottom: 30px;
+    }
+    
+    .sidebar-section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: white;
+        position: relative;
+        padding-bottom: 8px;
+    }
+    
+    .sidebar-section-title:after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(79, 172, 254, 0.8), rgba(0, 242, 254, 0.8));
+        border-radius: 3px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+        .glass-sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .glass-sidebar.show-sidebar {
+            transform: translateX(0);
+        }
+        
+        .main-content-with-sidebar {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .sidebar-toggle {
+            display: block;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -583,7 +722,77 @@
     <video data-src="/static/videos/Financial Background Video Data Visuals - High Resolution.mp4" muted loop playsinline autoplay preload="auto"></video>
 </div>
 
-<div class="container-fluid px-4 pt-4">
+<!-- Mobile sidebar toggle button -->
+<button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Glass Sidebar -->
+<div class="glass-sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-chart-line fa-2x text-white"></i>
+        <div class="sidebar-title">Analytical Dashboard</div>
+    </div>
+    
+    <div class="sidebar-nav">
+        <h3 class="sidebar-section-title">Navigation</h3>
+        <a href="/dashboard" class="sidebar-nav-item">
+            <i class="fas fa-home"></i> Overview
+        </a>
+        <a href="/dashboard_tactical" class="sidebar-nav-item">
+            <i class="fas fa-chess"></i> Tactical Dashboard
+        </a>
+        <a href="/dashboard_analytical" class="sidebar-nav-item active">
+            <i class="fas fa-chart-bar"></i> Analytical Dashboard
+        </a>
+        <a href="/dashboard_strategic" class="sidebar-nav-item">
+            <i class="fas fa-chess-queen"></i> Strategic Dashboard
+        </a>
+    </div>
+    
+    <!-- Filters moved to sidebar -->
+    <div class="sidebar-filters">
+        <h3 class="sidebar-section-title">Filters</h3>
+        <form id="filterForm">
+            <div class="mb-3">
+                <label for="tagFilter" class="form-label text-white">Tag</label>
+                <select class="form-select modern-select" id="tagFilter">
+                    <option value="all">All Tags</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="ratingFilter" class="form-label text-white">Minimum Rating</label>
+                <select class="form-select modern-select" id="ratingFilter">
+                    <option value="0">All Ratings</option>
+                    <option value="1">1+ Stars</option>
+                    <option value="2">2+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="4.5">4.5+ Stars</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="sortFilter" class="form-label text-white">Sort By</label>
+                <select class="form-select modern-select" id="sortFilter">
+                    <option value="rating-high">Rating (High to Low)</option>
+                    <option value="rating-low">Rating (Low to High)</option>
+                    <option value="count-high">Review Count (High to Low)</option>
+                    <option value="count-low">Review Count (Low to High)</option>
+                </select>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary modern-btn w-100 mb-2" onclick="filterDashboard()">Apply Filters</button>
+                <button type="button" class="btn btn-secondary modern-btn-secondary w-100" onclick="resetFilters()">Reset</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Main Content Area with Sidebar Adjustment -->
+<div class="main-content-with-sidebar">
     <h1 class="mb-4 text-white dashboard-title">Analytical Dashboard <span class="dashboard-subtitle">— Recommendation System</span></h1>
     
     <!-- Top metrics cards - vertically-oriented rectangles with horizontal scrolling --> 
@@ -673,114 +882,89 @@
         </div>
     </div>
     
-    <!-- Filters -->
-    <div class="glass-panel mb-4">
-        <h2 class="text-white mb-3">Filters</h2>
-        <form class="row" id="filterForm">
-            <div class="col-md-4 mb-3">
-                <label for="tagFilter" class="form-label text-white">Tag</label>
-                <select class="form-select modern-select" id="tagFilter">
-                    <option value="all">All Tags</option>
-                    {% for tag in tags %}
-                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="ratingFilter" class="form-label text-white">Minimum Rating</label>
-                <select class="form-select modern-select" id="ratingFilter">
-                    <option value="0">All Ratings</option>
-                    <option value="1">1+ Stars</option>
-                    <option value="2">2+ Stars</option>
-                    <option value="3">3+ Stars</option>
-                    <option value="4">4+ Stars</option>
-                    <option value="4.5">4.5+ Stars</option>
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="sortFilter" class="form-label text-white">Sort By</label>
-                <select class="form-select modern-select" id="sortFilter">
-                    <option value="rating-high">Rating (High to Low)</option>
-                    <option value="rating-low">Rating (Low to High)</option>
-                    <option value="count-high">Review Count (High to Low)</option>
-                    <option value="count-low">Review Count (Low to High)</option>
-                </select>
-            </div>
-            <div class="col-12">
-                <button type="button" class="btn btn-primary modern-btn" onclick="filterDashboard()">Apply Filters</button>
-                <button type="button" class="btn btn-secondary modern-btn-secondary" onclick="resetFilters()">Reset</button>
-            </div>
-        </form>
-    </div>
 </div>
 
-<!-- Section 2: Tag Cloud -->
-<div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Tag Cloud</h2>
-    <p class="text-white-50 mb-4">Popular tags sized by frequency. Click on a tag to filter.</p>
-    
-    <div class="tag-cloud" id="tagCloud">
-        {% for tag in popular_tags[:30] %}
-        <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
-            <i class="fas fa-tag me-1"></i>{{ tag.TagName }}
-        </span>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- Section 3: Rating Analysis -->
-<div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Rating Distribution</h2>
-    <p class="text-white-50 mb-4"><i class="fas fa-chart-bar me-2"></i>Analysis of product rating distribution.</p>
-
-    <div class="row">
-        <!-- Rating Distribution -->
-        <div class="col-12 mb-4">
+<!-- Tag Cloud and Rating Distribution Row -->
+<div class="row">
+    <!-- Section 2: Tag Cloud -->
+    <div class="col-lg-6 mb-4">
+        <div class="glass-panel h-100">
+            <h2 class="text-white mb-3">Tag Cloud</h2>
+            <p class="text-white-50 mb-3">Popular tags sized by frequency. Click on a tag to filter.</p>
+            
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Rating Distribution</h5>
+                    <h5 class="card-title"><i class="fas fa-tags me-2"></i>Product Tags</h5>
                 </div>
                 <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="ratingDistributionChart"></canvas>
+                    <div class="tag-cloud" id="tagCloud">
+                        {% for tag in popular_tags[:30] %}
+                        <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
+                            <i class="fas fa-tag me-1"></i>{{ tag.TagName }}
+                        </span>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Extra charts removed to match required specification -->
-</div>
-
-<!-- Section 4: Top Rated Products by Category -->
-<div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Top Rated Products by Category</h2>
-    <p class="text-white-50 mb-4">Column chart showing highest rated products across categories.</p>
-    
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Top Rated Products by Category</h5>
-        </div>
-        <div class="card-body">
-            <div class="chart-container" style="height: 350px;">
-                <canvas id="topRatedProductsChart"></canvas>
+    <!-- Section 3: Rating Analysis -->
+    <div class="col-lg-6 mb-4">
+        <div class="glass-panel h-100">
+            <h2 class="text-white mb-3">Rating Distribution</h2>
+            <p class="text-white-50 mb-3">Analysis of product rating distribution.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Rating Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="ratingDistributionChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Section 5: Tag Usage Trends Over Time -->
-<div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Tag Usage Trends Over Time</h2>
-    <p class="text-white-50 mb-4">Analysis of tag usage trends over time.</p>
-    
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
+<!-- Charts Section - Row with Two Charts -->
+<div class="row">
+    <!-- Section 4: Top Rated Products by Category -->
+    <div class="col-lg-6 mb-4">
+        <div class="glass-panel h-100">
+            <h2 class="text-white mb-3">Top Rated Products by Category</h2>
+            <p class="text-white-50 mb-4">Column chart showing highest rated products across categories.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Top Rated Products by Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="topRatedProductsChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="chart-container" style="height: 350px;">
-                <canvas id="tagActivityChart"></canvas>
+    </div>
+
+    <!-- Section 5: Tag Usage Trends Over Time -->
+    <div class="col-lg-6 mb-4">
+        <div class="glass-panel h-100">
+            <h2 class="text-white mb-3">Tag Usage Trends Over Time</h2>
+            <p class="text-white-50 mb-4">Analysis of tag usage trends over time.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 320px;">
+                        <canvas id="tagActivityChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -788,16 +972,18 @@
 
 <!-- Section: Category Analysis removed - was duplicate of Top Rated Products by Category -->
 
-<!-- Section 6: Deep Dive -->
-<div class="glass-panel mb-4">
-    <h2 class="text-white mb-3">Deep Dive Analysis</h2>
-    <p class="text-white-50 mb-4">Detailed product rating analysis and top performers.</p>
-    
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Top Rated Products</h5>
-        </div>
-        <div class="card-body">
+<!-- Section 6: Deep Dive Analysis -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="glass-panel">
+            <h2 class="text-white mb-3">Deep Dive Analysis</h2>
+            <p class="text-white-50 mb-4">Detailed product rating analysis and top performers.</p>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Top Rated Products</h5>
+                </div>
+                <div class="card-body">
             <div class="table-responsive">
                 <table class="table">
             <thead>
@@ -1807,7 +1993,30 @@ document.addEventListener('DOMContentLoaded', function() {
             resetFilters();
         });
     }
+    
+    // Sidebar toggle functionality for mobile responsive design
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content-with-sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show-sidebar');
+            
+            // Add a click handler to close sidebar when clicking outside on mobile
+            if (sidebar.classList.contains('show-sidebar')) {
+                document.addEventListener('click', function closeSidebar(e) {
+                    if (!sidebar.contains(e.target) && e.target !== sidebarToggle) {
+                        sidebar.classList.remove('show-sidebar');
+                        document.removeEventListener('click', closeSidebar);
+                    }
+                });
+            }
+        });
+    }
 });
 </script>
+
+</div> <!-- Closing main-content-with-sidebar -->
 
 {% endblock content %}
