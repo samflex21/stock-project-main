@@ -64,11 +64,11 @@
         top: 0;
         width: 280px;
         height: 100vh;
-        background-color: rgba(220, 220, 220, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-right: 1px solid rgba(0, 0, 0, 0.15);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, rgba(20, 25, 50, 0.75), rgba(30, 40, 80, 0.8)) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border-right: 1px solid rgba(70, 90, 150, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 20, 0.5);
         z-index: 1000;
         padding: 20px;
         overflow-y: auto;
@@ -89,15 +89,15 @@
     .sidebar-logo i {
         font-size: 24px;
         margin-right: 10px;
-        color: #000;
+        color: #fff;
     }
     
     .sidebar-logo h3 {
-        color: #000 !important;
+        color: #fff !important;
         font-size: 1.25rem;
         font-weight: 700;
         margin: 0;
-        text-shadow: none;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     
     .sidebar-nav {
@@ -114,7 +114,7 @@
         display: flex;
         align-items: center;
         padding: 10px 15px;
-        color: rgba(0, 0, 0, 0.8);
+        color: rgba(255, 255, 255, 0.85);
         text-decoration: none;
         border-radius: 8px;
         transition: all 0.3s ease;
@@ -122,14 +122,15 @@
     }
     
     .sidebar-nav a:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+        background-color: rgba(255, 255, 255, 0.15);
         transform: translateX(5px);
     }
     
     .sidebar-nav a.active {
-        background-color: rgba(0, 0, 0, 0.1);
-        color: #000;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
         font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
     
     .sidebar-nav i {
@@ -140,7 +141,7 @@
     
     .sidebar-divider {
         height: 1px;
-        background-color: rgba(0, 0, 0, 0.1);
+        background-color: rgba(255, 255, 255, 0.2);
         margin: 15px 0;
     }
     
@@ -149,22 +150,23 @@
     }
     
     .filter-section h5 {
-        color: #000 !important;
+        color: #fff !important;
         font-size: 1rem;
         margin-bottom: 15px;
         font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     
     .filter-section label {
-        color: rgba(0, 0, 0, 0.8) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
         font-size: 0.9rem;
         margin-bottom: 5px;
     }
     
     .filter-section select {
-        background-color: rgba(255, 255, 255, 0.6);
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        color: #000;
+        background-color: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #fff;
         margin-bottom: 15px;
     }
     
@@ -254,6 +256,16 @@
         margin-top: 1rem;
     }
     
+    /* Updated text colors for dark background */
+    h1, h2, h3, h4, h5, h6, p, span, div, label, .chart-title, .metric-title {
+        color: #fff !important;
+    }
+    
+    /* Special contrast for chart labels and axes */
+    .chart-container canvas {
+        filter: brightness(1.2) contrast(1.1);
+    }
+    
     /* Mobile responsiveness */
     @media (max-width: 992px) {
         .glass-sidebar {
@@ -302,7 +314,7 @@
 <!-- Video Background -->
 <div class="video-background">
     <video autoplay muted loop playsinline>
-        <source src="{{ url_for('static', filename='videos/statistical-graph-with-business-finance-concept-3d-rendering-video.mp4') }}" type="video/mp4">
+        <source src="{{ url_for('static', filename='videos/graphs-and-charts-information-over-world-map-background-4k-free-video.mp4') }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 </div>
@@ -449,15 +461,14 @@
 <style>
     /* Glassmorphic container styling with gradient */
     .glassmorphic-container {
-        background: linear-gradient(135deg, rgba(60, 60, 60, 0.4), rgba(140, 140, 140, 0.6)) !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        border-radius: 15px !important;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
-        padding: 25px !important;
-        margin: 30px auto !important;
-        max-width: 95% !important;
+        background: linear-gradient(135deg, rgba(20, 25, 50, 0.75), rgba(30, 40, 80, 0.8)) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        border-radius: 15px;
+        border: 1px solid rgba(70, 90, 150, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 20, 0.5);
+        padding: 20px;
+        margin-bottom: 20px;
     }
     
     .context-section {
@@ -515,7 +526,8 @@
     .circle-value {
         font-size: 28px;
         font-weight: 700;
-        color: #000;
+        color: #fff;
+        text-shadow: 0 0 3px rgba(0,0,0,0.5);
     }
     
     /* Distinct colored borders */
@@ -540,7 +552,7 @@
     }
     
     /* Chart Grid Layout */
-    .style .chart-grid {
+    .chart-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         grid-gap: 20px;
@@ -549,8 +561,29 @@
         padding: 10px;
     }
     
+    /* Special container for charts that must stay side by side */
+    .side-by-side-charts {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 20px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    /* Keep side-by-side charts together even on smaller screens */
     @media (max-width: 1200px) {
-        .style .chart-grid {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .side-by-side-charts {
+            grid-template-columns: repeat(2, 1fr); /* Keep 2-column layout */
+        }
+    }
+    
+    /* Only on very small screens, stack the side-by-side charts */
+    @media (max-width: 768px) {
+        .side-by-side-charts {
             grid-template-columns: 1fr;
         }
     }
@@ -568,11 +601,12 @@
     }
     
     .chart-title {
-        color: black;
+        color: white !important;
         font-size: 18px;
         font-weight: 600;
         margin-bottom: 10px;
         text-align: center;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
     
     .chart-area {
@@ -633,8 +667,8 @@
     </div>
 </div>
 
-<!-- Chart Container Row - 2x2 Grid -->
-<div class="chart-grid">
+<!-- Charts that will ALWAYS stay side by side -->
+<div class="side-by-side-charts">
     <!-- Chart 1: Stock Availability Matrix (Heatmap) -->
     <div class="glassmorphic-container chart-container">
         <h4 class="chart-title">Stock Availability Matrix</h4>
@@ -652,7 +686,10 @@
             <div class="chart-loading">Loading data...</div>
         </div>
     </div>
-    
+</div>
+
+<!-- Remaining charts in regular grid -->
+<div class="chart-grid">
     <!-- Chart 3: Low Stock Warnings (Bubble Chart) -->
     <div class="glassmorphic-container chart-container">
         <h4 class="chart-title">Low Stock Warnings</h4>
@@ -985,10 +1022,10 @@ function createMatrixChart(ctx, apiData) {
                     type: 'category',
                     labels: regions,
                     ticks: {
-                        color: 'black'
+                        color: 'white'
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(255, 255, 255, 0.2)'
                     }
                 },
                 y: {
@@ -996,10 +1033,10 @@ function createMatrixChart(ctx, apiData) {
                     labels: categories,
                     offset: true,
                     ticks: {
-                        color: 'black'
+                        color: 'white'
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(255, 255, 255, 0.2)'
                     }
                 }
             }
@@ -1138,7 +1175,7 @@ function createExpiringProductsChart(apiData) {
             plugins: {
                 legend: {
                     labels: {
-                        color: 'black'
+                        color: 'white'
                     }
                 },
                 tooltip: {
@@ -1149,24 +1186,27 @@ function createExpiringProductsChart(apiData) {
             scales: {
                 x: {
                     ticks: {
-                        color: 'black'
+                        color: 'white'
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(255, 255, 255, 0.2)'
                     }
                 },
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        color: 'black'
+                        color: 'white'
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(255, 255, 255, 0.2)'
                     },
                     title: {
                         display: true,
                         text: 'Number of Products',
-                        color: 'black'
+                        color: 'white',
+                        font: {
+                            weight: 'bold'
+                        }
                     }
                 }
             }
@@ -1289,13 +1329,13 @@ function createLowStockBubbleChart(apiData) {
                     title: {
                         display: true,
                         text: 'Stock Quantity',
-                        color: 'black'
+                        color: 'white'
                     },
                     ticks: {
-                        color: 'black'
+                        color: 'white'
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(255, 255, 255, 0.2)'
                     }
                 },
                 y: {
@@ -1304,13 +1344,13 @@ function createLowStockBubbleChart(apiData) {
                     title: {
                         display: true,
                         text: 'Rating',
-                        color: 'black'
+                        color: 'white'
                     },
                     ticks: {
-                        color: 'black'
+                        color: 'white'
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(255, 255, 255, 0.2)'
                     }
                 }
             }
@@ -1423,7 +1463,10 @@ function createStockUtilizationChart(apiData) {
                     position: 'bottom',
                     labels: {
                         padding: 20,
-                        color: 'black'
+                        color: 'white',
+                        font: {
+                            weight: 'bold'
+                        }
                     }
                 },
                 tooltip: {
