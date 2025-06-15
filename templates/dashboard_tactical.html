@@ -540,30 +540,44 @@
     }
     
     /* Chart Grid Layout */
-    .chart-grid {
+    .style .chart-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        grid-gap: 30px;
-        margin: 30px auto;
-        width: 95%;
+        grid-gap: 20px;
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+    }
+    
+    @media (max-width: 1200px) {
+        .style .chart-grid {
+            grid-template-columns: 1fr;
+        }
     }
     
     .chart-container {
         position: relative;
-        padding-bottom: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 15px;
+        padding: 15px;
+        width: 100%;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
     
     .chart-title {
         color: black;
         font-size: 18px;
         font-weight: 600;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         text-align: center;
     }
     
     .chart-area {
         width: 100%;
-        height: 300px;
+        height: 350px; /* Shorter height but wider width */
         position: relative;
     }
     
@@ -779,6 +793,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
 // Error handler for chart data fetching
 function handleChartError(chartId, error) {
     console.error(`Error loading data for ${chartId}:`, error);
@@ -792,30 +807,33 @@ function handleChartError(chartId, error) {
 // 1. Fetch data for Stock Availability Matrix (Heatmap)
 function fetchStockMatrixData() {
     debugLog('Fetching stock matrix data');
+    console.log('Fetching stock matrix data from API...');
     fetch('/api/stock_availability_matrix')
         .then(response => {
-            debugLog('Stock matrix API response status:', response.status);
             if (!response.ok) {
-                throw new Error(`Network response error: ${response.status}`);
+                throw new Error('Network response was not ok ' + response.statusText);
             }
-            return response.json().catch(err => {
-                throw new Error('Failed to parse JSON response: ' + err.message);
-            });
+            return response.json();
         })
         .then(data => {
             debugLog('Stock matrix data received:', data);
-            // Hide loading indicator
-            const loadingElement = document.querySelector('#stockHeatmap').closest('.chart-area').querySelector('.chart-loading');
-            if (loadingElement) {
-                loadingElement.style.display = 'none';
-            }
+            // Log complete data structure for debugging
+            console.log('Stock matrix API full data:', data);
+            // Show that the chart container exists
+            console.log('Chart container exists:', document.getElementById('stockHeatmap') !== null);
             try {
+                // Pass the entire data object which contains data, categories, regions
                 createStockMatrix(data);
             } catch (err) {
-                throw new Error('Error creating matrix chart: ' + err.message);
+                console.error('Error creating stock matrix chart:', err);
+                console.error('Error details:', err.message);
+                console.error('Stack trace:', err.stack);
             }
         })
-        .catch(error => handleChartError('stockHeatmap', error));
+        .catch(error => {
+            console.error('Failed to fetch matrix data:', error);
+            handleChartError('stockHeatmap', error);
+        });
 }
 
 // Create the Stock Availability Matrix chart
@@ -828,84 +846,119 @@ function createStockMatrix(apiData) {
     }
     const ctx = canvas.getContext('2d');
     
-    // Extract unique categories and regions from API data
+    // Clear any existing chart
+    if (window.stockMatrixChart instanceof Chart) {
+        window.stockMatrixChart.destroy();
+    }
+    
+    createMatrixChart(ctx, apiData);
+}
+
+function createMatrixChart(ctx, apiData) {
+    console.log('Creating matrix chart with data:', apiData);
+    // Extract categories, regions, and data from the API response
     let categories = [];
     let regions = [];
+    let data = [];
     
-    if (apiData && Array.isArray(apiData)) {
-        // Extract unique categories and regions from the data
-        apiData.forEach(item => {
-            if (item.CategoryName && !categories.includes(item.CategoryName)) {
-                categories.push(item.CategoryName);
-            }
-            if (item.Region && !regions.includes(item.Region)) {
-                regions.push(item.Region);
-            }
-        });
+    // Check if apiData has the expected structure
+    if (apiData && apiData.categories) {
+        categories = apiData.categories;
+        regions = apiData.regions;
+        
+        // Process data items
+        if (apiData.data && Array.isArray(apiData.data)) {
+            apiData.data.forEach(item => {
+                const categoryIndex = categories.indexOf(item.category);
+                const regionIndex = regions.indexOf(item.region);
+                
+                if (categoryIndex !== -1 && regionIndex !== -1) {
+                    // Use 'value' field from API (which is StockPercentage) 
+                    const availability = parseFloat(item.value);
+                    let color;
+                    
+                    // Color based on availability percentage
+                    if (availability >= 80) {
+                        color = 'rgba(52, 168, 83, 0.8)'; // Green for high availability
+                    } else if (availability >= 50) {
+                        color = 'rgba(249, 171, 0, 0.8)'; // Yellow for medium availability
+                    } else if (availability >= 20) {
+                        color = 'rgba(234, 67, 53, 0.8)'; // Red for low availability
+                    } else {
+                        color = 'rgba(0, 0, 0, 0.8)'; // Black for very low or out of stock
+                    }
+                    
+                    data.push({
+                        x: regionIndex,
+                        y: categoryIndex,
+                        v: availability,
+                        color: color
+                    });
+                }
+            });
+        }
     }
     
-    // Fallback if no data
-    if (categories.length === 0) {
-        categories = ['Electronics', 'Clothing', 'Furniture', 'Food', 'Books'];
-    }
-    if (regions.length === 0) {
-        regions = ['North', 'South', 'East', 'West', 'Central'];
-    }
-    
-    debugLog('Categories:', categories);
-    debugLog('Regions:', regions);
-    
-    const data = [];
-    
-    // If we have API data
-    if (apiData && Array.isArray(apiData) && apiData.length > 0) {
-        // Process data for each category and region
+    // Use sample data if no data points were generated
+    if (data.length === 0) {
+        console.warn('No data for stock matrix, using sample data');
+        categories = ['Electronics', 'Clothing', 'Home', 'Sports'];
+        regions = ['North', 'South', 'East', 'West'];
+        
+        // Generate random sample data
         for (let i = 0; i < categories.length; i++) {
             for (let j = 0; j < regions.length; j++) {
-                // Find matching data item
-                const item = apiData.find(d => d.CategoryName === categories[i] && d.Region === regions[j]);
-                const stockLevel = item ? Math.min(Math.max(item.StockPercentage || 0, 0), 100) : 0;
+                const availability = Math.floor(Math.random() * 100);
+                let color;
+                
+                if (availability >= 80) {
+                    color = 'rgba(52, 168, 83, 0.8)';
+                } else if (availability >= 50) {
+                    color = 'rgba(249, 171, 0, 0.8)';
+                } else if (availability >= 20) {
+                    color = 'rgba(234, 67, 53, 0.8)';
+                } else {
+                    color = 'rgba(0, 0, 0, 0.8)';
+                }
                 
                 data.push({
                     x: j,
                     y: i,
-                    v: stockLevel,
-                    // Color based on stock level (low=red, medium=yellow, high=green)
-                    color: stockLevel < 30 ? 'rgba(234, 67, 53, 0.8)' : 
-                           stockLevel < 70 ? 'rgba(249, 171, 0, 0.8)' : 
-                           'rgba(52, 168, 83, 0.8)'
-                });
-            }
-        }
-    } else {
-        // Generate sample data as fallback
-        debugLog('Using fallback sample data for matrix chart');
-        for (let i = 0; i < categories.length; i++) {
-            for (let j = 0; j < regions.length; j++) {
-                const stockLevel = Math.floor(Math.random() * 100);
-                data.push({
-                    x: j,
-                    y: i,
-                    v: stockLevel,
-                    color: stockLevel < 30 ? 'rgba(234, 67, 53, 0.8)' : 
-                           stockLevel < 70 ? 'rgba(249, 171, 0, 0.8)' : 
-                           'rgba(52, 168, 83, 0.8)'
+                    v: availability,
+                    color: color
                 });
             }
         }
     }
     
-    new Chart(ctx, {
+    // Create new matrix chart instance
+    window.stockMatrixChart = new Chart(ctx, {
         type: 'matrix',
         data: {
             datasets: [{
                 label: 'Stock Availability',
                 data: data,
-                backgroundColor: (context) => context.dataset.data[context.dataIndex].color,
-                borderColor: 'rgba(255, 255, 255, 0.2)',
+                backgroundColor: function(ctx) { 
+                    return ctx.dataset.data[ctx.dataIndex].color;
+                },
+                borderColor: 'rgba(255, 255, 255, 0.8)',
                 borderWidth: 1,
-                width: ({ chart }) => (chart.chartArea || {}).width / regions.length - 1,
-                height: ({ chart }) => (chart.chartArea || {}).height / categories.length - 1
+                width: function(ctx) {
+                    // Check if chartArea is defined to avoid error
+                    if (!ctx.chart.chartArea) {
+                        return 20; // Default width if chart area not yet available
+                    }
+                    const a = ctx.chart.chartArea.right - ctx.chart.chartArea.left;
+                    return Math.max(0, (a / Math.max(1, regions.length)) - 2);
+                },
+                height: function(ctx) {
+                    // Check if chartArea is defined to avoid error
+                    if (!ctx.chart.chartArea) {
+                        return 20; // Default height if chart area not yet available
+                    }
+                    const a = ctx.chart.chartArea.bottom - ctx.chart.chartArea.top;
+                    return Math.max(0, (a / Math.max(1, categories.length)) - 2);
+                }
             }]
         },
         options: {
@@ -914,14 +967,12 @@ function createStockMatrix(apiData) {
             plugins: {
                 tooltip: {
                     callbacks: {
-                        title() {
-                            return '';
-                        },
-                        label(context) {
-                            const v = context.dataset.data[context.dataIndex];
-                            return ['Category: ' + categories[v.y],
-                                    'Region: ' + regions[v.x],
-                                    'Stock Level: ' + v.v + '%'];
+                        title: function() { return ''; },
+                        label: function(ctx) {
+                            const value = ctx.dataset.data[ctx.dataIndex].v;
+                            const category = categories[ctx.dataset.data[ctx.dataIndex].y];
+                            const region = regions[ctx.dataset.data[ctx.dataIndex].x];
+                            return [`Category: ${category}`, `Region: ${region}`, `Stock Level: ${value}%`];
                         }
                     }
                 },
@@ -954,6 +1005,41 @@ function createStockMatrix(apiData) {
             }
         }
     });
+    
+    // Use sample data if no data points were generated
+    if (data.length === 0) {
+        console.warn('No data for stock matrix, using sample data');
+        categories = ['Electronics', 'Clothing', 'Home', 'Sports'];
+        regions = ['North', 'South', 'East', 'West'];
+        
+        // Generate random sample data
+        for (let i = 0; i < categories.length; i++) {
+            for (let j = 0; j < regions.length; j++) {
+                const availability = Math.floor(Math.random() * 100);
+                let color;
+                
+                if (availability >= 80) {
+                    color = 'rgba(52, 168, 83, 0.8)';
+                } else if (availability >= 50) {
+                    color = 'rgba(249, 171, 0, 0.8)';
+                } else if (availability >= 20) {
+                    color = 'rgba(234, 67, 53, 0.8)';
+                } else {
+                    color = 'rgba(0, 0, 0, 0.8)';
+                }
+                
+                data.push({
+                    x: j,
+                    y: i,
+                    v: availability,
+                    color: color
+                });
+            }
+        }
+    }
+    
+    // The chart has already been created and stored in window.stockMatrixChart at line ~935
+    // Removing duplicate chart creation to fix rendering issues
 }
 
 // 2. Fetch data for Expiring Products Over Time (Area Chart)
@@ -995,6 +1081,8 @@ function createExpiringProductsChart(apiData) {
     }
     const ctx = canvas.getContext('2d');
     
+
+    
     let months = [];
     let expiringProducts = [];
     
@@ -1033,13 +1121,15 @@ function createExpiringProductsChart(apiData) {
             datasets: [{
                 label: 'Expiring Products',
                 data: expiringProducts,
-                backgroundColor: 'rgba(234, 67, 53, 0.3)',
+                fill: true,
+                backgroundColor: 'rgba(234, 67, 53, 0.2)',
                 borderColor: 'rgba(234, 67, 53, 1)',
-                borderWidth: 2,
+                borderWidth: 3,
                 pointBackgroundColor: 'rgba(234, 67, 53, 1)',
-                pointRadius: 4,
-                tension: 0.3,
-                fill: true
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                tension: 0.4
             }]
         },
         options: {
@@ -1123,6 +1213,8 @@ function createLowStockBubbleChart(apiData) {
     }
     const ctx = canvas.getContext('2d');
     
+
+    
     let bubbleData = [];
     
     if (apiData && Array.isArray(apiData)) {
@@ -1161,23 +1253,22 @@ function createLowStockBubbleChart(apiData) {
         data: {
             datasets: [{
                 label: 'Low Stock Products',
-                data: bubbleData.map(item => ({
-                    x: item.x,
-                    y: item.y,
-                    r: item.r,
-                    label: item.label
+                centerText: bubbleData.map(d => d.label),
+                data: bubbleData.map(item => ({ 
+                    x: item.x, 
+                    y: item.y, 
+                    r: item.r
                 })),
-                backgroundColor: bubbleData.map(item => {
-                    // Color based on stock level (red for very low, orange for medium-low)
-                    return item.x < 10 ? 'rgba(234, 67, 53, 0.7)' : 'rgba(249, 171, 0, 0.7)';
-                }),
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                borderWidth: 1
+                backgroundColor: 'rgba(249, 171, 0, 0.7)',
+                borderColor: 'rgba(249, 171, 0, 1)',
+                borderWidth: 2,
+                hoverBackgroundColor: 'rgba(249, 171, 0, 0.9)',
+                hoverBorderWidth: 3,
+                hoverBorderColor: 'white'
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -1185,13 +1276,8 @@ function createLowStockBubbleChart(apiData) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const data = context.raw;
-                            return [
-                                `Product: ${bubbleData[context.dataIndex].label}`,
-                                `Stock Quantity: ${data.x}`,
-                                `Rating: ${data.y}`,
-                                `Number of Products: ${data.r}`
-                            ];
+                            const dataPoint = bubbleData[context.dataIndex];
+                            return dataPoint.label + ' - Stock: ' + dataPoint.x;
                         }
                     }
                 }
@@ -1271,6 +1357,8 @@ function createStockUtilizationChart(apiData) {
     }
     const ctx = canvas.getContext('2d');
     
+
+    
     let labels = [];
     let data = [];
     
@@ -1320,10 +1408,12 @@ function createStockUtilizationChart(apiData) {
                     'rgba(234, 67, 53, 0.8)',
                     'rgba(139, 70, 255, 0.8)'
                 ],
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                borderWidth: 2,
-                hoverOffset: 15
-            }]
+                borderColor: 'rgba(255, 255, 255, 0.9)',
+                borderWidth: 3,
+                hoverOffset: 15,
+                hoverBorderWidth: 4,
+                hoverBorderColor: 'white'
+            }],
         },
         options: {
             responsive: true,
