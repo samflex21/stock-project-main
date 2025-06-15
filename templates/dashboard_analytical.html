@@ -786,6 +786,8 @@
     </div>
 </div>
 
+<!-- Section: Category Analysis removed - was duplicate of Top Rated Products by Category -->
+
 <!-- Section 6: Deep Dive -->
 <div class="glass-panel mb-4">
     <h2 class="text-white mb-3">Deep Dive Analysis</h2>
@@ -876,375 +878,470 @@ function updateBarIndicators() {
 
 // Chart initialization function
 function initializeCharts() {
-        // Top Rated Products by Category Chart
-        var topRatedProductsChart = document.getElementById('topRatedProductsChart');
-        var topRatedProductsCtx = topRatedProductsChart ? topRatedProductsChart.getContext('2d') : null;
-        if (topRatedProductsCtx) {
-            var categoryNames = [];
-            var categoryRatings = [];
-            var hasValidCategoryData = false;
-            
-            try {
-                // Get data from backend or use sample data
-                const categoryDataStr = '{{ category_names|safe }}';
-                const categoryRatingsStr = '{{ category_ratings|safe }}';
-                
-                // Parse the JSON strings into JavaScript arrays
-                if (categoryDataStr && categoryDataStr !== 'null') {
-                    categoryNames = JSON.parse(categoryDataStr);
-                }
-                
-                if (categoryRatingsStr && categoryRatingsStr !== 'null') {
-                    categoryRatings = JSON.parse(categoryRatingsStr);
-                }
-                
-                console.log('Category Names:', categoryNames);
-                console.log('Category Ratings:', categoryRatings);
-                
-                // Check if we have at least one valid data point
-                if (categoryNames && categoryNames.length > 0 && 
-                    categoryRatings && categoryRatings.length > 0) {
-                    hasValidCategoryData = true;
-                }
-            } catch (e) {
-                console.error('Error parsing category data:', e);
-            }
-            
-            if (!hasValidCategoryData) {
-                console.warn('No valid category data found, using sample data');
-                // Sample fallback data
-                categoryNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
-                categoryRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
-            }
-            
-            // Sort data by ratings in descending order
-            var combinedData = [];
-            for (var i = 0; i < categoryNames.length; i++) {
-                combinedData.push({
-                    name: categoryNames[i],
-                    rating: categoryRatings[i] || 0
-                });
-            }
-            
-            combinedData.sort(function(a, b) { return b.rating - a.rating; });
-            
-            // Get back sorted arrays
-            var sortedNames = [];
-            var sortedRatings = [];
-            for (var i = 0; i < combinedData.length; i++) {
-                sortedNames.push(combinedData[i].name);
-                sortedRatings.push(combinedData[i].rating);
-            }
-            
-            new Chart(topRatedProductsCtx, {
-                type: 'bar', // Using bar type with x axis for vertical columns
-                data: {
-                    labels: sortedNames,
-                    datasets: [{
-                        label: 'Average Rating',
-                        data: sortedRatings,
-                        backgroundColor: sortedRatings.map(rating => {
-                            // Color gradient based on rating
-                            if (rating >= 4.5) return 'rgba(0, 230, 118, 0.7)';
-                            if (rating >= 4.0) return 'rgba(79, 172, 254, 0.7)';
-                            if (rating >= 3.5) return 'rgba(255, 193, 7, 0.7)';
-                            if (rating >= 3.0) return 'rgba(255, 152, 0, 0.7)';
-                            return 'rgba(244, 67, 54, 0.7)';
-                        }),
-                        borderColor: sortedRatings.map(rating => {
-                            if (rating >= 4.5) return 'rgba(0, 230, 118, 1)';
-                            if (rating >= 4.0) return 'rgba(79, 172, 254, 1)';
-                            if (rating >= 3.5) return 'rgba(255, 193, 7, 1)';
-                            if (rating >= 3.0) return 'rgba(255, 152, 0, 1)';
-                            return 'rgba(244, 67, 54, 1)';
-                        }),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'x', // Explicitly set to 'x' for column chart
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 5,
-                            title: {
-                                display: true,
-                                text: 'Average Rating (1-5)',
-                                color: 'rgba(255, 255, 255, 0.9)'
-                            },
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: 'rgba(255, 255, 255, 0.7)'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Rating Distribution Chart
-            var ratingDistCtx = document.getElementById('ratingDistributionChart');
-            if (ratingDistCtx) {
-                ratingDistCtx = ratingDistCtx.getContext('2d');
-                var ratingLabels = ['1★', '2★', '3★', '4★', '5★'];
-                var ratingDistribution = [0, 0, 0, 0, 0]; // Default empty data
-                
-                try {
-                    // Parse rating distribution data from flask
-                    var ratingDistStr = '{{ rating_distribution|safe }}';
-                    console.log('Raw rating distribution JSON:', ratingDistStr);
-                    
-                    if (ratingDistStr && ratingDistStr !== '[]' && ratingDistStr !== 'null') {
-                        var parsedDist = JSON.parse(ratingDistStr);
-                        if (parsedDist && parsedDist.length === 5) {
-                            ratingDistribution = parsedDist;
-                        }
-                    }
-                    
-                    console.log('Parsed rating distribution:', ratingDistribution);
-                } catch (e) {
-                    console.error('Error parsing rating distribution:', e);
-                    // Fallback sample data
-                    ratingDistribution = [5, 8, 15, 30, 42];
-                }
-                
-                new Chart(ratingDistCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: ratingLabels,
-                        datasets: [{
-                            label: 'Number of Ratings',
-                            data: ratingDistribution,
-                            backgroundColor: [
-                                'rgba(244, 67, 54, 0.7)',
-                                'rgba(255, 152, 0, 0.7)',
-                                'rgba(255, 193, 7, 0.7)',
-                                'rgba(79, 172, 254, 0.7)',
-                                'rgba(0, 230, 118, 0.7)'
-                            ],
-                            borderColor: [
-                                'rgba(244, 67, 54, 1)',
-                                'rgba(255, 152, 0, 1)',
-                                'rgba(255, 193, 7, 1)',
-                                'rgba(79, 172, 254, 1)',
-                                'rgba(0, 230, 118, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Number of Ratings',
-                                    color: 'rgba(255, 255, 255, 0.9)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Tag Activity Chart - Line chart showing tag usage over time
-            var tagActivityElement = document.getElementById('tagActivityChart');
-            var tagActivityCtx = tagActivityElement ? tagActivityElement.getContext('2d') : null;
-            if (tagActivityCtx) {
-                var tagActivity = [];
-                var activityTagNames = [];
-                
-                try {
-                    // Get tag activity data from Flask
-                    var tagActivityStr = '{{ tag_activity|safe }}';
-                    var activityTagNamesStr = '{{ tag_names|safe }}';
-                    
-                    console.log('Raw tag activity JSON:', tagActivityStr);
-                    console.log('Raw activity tag names JSON:', activityTagNamesStr);
-                    
-                    // Handle potential JSON parsing errors safely
-                    try {
-                        if (tagActivityStr && tagActivityStr !== '[]' && tagActivityStr !== 'null') {
-                            tagActivity = JSON.parse(tagActivityStr);
-                        }
-                    } catch (parseError) {
-                        console.error('Error parsing tag activity data:', parseError);
-                    }
-                    
-                    try {
-                        if (activityTagNamesStr && activityTagNamesStr !== '[]' && activityTagNamesStr !== 'null') {
-                            activityTagNames = JSON.parse(activityTagNamesStr);
-                        }
-                    } catch (parseError) {
-                        console.error('Error parsing activity tag names:', parseError);
-                    }
-                    
-                    // If we have no data, use sample data
-                    if (!tagActivity || !Array.isArray(tagActivity) || tagActivity.length === 0) {
-                        console.warn('No tag activity data found or invalid format, using sample data');
-                        // Sample data for 5 tags over 6 months
-                        tagActivity = [
-                            [12, 15, 18, 22, 25, 30],  // Tag 1
-                            [8, 10, 12, 15, 18, 20],   // Tag 2
-                            [20, 18, 16, 14, 15, 17],  // Tag 3
-                            [5, 8, 10, 12, 15, 18],    // Tag 4
-                            [15, 13, 12, 10, 8, 10]    // Tag 5
-                        ];
-                    }
-                    
-                    if (!activityTagNames || !Array.isArray(activityTagNames) || activityTagNames.length === 0) {
-                        activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
-                    }
-                    
-                    // Limit to 5 tags for readability
-                    activityTagNames = activityTagNames.slice(0, 5);
-                    tagActivity = tagActivity.slice(0, 5);
-                    
-                    console.log('Tag activity data:', tagActivity);
-                    console.log('Activity tag names:', activityTagNames);
-                } catch (e) {
-                    console.error('Error in tag activity chart setup:', e);
-                    // Sample fallback data
-                    activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
-                    tagActivity = [
-                        [12, 15, 18, 22, 25, 30],
-                        [8, 10, 12, 15, 18, 20],
-                        [20, 18, 16, 14, 15, 17],
-                        [5, 8, 10, 12, 15, 18],
-                        [15, 13, 12, 10, 8, 10]
-                    ];
-                }
-                
-                // Generate time labels (last 6 months)
-                var timeLabels = [];
-                var now = new Date();
-                for (var i = 5; i >= 0; i--) {
-                    var month = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                    var monthName = month.toLocaleString('default', { month: 'short' });
-                    timeLabels.push(monthName);
-                }
-                
-                // Create datasets for each tag
-                var chartColors = [
-                    'rgba(79, 172, 254, 0.7)',
-                    'rgba(0, 230, 118, 0.7)',
-                    'rgba(255, 193, 7, 0.7)',
-                    'rgba(255, 87, 34, 0.7)',
-                    'rgba(156, 39, 176, 0.7)'
-                ];
-                
-                var chartBorders = [
-                    'rgba(79, 172, 254, 1)',
-                    'rgba(0, 230, 118, 1)',
-                    'rgba(255, 193, 7, 1)',
-                    'rgba(255, 87, 34, 1)',
-                    'rgba(156, 39, 176, 1)'
-                ];
-                
-                var tagDatasets = [];
-                for (var i = 0; i < activityTagNames.length; i++) {
-                    var tagName = activityTagNames[i];
-                    tagDatasets.push({
-                        label: tagName,
-                        data: (tagActivity[i] && Array.isArray(tagActivity[i])) ? tagActivity[i] : [0, 0, 0, 0, 0, 0],
-                        borderColor: chartBorders[i % chartBorders.length],
-                        backgroundColor: chartColors[i % chartColors.length],
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: false,
-                        pointRadius: 4,
-                        pointBackgroundColor: chartBorders[i % chartBorders.length]
-                    });
-                }
-                
-                new Chart(tagActivityCtx, {
-                    type: 'line',
-                    data: {
-                        labels: timeLabels,
-                        datasets: tagDatasets
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Usage Count',
-                                    color: 'rgba(255, 255, 255, 0.9)'
-                                },
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            },
-                            x: {
-                                ticks: {
-                                    color: 'rgba(255, 255, 255, 0.7)'
-                                },
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    color: 'rgba(255, 255, 255, 0.9)'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        
-// Filter table function
-// Update progress bars and indicators for metric cards
-function updateBarIndicators() {
-    console.log('Updating progress bars and indicators...');
+    initCategoryChart();
+    initRatingDistributionChart();
+    initTagActivityChart();
+}
+
+// Initialize the Top Rated Products by Category chart
+function initCategoryChart() {
+    var chartElement = document.getElementById('topRatedProductsChart');
+    if (!chartElement) return;
     
+    var ctx = chartElement.getContext('2d');
+    var productCounts = [];
+    
+    // Create chart with empty data initially
+    window.categoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Average Rating',
+                data: [],
+                backgroundColor: 'rgba(79, 172, 254, 0.7)',
+                borderColor: 'rgba(79, 172, 254, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5,
+                    title: {
+                        display: true,
+                        text: 'Average Rating (1-5)',
+                        color: 'rgba(255, 255, 255, 0.9)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.9)'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Top Rated Products by Category',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    font: {
+                        size: 16
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(context) {
+                            const index = context.dataIndex;
+                            if (productCounts && productCounts.length > index) {
+                                return `Products: ${productCounts[index]}`;
+                            }
+                            return '';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Fetch data from API right after chart initialization
+    fetchCategoryData();
+    
+    // Function to fetch category data from API endpoint
+    function fetchCategoryData() {
+        console.log('Fetching category data from API...');
+        
+        fetch('/api/category-chart-data')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API response:', data);
+                
+                if (data.success && data.category_names && data.category_names.length > 0) {
+                    // Successfully got data from the API
+                    const categoryNames = data.category_names;
+                    const categoryRatings = data.category_ratings;
+                    productCounts = data.product_counts || [];
+                    
+                    console.log('✓ Successfully loaded category data from API');
+                    console.log('Category names:', categoryNames);
+                    console.log('Category ratings:', categoryRatings);
+                    
+                    // Update chart with the API data
+                    updateCategoryChart(categoryNames, categoryRatings);
+                } else {
+                    console.warn('⚠️ API returned no valid category data');
+                    // Use fallback data
+                    useFallbackCategoryData();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching category data:', error);
+                // Use fallback data on error
+                useFallbackCategoryData();
+            });
+    }
+    
+    // Function to update chart with the data
+    function updateCategoryChart(names, ratings) {
+        if (!names || !ratings || names.length === 0 || ratings.length === 0) {
+            console.error('Invalid data for category chart update');
+            return;
+        }
+        
+        // Sort data by ratings in descending order
+        const combinedData = names.map((name, index) => {
+            return { 
+                name: name, 
+                rating: ratings[index],
+                count: productCounts[index] || 0
+            };
+        });
+        
+        combinedData.sort((a, b) => b.rating - a.rating);
+        
+        // Get sorted arrays
+        const sortedNames = combinedData.map(item => item.name);
+        const sortedRatings = combinedData.map(item => item.rating);
+        const sortedCounts = combinedData.map(item => item.count);
+        
+        // Update the chart with sorted data
+        window.categoryChart.data.labels = sortedNames;
+        window.categoryChart.data.datasets[0].data = sortedRatings;
+        
+        // Update colors based on ratings
+        window.categoryChart.data.datasets[0].backgroundColor = sortedRatings.map(rating => {
+            if (rating >= 4.5) return 'rgba(0, 230, 118, 0.7)';
+            if (rating >= 4.0) return 'rgba(79, 172, 254, 0.7)';
+            if (rating >= 3.5) return 'rgba(255, 193, 7, 0.7)';
+            if (rating >= 3.0) return 'rgba(255, 152, 0, 0.7)';
+            return 'rgba(244, 67, 54, 0.7)';
+        });
+        
+        window.categoryChart.data.datasets[0].borderColor = sortedRatings.map(rating => {
+            if (rating >= 4.5) return 'rgba(0, 230, 118, 1)';
+            if (rating >= 4.0) return 'rgba(79, 172, 254, 1)';
+            if (rating >= 3.5) return 'rgba(255, 193, 7, 1)';
+            if (rating >= 3.0) return 'rgba(255, 152, 0, 1)';
+            return 'rgba(244, 67, 54, 1)';
+        });
+        
+        // Update chart
+        window.categoryChart.update();
+        console.log('✓ Chart updated with new data');
+    }
+    
+    // Function to use fallback sample data
+    function useFallbackCategoryData() {
+        console.warn('⚠️ Using fallback sample data for chart');
+        const fallbackNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
+        const fallbackRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
+        updateCategoryChart(fallbackNames, fallbackRatings);
+    }
+}
+
+// Initialize the Rating Distribution Chart
+function initRatingDistributionChart() {
+    var chartElement = document.getElementById('ratingDistributionChart');
+    if (!chartElement) return;
+    
+    var ctx = chartElement.getContext('2d');
+    var ratingLabels = ['1★', '2★', '3★', '4★', '5★'];
+    var ratingDistribution = [0, 0, 0, 0, 0]; // Default empty data
+
+    try {
+        // Parse rating distribution data from flask
+        var ratingDistStr = '{{ rating_distribution|safe }}';
+        console.log('Raw rating distribution JSON:', ratingDistStr);
+
+        if (ratingDistStr && ratingDistStr !== '[]' && ratingDistStr !== 'null') {
+            var parsedDist = JSON.parse(ratingDistStr);
+            if (parsedDist && parsedDist.length === 5) {
+                ratingDistribution = parsedDist;
+            }
+        }
+
+        console.log('Parsed rating distribution:', ratingDistribution);
+    } catch (e) {
+        console.error('Error parsing rating distribution:', e);
+        // Fallback sample data
+        ratingDistribution = [5, 8, 15, 30, 42];
+    }
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ratingLabels,
+            datasets: [{
+                label: 'Number of Ratings',
+                data: ratingDistribution,
+                backgroundColor: [
+                    'rgba(244, 67, 54, 0.7)',
+                    'rgba(255, 152, 0, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(79, 172, 254, 0.7)',
+                    'rgba(0, 230, 118, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(244, 67, 54, 1)',
+                    'rgba(255, 152, 0, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(79, 172, 254, 1)',
+                    'rgba(0, 230, 118, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Products',
+                        color: 'rgba(255, 255, 255, 0.9)'
+                    },
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: 'rgba(255, 255, 255, 0.7)'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'rgba(255, 255, 255, 0.9)'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Rating Distribution',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    font: {
+                        size: 16
+                    }
+                }
+            }
+        }
+    });
+}
+// Initialize the Tag Activity Chart
+function initTagActivityChart() {
+    var chartElement = document.getElementById('tagActivityChart');
+    if (!chartElement) return;
+    
+    var ctx = chartElement.getContext('2d');
+    var tagActivity = [];
+    var activityTagNames = [];
+    
+    try {
+        // Get tag activity data from Flask
+        var tagActivityStr = '{{ tag_activity|safe }}';
+        var activityTagNamesStr = '{{ tag_names|safe }}';
+        
+        console.log('Raw tag activity JSON:', tagActivityStr);
+        console.log('Raw activity tag names JSON:', activityTagNamesStr);
+        
+        // Handle potential JSON parsing errors safely
+        if (tagActivityStr && tagActivityStr !== '[]' && tagActivityStr !== 'null') {
+            var parsedActivity = JSON.parse(tagActivityStr);
+            
+            // Handle both 1D and 2D arrays
+            if (Array.isArray(parsedActivity)) {
+                if (Array.isArray(parsedActivity[0])) {
+                    // Already in 2D format
+                    tagActivity = parsedActivity;
+                } else {
+                    // Convert 1D array to 2D array with a single trend line
+                    tagActivity = [parsedActivity];
+                }
+            }
+        }
+        
+        if (activityTagNamesStr && activityTagNamesStr !== '[]' && activityTagNamesStr !== 'null') {
+            activityTagNames = JSON.parse(activityTagNamesStr);
+        }
+    } catch (parseError) {
+        console.error('Error parsing tag activity data:', parseError);
+    }
+    
+    // If we have no data, use sample data
+    if (!tagActivity || !Array.isArray(tagActivity) || tagActivity.length === 0) {
+        console.warn('No tag activity data found or invalid format, using sample data');
+        // Sample data for 5 tags over 6 months
+        tagActivity = [
+            [12, 15, 18, 22, 25, 30],  // Tag 1
+            [8, 10, 12, 15, 18, 20],   // Tag 2
+            [20, 18, 16, 14, 15, 17],  // Tag 3
+            [5, 8, 10, 12, 15, 18],    // Tag 4
+            [15, 13, 12, 10, 8, 10]    // Tag 5
+        ];
+    }
+    
+    if (!activityTagNames || !Array.isArray(activityTagNames) || activityTagNames.length === 0) {
+        activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
+    }
+    
+    // Limit to 5 tags for readability
+    activityTagNames = activityTagNames.slice(0, 5);
+    tagActivity = tagActivity.slice(0, 5);
+    
+    console.log('Tag activity data:', tagActivity);
+    console.log('Activity tag names:', activityTagNames);
+    
+    // Generate month labels for the x-axis (last 6 months)
+    var monthLabels = [];
+    var today = new Date();
+    for (var i = 5; i >= 0; i--) {
+        var d = new Date(today);
+        d.setMonth(today.getMonth() - i);
+        monthLabels.push(d.toLocaleDateString('en-US', { month: 'short' }));
+    }
+    
+    // Generate dataset colors for each tag
+    var colors = [
+        'rgba(75, 192, 192, 0.7)',    // Teal
+        'rgba(153, 102, 255, 0.7)',   // Purple
+        'rgba(255, 159, 64, 0.7)',    // Orange
+        'rgba(54, 162, 235, 0.7)',     // Blue
+        'rgba(255, 99, 132, 0.7)'      // Red
+    ];
+    
+    var borderColors = [
+        'rgba(75, 192, 192, 1)',    // Teal
+        'rgba(153, 102, 255, 1)',   // Purple
+        'rgba(255, 159, 64, 1)',    // Orange
+        'rgba(54, 162, 235, 1)',     // Blue
+        'rgba(255, 99, 132, 1)'      // Red
+    ];
+    
+    // Create datasets for each tag
+    var datasets = [];
+    for (var i = 0; i < tagActivity.length && i < activityTagNames.length; i++) {
+        datasets.push({
+            label: activityTagNames[i],
+            data: tagActivity[i],
+            borderColor: borderColors[i % borderColors.length],
+            backgroundColor: colors[i % colors.length],
+            borderWidth: 2,
+            tension: 0.3,  // Smooth curves
+            fill: false,
+            pointRadius: 3,
+            pointHoverRadius: 5
+        });
+    }
+    
+    // Create the chart
+    var tagActivityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: monthLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Tag Activity Over Time',
+                    color: '#e0e0e0',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#e0e0e0',
+                        padding: 10,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    padding: 10,
+                    displayColors: true,
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#e0e0e0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#e0e0e0'
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    borderWidth: 2
+                },
+                point: {
+                    radius: 3,
+                    hoverRadius: 5
+                }
+            }
+        }
+    });
+}
+
+// Function to update all progress bars with smooth animations
+function updateProgressBars() {
     // Get all progress bars
     var progressBars = document.querySelectorAll('.progress-bar');
     
@@ -1287,115 +1384,120 @@ function updateBarIndicators() {
 }
 
 function filterTable() {
-            var tagFilter = document.getElementById('tagFilter');
-            var tag = 'all';
-            if (tagFilter && tagFilter.value) {
-                tag = tagFilter.value;
-            }
-            
-            var ratingFilter = document.getElementById('ratingFilter');
-            var minRating = 0;
-            if (ratingFilter && ratingFilter.value) {
-                minRating = parseFloat(ratingFilter.value);
-            }
-            
-            var sortFilter = document.getElementById('sortFilter');
-            var sortBy = 'name';
-            if (sortFilter && sortFilter.value) {
-                sortBy = sortFilter.value;
-            }
-            
-            var rows = document.querySelectorAll('#productsTable tbody tr');
-            var visibleCount = 0;
-            
-            for (var i = 0; i < rows.length; i++) {
-                var row = rows[i];
-                var tagsAttr = row.getAttribute('data-tags');
-                var rowTags = [];
-                if (tagsAttr) {
-                    rowTags = tagsAttr.split(',');
-                }
-                
-                var rating = 0;
-                if (row.getAttribute('data-rating')) {
-                    rating = parseFloat(row.getAttribute('data-rating'));
-                }
-                
-                var tagMatch = (tag === 'all');
-                if (!tagMatch) {
-                    for (var j = 0; j < rowTags.length; j++) {
-                        if (rowTags[j] === tag) {
-                            tagMatch = true;
-                            break;
-                        }
-                    }
-                }
-                
-                var ratingMatch = (rating >= minRating);
-                
-                if (tagMatch && ratingMatch) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-            
-            // Update visible count
-            var countElement = document.getElementById('visibleCount');
-            if (countElement) {
-                countElement.textContent = visibleCount;
-            }
-            
-            // Sort the table
-            var tbody = document.querySelector('#productsTable tbody');
-            if (tbody) {
-                var visibleRows = [];
-                for (var i = 0; i < rows.length; i++) {
-                    if (rows[i].style.display !== 'none') {
-                        visibleRows.push(rows[i]);
-                    }
-                }
-                
-                visibleRows.sort(function(a, b) {
-                    if (sortBy === 'rating') {
-                        var ratingA = 0;
-                        var ratingB = 0;
-                        
-                        if (a.getAttribute('data-rating')) {
-                            ratingA = parseFloat(a.getAttribute('data-rating'));
-                        }
-                        
-                        if (b.getAttribute('data-rating')) {
-                            ratingB = parseFloat(b.getAttribute('data-rating'));
-                        }
-                        
-                        return ratingB - ratingA; // Descending order for ratings
-                    } else if (sortBy === 'name') {
-                        var nameA = '';
-                        var nameB = '';
-                        
-                        var firstCellA = a.querySelector('td:first-child');
-                        if (firstCellA && firstCellA.textContent) {
-                            nameA = firstCellA.textContent;
-                        }
-                        
-                        var firstCellB = b.querySelector('td:first-child');
-                        if (firstCellB && firstCellB.textContent) {
-                            nameB = firstCellB.textContent;
-                        }
-                        
-                        return nameA.localeCompare(nameB); // Ascending order for names
-                    }
-                    return 0;
-                });
-                
-                // Re-append in sorted order
-                for (var i = 0; i < visibleRows.length; i++) {
-                    tbody.appendChild(visibleRows[i]);
-                }
+    var tagFilter = document.getElementById('tagFilter');
+    var tag = 'all';
+    if (tagFilter && tagFilter.value) {
+        tag = tagFilter.value;
+    }
+    
+    var ratingFilter = document.getElementById('ratingFilter');
+    var minRating = 0;
+    if (ratingFilter && ratingFilter.value) {
+        minRating = parseFloat(ratingFilter.value);
+    }
+    
+    var sortFilter = document.getElementById('sortFilter');
+    var sortBy = 'name';
+    if (sortFilter && sortFilter.value) {
+        sortBy = sortFilter.value;
+    }
+    
+    var rows = document.querySelectorAll('#productsTable tbody tr');
+    var visibleCount = 0;
+    
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var tagsAttr = row.getAttribute('data-tags');
+        var rowTags = [];
+        if (tagsAttr) {
+            rowTags = tagsAttr.split(',');
+        }
+        
+        var rating = 0;
+        if (row.getAttribute('data-rating')) {
+            rating = parseFloat(row.getAttribute('data-rating'));
+        }
+        
+        var visible = true;
+        
+        // Filter by tag
+        if (tag !== 'all' && rowTags.indexOf(tag) === -1) {
+            visible = false;
+        }
+        
+        // Filter by rating
+        if (visible && rating < minRating) {
+            visible = false;
+        }
+        
+        // Display or hide based on filters
+        if (visible) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    }
+    
+    // Update the counter
+    var counter = document.getElementById('productsCounter');
+    if (counter) {
+        counter.textContent = visibleCount + ' products';
+    }
+    
+    // Sort the visible rows
+    var tbody = document.querySelector('#productsTable tbody');
+    if (tbody) {
+        var visibleRows = [];
+        // Collect visible rows
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].style.display !== 'none') {
+                visibleRows.push(rows[i]);
             }
         }
+        
+        // Sort based on selected criteria
+        visibleRows.sort(function(a, b) {
+            if (sortBy === 'rating') {
+                var ratingA = parseFloat(a.getAttribute('data-rating') || '0');
+                var ratingB = parseFloat(b.getAttribute('data-rating') || '0');
+                return ratingB - ratingA; // Descending order for ratings
+            } else if (sortBy === 'name') {
+                var nameA = a.querySelector('td:first-child')?.textContent || '';
+                var nameB = b.querySelector('td:first-child')?.textContent || '';
+                return nameA.localeCompare(nameB); // Ascending order for names
+            }
+            return 0;
+        });
+        
+        // Re-append in sorted order
+        for (var i = 0; i < visibleRows.length; i++) {
+            tbody.appendChild(visibleRows[i]);
+        }
+    }
+}
+
+// Master initialization function for all charts
+function initializeCharts() {
+    // Initialize each chart
+    initCategoryChart(); // Re-enabled as we kept the first chart container
+    initRatingDistributionChart();
+    initTagActivityChart();
+    
+    // Update progress bars and indicators
+    updateProgressBars();
+}
+
+// Initialize all charts when the document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    
+    // Set up any filter listeners if needed
+    var filters = document.querySelectorAll('.filter-control');
+    filters.forEach(function(filter) {
+        filter.addEventListener('change', filterTable);
+    });
+});
         
 // Filter by tag
 function filterByTag(tagName) {

@@ -7,12 +7,13 @@ import decimal
 
 app = Flask(__name__)
 
-# Database connection helper
+# Database helper function - Use absolute path to ensure consistent connections
 def get_db_connection():
-    # Using absolute path to ensure consistent database access
-    db_path = r"C:\Users\samuel\Documents\final project\stock-project-main\stock-project.db"
+    # Always use the absolute path to the database
+    db_path = r'C:\Users\samuel\Documents\final project\stock-project-main\stock-project.db'
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
+    print(f"Connected to database at: {db_path}")
     return conn
 
 # Helper function to convert SQLite Row objects to dictionaries
@@ -1577,39 +1578,24 @@ def dashboard_analytical():
             rating_dist_json = json.dumps([10, 15, 8, 5, 2])
             rating_data_json = json.dumps({"Quality": [2, 4, 8, 12, 6], "Value": [1, 3, 9, 8, 4]})
         
-        # Get category product ratings from database
+        # For category data, we'll use a separate endpoint to avoid template issues
+        # The chart will load this data via AJAX after the page loads
         try:
-            # Dedicated query for Top Rated Products by Category
-            category_query = """
-            SELECT 
-                p.Category,
-                AVG(r.Rating) AS AvgRating,
-                COUNT(r.ProductID) AS ProductCount
-            FROM Products p
-            JOIN Product_Ratings r ON p.[Product ID] = r.ProductID
-            WHERE p.Category IS NOT NULL AND p.Category != ''
-            GROUP BY p.Category
-            ORDER BY AVG(r.Rating) DESC
-            LIMIT 10
-            """
-            
-            category_data = rows_to_dict_list(conn.execute(category_query).fetchall())
-            
-            if category_data and len(category_data) > 0:
-                print(f"Successfully retrieved {len(category_data)} product categories with ratings")
-                category_names = [item['Category'] for item in category_data]
-                category_ratings = [round(float(item['AvgRating']), 2) for item in category_data]
-            else:
-                print("No category data found, using fallback data")
-                # Fallback to tag data if no categories found
-                category_names = [tag['TagName'] for tag in tag_ratings[:10]] if tag_ratings else []
-                category_ratings = [tag['AvgRating'] for tag in tag_ratings[:10]] if tag_ratings else []
+            # We'll still pass empty arrays for initial page load
+            # The actual data will be fetched from /api/category-chart-data via AJAX
+            category_names = []  
+            category_ratings = []
         except Exception as e:
-            print(f"Error fetching category data: {str(e)}")
-            # Fallback data
-            category_names = [tag['TagName'] for tag in tag_ratings[:10]] if tag_ratings else []
-            category_ratings = [tag['AvgRating'] for tag in tag_ratings[:10]] if tag_ratings else []
+            print(f"Error preparing category data: {str(e)}")
+            category_names = []
+            category_ratings = []
         
+        # Debug print to verify the data being passed to the template
+        print(f"DEBUG - Category names: {category_names}")
+        print(f"DEBUG - Category ratings: {category_ratings}")
+        print(f"DEBUG - Category JSON: {json.dumps(category_names)}")
+        
+        # Make sure we're using proper JSON encoding with the right attribute name
         return render_template(
             'dashboard_analytical.html',
             tag_ratings=tag_ratings,
@@ -1632,6 +1618,63 @@ def dashboard_analytical():
     except Exception as e:
         print(f"Error in dashboard_analytical: {str(e)}")
         return render_template('error.html', error=str(e)), 500
+
+# API endpoint for category chart data
+@app.route('/api/category-chart-data')
+def api_category_chart_data():
+    """API endpoint to get category chart data in JSON format"""
+    try:
+        conn = get_db_connection()
+        
+        # Category query - same as before but now in a dedicated endpoint
+        category_query = """
+        SELECT 
+            COALESCE(p.[Product Category], 'Uncategorized') AS Category,
+            ROUND(AVG(CAST(r.Rating AS FLOAT)), 2) AS AvgRating,
+            COUNT(DISTINCT r.ProductID) AS ProductCount
+        FROM Products p
+        LEFT JOIN Product_Ratings r ON p.[Product ID] = r.ProductID
+        WHERE p.[Product Category] IS NOT NULL AND p.[Product Category] != ''
+        GROUP BY p.[Product Category]
+        HAVING COUNT(r.ProductID) > 0
+        ORDER BY AVG(r.Rating) DESC
+        LIMIT 10
+        """
+        
+        category_data = rows_to_dict_list(conn.execute(category_query).fetchall())
+        
+        if category_data and len(category_data) > 0:
+            print(f"API: Successfully retrieved {len(category_data)} product categories with ratings")
+            category_names = [item['Category'] for item in category_data]
+            category_ratings = [float(item['AvgRating']) for item in category_data]
+            product_counts = [item['ProductCount'] for item in category_data]
+            
+            # Return the data as JSON
+            return jsonify({
+                'success': True,
+                'category_names': category_names,
+                'category_ratings': category_ratings,
+                'product_counts': product_counts
+            })
+        else:
+            print("API: No category data found")
+            return jsonify({
+                'success': False,
+                'message': 'No category data found',
+                'category_names': [],
+                'category_ratings': [],
+                'product_counts': []
+            })
+            
+    except Exception as e:
+        print(f"API error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error: {str(e)}',
+            'category_names': [],
+            'category_ratings': [],
+            'product_counts': []
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
