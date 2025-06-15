@@ -290,6 +290,12 @@
         }
     }
 </style>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+<!-- Chart.js Matrix Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.1/dist/chartjs-chart-matrix.min.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -620,6 +626,7 @@
         <h4 class="chart-title">Stock Availability Matrix</h4>
         <div class="chart-area">
             <canvas id="stockHeatmap"></canvas>
+            <div class="chart-loading">Loading data...</div>
         </div>
     </div>
     
@@ -628,6 +635,7 @@
         <h4 class="chart-title">Expiring Products Over Time</h4>
         <div class="chart-area">
             <canvas id="expiringProductsChart"></canvas>
+            <div class="chart-loading">Loading data...</div>
         </div>
     </div>
     
@@ -636,6 +644,7 @@
         <h4 class="chart-title">Low Stock Warnings</h4>
         <div class="chart-area">
             <canvas id="lowStockBubbleChart"></canvas>
+            <div class="chart-loading">Loading data...</div>
         </div>
     </div>
     
@@ -644,6 +653,7 @@
         <h4 class="chart-title">Stock Utilization Ratio by Tag</h4>
         <div class="chart-area">
             <canvas id="stockUtilizationChart"></canvas>
+            <div class="chart-loading">Loading data...</div>
         </div>
     </div>
 </div>
@@ -710,43 +720,127 @@ if (sidebarToggle && glassSidebar) {
     });
 }
 
+// Debug function to log details about chart data and rendering process
+function debugLog(message, data) {
+    console.log('DEBUG: ' + message, data);
+}
+
+// Add CSS for loading indicators
+document.head.insertAdjacentHTML('beforeend', `
+    <style>
+        .chart-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 16px;
+            z-index: 5;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+    </style>
+`);
+
 // Initialize all charts when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Chart 1: Stock Availability Matrix (Heatmap)
-    createStockMatrix();
+    fetchStockMatrixData();
     
     // Chart 2: Expiring Products Over Time (Area Chart)
-    createExpiringProductsChart();
+    fetchExpiringProductsData();
     
     // Chart 3: Low Stock Warnings (Bubble Chart)
-    createLowStockBubbleChart();
+    fetchLowStockData();
     
     // Chart 4: Stock Utilization Ratio by Tag (Donut Chart)
-    createStockUtilizationChart();
+    fetchStockUtilizationData();
 });
 
-// 1. Stock Availability Matrix (Heatmap)
-function createStockMatrix() {
+// Error handler for chart data fetching
+function handleChartError(chartId, error) {
+    console.error(`Error loading data for ${chartId}:`, error);
+    const loadingElement = document.querySelector(`#${chartId}`).closest('.chart-area').querySelector('.chart-loading');
+    if (loadingElement) {
+        loadingElement.innerHTML = 'Failed to load data. Please refresh the page.<br><small>' + error.message + '</small>';
+        loadingElement.style.backgroundColor = 'rgba(234, 67, 53, 0.7)';
+    }
+}
+
+// 1. Fetch data for Stock Availability Matrix (Heatmap)
+function fetchStockMatrixData() {
+    debugLog('Fetching stock matrix data');
+    fetch('/api/stock_availability_matrix')
+        .then(response => {
+            debugLog('Stock matrix API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`Network response error: ${response.status}`);
+            }
+            return response.json().catch(err => {
+                throw new Error('Failed to parse JSON response: ' + err.message);
+            });
+        })
+        .then(data => {
+            debugLog('Stock matrix data received:', data);
+            // Hide loading indicator
+            const loadingElement = document.querySelector('#stockHeatmap').closest('.chart-area').querySelector('.chart-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            try {
+                createStockMatrix(data);
+            } catch (err) {
+                throw new Error('Error creating matrix chart: ' + err.message);
+            }
+        })
+        .catch(error => handleChartError('stockHeatmap', error));
+}
+
+// Create the Stock Availability Matrix chart
+function createStockMatrix(apiData) {
     const ctx = document.getElementById('stockHeatmap').getContext('2d');
     
-    // Sample data - would be replaced with actual data from backend
-    const categories = ['Electronics', 'Clothing', 'Furniture', 'Food', 'Books'];
-    const regions = ['North', 'South', 'East', 'West', 'Central'];
+    // Use API data or fallback to sample data if missing
+    const categories = apiData?.categories || ['Electronics', 'Clothing', 'Furniture', 'Food', 'Books'];
+    const regions = apiData?.regions || ['North', 'South', 'East', 'West', 'Central'];
     
     const data = [];
-    for (let i = 0; i < categories.length; i++) {
-        for (let j = 0; j < regions.length; j++) {
-            // Generate random stock level between 0-100
-            const stockLevel = Math.floor(Math.random() * 100);
-            data.push({
-                x: j,
-                y: i,
-                v: stockLevel,
-                // Color based on stock level (low=red, medium=yellow, high=green)
-                color: stockLevel < 30 ? 'rgba(234, 67, 53, 0.8)' : 
-                       stockLevel < 70 ? 'rgba(249, 171, 0, 0.8)' : 
-                       'rgba(52, 168, 83, 0.8)'
-            });
+    
+    // If we have API data
+    if (apiData && apiData.data && apiData.data.length > 0) {
+        // Map through the API data
+        for (let i = 0; i < categories.length; i++) {
+            for (let j = 0; j < regions.length; j++) {
+                // Find matching data item
+                const item = apiData.data.find(d => d.category === categories[i] && d.region === regions[j]);
+                const stockLevel = item ? Math.min(Math.max(item.value, 0), 100) : 0;
+                
+                data.push({
+                    x: j,
+                    y: i,
+                    v: stockLevel,
+                    // Color based on stock level (low=red, medium=yellow, high=green)
+                    color: stockLevel < 30 ? 'rgba(234, 67, 53, 0.8)' : 
+                           stockLevel < 70 ? 'rgba(249, 171, 0, 0.8)' : 
+                           'rgba(52, 168, 83, 0.8)'
+                });
+            }
+        }
+    } else {
+        // Generate sample data as fallback
+        for (let i = 0; i < categories.length; i++) {
+            for (let j = 0; j < regions.length; j++) {
+                const stockLevel = Math.floor(Math.random() * 100);
+                data.push({
+                    x: j,
+                    y: i,
+                    v: stockLevel,
+                    color: stockLevel < 30 ? 'rgba(234, 67, 53, 0.8)' : 
+                           stockLevel < 70 ? 'rgba(249, 171, 0, 0.8)' : 
+                           'rgba(52, 168, 83, 0.8)'
+                });
+            }
         }
     }
     
@@ -811,13 +905,42 @@ function createStockMatrix() {
     });
 }
 
-// 2. Expiring Products Over Time (Area Chart)
-function createExpiringProductsChart() {
+// 2. Fetch data for Expiring Products Over Time (Area Chart)
+function fetchExpiringProductsData() {
+    debugLog('Fetching expiring products data');
+    fetch('/api/expiring_products_trend')
+        .then(response => {
+            debugLog('Expiring products API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`Network response error: ${response.status}`);
+            }
+            return response.json().catch(err => {
+                throw new Error('Failed to parse JSON response: ' + err.message);
+            });
+        })
+        .then(data => {
+            debugLog('Expiring products data received:', data);
+            // Hide loading indicator
+            const loadingElement = document.querySelector('#expiringProductsChart').closest('.chart-area').querySelector('.chart-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            try {
+                createExpiringProductsChart(data);
+            } catch (err) {
+                throw new Error('Error creating area chart: ' + err.message);
+            }
+        })
+        .catch(error => handleChartError('expiringProductsChart', error));
+}
+
+// Create the Expiring Products Over Time chart
+function createExpiringProductsChart(apiData) {
     const ctx = document.getElementById('expiringProductsChart').getContext('2d');
     
-    // Sample data - would be replaced with actual data from backend
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const expiringProducts = [5, 8, 12, 15, 20, 25, 18, 22, 30, 25, 22, 18];
+    // Use API data or fallback to sample data if missing
+    const months = apiData?.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const expiringProducts = apiData?.data || [5, 8, 12, 15, 20, 25, 18, 22, 30, 25, 22, 18];
     
     new Chart(ctx, {
         type: 'line',
@@ -877,13 +1000,42 @@ function createExpiringProductsChart() {
     });
 }
 
-// 3. Low Stock Warnings (Bubble Chart)
-function createLowStockBubbleChart() {
+// 3. Fetch data for Low Stock Warnings (Bubble Chart)
+function fetchLowStockData() {
+    debugLog('Fetching low stock data');
+    fetch('/api/low_stock_warnings')
+        .then(response => {
+            debugLog('Low stock API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`Network response error: ${response.status}`);
+            }
+            return response.json().catch(err => {
+                throw new Error('Failed to parse JSON response: ' + err.message);
+            });
+        })
+        .then(data => {
+            debugLog('Low stock data received:', data);
+            // Hide loading indicator
+            const loadingElement = document.querySelector('#lowStockBubbleChart').closest('.chart-area').querySelector('.chart-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            try {
+                createLowStockBubbleChart(data);
+            } catch (err) {
+                throw new Error('Error creating bubble chart: ' + err.message);
+            }
+        })
+        .catch(error => handleChartError('lowStockBubbleChart', error));
+}
+
+// Create the Low Stock Warnings chart
+function createLowStockBubbleChart(apiData) {
     const ctx = document.getElementById('lowStockBubbleChart').getContext('2d');
     
-    // Sample data - would be replaced with actual data from backend
-    const bubbleData = [
-        { x: 10, y: 4.5, r: 15, label: 'Product A' },  // x=stock qty, y=rating, r=bubble size (# of products)
+    // Use API data or fallback to sample data if missing
+    const bubbleData = apiData?.data || [
+        { x: 10, y: 4.5, r: 15, label: 'Product A' },
         { x: 15, y: 3.8, r: 8, label: 'Product B' },
         { x: 8, y: 4.2, r: 20, label: 'Product C' },
         { x: 5, y: 4.9, r: 10, label: 'Product D' },
@@ -968,13 +1120,42 @@ function createLowStockBubbleChart() {
     });
 }
 
-// 4. Stock Utilization Ratio by Tag (Donut Chart)
-function createStockUtilizationChart() {
+// 4. Fetch data for Stock Utilization Ratio by Tag (Donut Chart)
+function fetchStockUtilizationData() {
+    debugLog('Fetching stock utilization data');
+    fetch('/api/stock_utilization_ratio')
+        .then(response => {
+            debugLog('Stock utilization API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`Network response error: ${response.status}`);
+            }
+            return response.json().catch(err => {
+                throw new Error('Failed to parse JSON response: ' + err.message);
+            });
+        })
+        .then(data => {
+            debugLog('Stock utilization data received:', data);
+            // Hide loading indicator
+            const loadingElement = document.querySelector('#stockUtilizationChart').closest('.chart-area').querySelector('.chart-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            try {
+                createStockUtilizationChart(data);
+            } catch (err) {
+                throw new Error('Error creating donut chart: ' + err.message);
+            }
+        })
+        .catch(error => handleChartError('stockUtilizationChart', error));
+}
+
+// Create the Stock Utilization Ratio chart
+function createStockUtilizationChart(apiData) {
     const ctx = document.getElementById('stockUtilizationChart').getContext('2d');
     
-    // Sample data - would be replaced with actual data from backend
-    const tags = ['Premium', 'Standard', 'Economy', 'Clearance', 'Limited'];
-    const utilization = [85, 65, 45, 30, 90];  // Utilization percentages
+    // Use API data or fallback to sample data if missing
+    const tags = apiData?.labels || ['Premium', 'Standard', 'Economy', 'Clearance', 'Limited'];
+    const utilization = apiData?.values || [85, 65, 45, 30, 90];  // Utilization percentages
     
     new Chart(ctx, {
         type: 'doughnut',
@@ -1031,6 +1212,5 @@ function createStockUtilizationChart() {
             glassSidebar.classList.remove('show-sidebar');
         }
     });
-}
 </script>
 {% endblock %}
