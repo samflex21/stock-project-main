@@ -532,6 +532,41 @@
     .purple-indicator {
         border: 12px solid #8b46ff;
     }
+    
+    /* Chart Grid Layout */
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 30px;
+        margin: 30px auto;
+        width: 95%;
+    }
+    
+    .chart-container {
+        position: relative;
+        padding-bottom: 20px;
+    }
+    
+    .chart-title {
+        color: black;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .chart-area {
+        width: 100%;
+        height: 300px;
+        position: relative;
+    }
+    
+    /* Responsive layout for smaller screens */
+    @media (max-width: 992px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <div class="glassmorphic-container context-section">
@@ -578,26 +613,49 @@
     </div>
 </div>
 
-<!-- Section 1: Main -->
-<div class="dashboard-section" style="margin-bottom: 30px; padding: 20px; background: transparent !important;">
-    <h5 class="mb-3" style="color: #000; font-weight: 600;">Main Section</h5>
-    <p style="color: #000;">Visualize key metrics to optimize shipment planning and minimize waste.</p>
-</div>
-<!-- Content sections removed as requested -->
-
-<div style="margin-bottom: 30px; padding: 20px; background: transparent !important;">
-    <div style="text-align: center; padding: 30px 0;">
-        <h4 style="color: #000;">Dashboard Simplified</h4>
-        <p style="color: rgba(0,0,0,0.7);">All chart visualizations and product tables have been removed as requested.</p>
-        <p style="color: rgba(0,0,0,0.7);">Use the Strategic or Analytical dashboards for detailed data visualization.</p>
+<!-- Chart Container Row - 2x2 Grid -->
+<div class="chart-grid">
+    <!-- Chart 1: Stock Availability Matrix (Heatmap) -->
+    <div class="glassmorphic-container chart-container">
+        <h4 class="chart-title">Stock Availability Matrix</h4>
+        <div class="chart-area">
+            <canvas id="stockHeatmap"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 2: Expiring Products Over Time (Area Chart) -->
+    <div class="glassmorphic-container chart-container">
+        <h4 class="chart-title">Expiring Products Over Time</h4>
+        <div class="chart-area">
+            <canvas id="expiringProductsChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 3: Low Stock Warnings (Bubble Chart) -->
+    <div class="glassmorphic-container chart-container">
+        <h4 class="chart-title">Low Stock Warnings</h4>
+        <div class="chart-area">
+            <canvas id="lowStockBubbleChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Chart 4: Stock Utilization Ratio by Tag (Donut Chart) -->
+    <div class="glassmorphic-container chart-container">
+        <h4 class="chart-title">Stock Utilization Ratio by Tag</h4>
+        <div class="chart-area">
+            <canvas id="stockUtilizationChart"></canvas>
+        </div>
     </div>
 </div>
-
-<!-- No charts as requested -->
 </div> <!-- Close the content-wrapper div -->
 {% endblock %}
 
 {% block scripts %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js Heatmap plugin (for matrix chart) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.2.0/dist/chartjs-chart-matrix.min.js"></script>
+
 <script type="text/javascript">
 // Remove all dark backgrounds immediately on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -648,17 +706,329 @@ const glassSidebar = document.getElementById('glassSidebar');
 
 if (sidebarToggle && glassSidebar) {
     sidebarToggle.addEventListener('click', function() {
-        glassSidebar.classList.toggle('show');
+        glassSidebar.classList.toggle('show-sidebar');
     });
+}
+
+// Initialize all charts when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart 1: Stock Availability Matrix (Heatmap)
+    createStockMatrix();
     
+    // Chart 2: Expiring Products Over Time (Area Chart)
+    createExpiringProductsChart();
+    
+    // Chart 3: Low Stock Warnings (Bubble Chart)
+    createLowStockBubbleChart();
+    
+    // Chart 4: Stock Utilization Ratio by Tag (Donut Chart)
+    createStockUtilizationChart();
+});
+
+// 1. Stock Availability Matrix (Heatmap)
+function createStockMatrix() {
+    const ctx = document.getElementById('stockHeatmap').getContext('2d');
+    
+    // Sample data - would be replaced with actual data from backend
+    const categories = ['Electronics', 'Clothing', 'Furniture', 'Food', 'Books'];
+    const regions = ['North', 'South', 'East', 'West', 'Central'];
+    
+    const data = [];
+    for (let i = 0; i < categories.length; i++) {
+        for (let j = 0; j < regions.length; j++) {
+            // Generate random stock level between 0-100
+            const stockLevel = Math.floor(Math.random() * 100);
+            data.push({
+                x: j,
+                y: i,
+                v: stockLevel,
+                // Color based on stock level (low=red, medium=yellow, high=green)
+                color: stockLevel < 30 ? 'rgba(234, 67, 53, 0.8)' : 
+                       stockLevel < 70 ? 'rgba(249, 171, 0, 0.8)' : 
+                       'rgba(52, 168, 83, 0.8)'
+            });
+        }
+    }
+    
+    new Chart(ctx, {
+        type: 'matrix',
+        data: {
+            datasets: [{
+                label: 'Stock Availability',
+                data: data,
+                backgroundColor: (context) => context.dataset.data[context.dataIndex].color,
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                borderWidth: 1,
+                width: ({ chart }) => (chart.chartArea || {}).width / regions.length - 1,
+                height: ({ chart }) => (chart.chartArea || {}).height / categories.length - 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title() {
+                            return '';
+                        },
+                        label(context) {
+                            const v = context.dataset.data[context.dataIndex];
+                            return ['Category: ' + categories[v.y],
+                                    'Region: ' + regions[v.x],
+                                    'Stock Level: ' + v.v + '%'];
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: regions,
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                y: {
+                    type: 'category',
+                    labels: categories,
+                    offset: true,
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 2. Expiring Products Over Time (Area Chart)
+function createExpiringProductsChart() {
+    const ctx = document.getElementById('expiringProductsChart').getContext('2d');
+    
+    // Sample data - would be replaced with actual data from backend
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const expiringProducts = [5, 8, 12, 15, 20, 25, 18, 22, 30, 25, 22, 18];
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Expiring Products',
+                data: expiringProducts,
+                backgroundColor: 'rgba(234, 67, 53, 0.3)',
+                borderColor: 'rgba(234, 67, 53, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(234, 67, 53, 1)',
+                pointRadius: 4,
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'black'
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number of Products',
+                        color: 'black'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 3. Low Stock Warnings (Bubble Chart)
+function createLowStockBubbleChart() {
+    const ctx = document.getElementById('lowStockBubbleChart').getContext('2d');
+    
+    // Sample data - would be replaced with actual data from backend
+    const bubbleData = [
+        { x: 10, y: 4.5, r: 15, label: 'Product A' },  // x=stock qty, y=rating, r=bubble size (# of products)
+        { x: 15, y: 3.8, r: 8, label: 'Product B' },
+        { x: 8, y: 4.2, r: 20, label: 'Product C' },
+        { x: 5, y: 4.9, r: 10, label: 'Product D' },
+        { x: 20, y: 3.5, r: 15, label: 'Product E' },
+        { x: 3, y: 4.8, r: 25, label: 'Product F' },
+        { x: 12, y: 4.1, r: 12, label: 'Product G' }
+    ];
+    
+    new Chart(ctx, {
+        type: 'bubble',
+        data: {
+            datasets: [{
+                label: 'Low Stock Products',
+                data: bubbleData.map(item => ({
+                    x: item.x,
+                    y: item.y,
+                    r: item.r,
+                    label: item.label
+                })),
+                backgroundColor: bubbleData.map(item => {
+                    // Color based on stock level (red for very low, orange for medium-low)
+                    return item.x < 10 ? 'rgba(234, 67, 53, 0.7)' : 'rgba(249, 171, 0, 0.7)';
+                }),
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const data = context.raw;
+                            return [
+                                `Product: ${bubbleData[context.dataIndex].label}`,
+                                `Stock Quantity: ${data.x}`,
+                                `Rating: ${data.y}`,
+                                `Number of Products: ${data.r}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    min: 0,
+                    max: 25,
+                    title: {
+                        display: true,
+                        text: 'Stock Quantity',
+                        color: 'black'
+                    },
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                y: {
+                    min: 3,
+                    max: 5,
+                    title: {
+                        display: true,
+                        text: 'Rating',
+                        color: 'black'
+                    },
+                    ticks: {
+                        color: 'black'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 4. Stock Utilization Ratio by Tag (Donut Chart)
+function createStockUtilizationChart() {
+    const ctx = document.getElementById('stockUtilizationChart').getContext('2d');
+    
+    // Sample data - would be replaced with actual data from backend
+    const tags = ['Premium', 'Standard', 'Economy', 'Clearance', 'Limited'];
+    const utilization = [85, 65, 45, 30, 90];  // Utilization percentages
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: tags,
+            datasets: [{
+                data: utilization,
+                backgroundColor: [
+                    'rgba(26, 115, 232, 0.8)',
+                    'rgba(52, 168, 83, 0.8)',
+                    'rgba(249, 171, 0, 0.8)',
+                    'rgba(234, 67, 53, 0.8)',
+                    'rgba(139, 70, 255, 0.8)'
+                ],
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        color: 'black'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.parsed}% utilized`;
+                        }
+                    }
+                }
+            },
+            cutout: '65%',
+            animation: {
+                animateScale: true
+            }
+        }
+    });
+}
+
     // Close sidebar when clicking outside of it (only on mobile)
     document.addEventListener('click', function(event) {
         const isMobile = window.innerWidth < 993;
         const clickedInsideSidebar = glassSidebar.contains(event.target);
         const clickedOnToggle = sidebarToggle.contains(event.target);
         
-        if (isMobile && !clickedInsideSidebar && !clickedOnToggle && glassSidebar.classList.contains('show')) {
-            glassSidebar.classList.remove('show');
+        if (isMobile && !clickedInsideSidebar && !clickedOnToggle && glassSidebar.classList.contains('show-sidebar')) {
+            glassSidebar.classList.remove('show-sidebar');
         }
     });
 }
