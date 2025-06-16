@@ -442,13 +442,127 @@
         margin: 5px 0;
     }
     
-    /* Tag cloud styling */
+    /* Tag Cloud Styling */
     .tag-cloud {
         display: flex;
         flex-wrap: wrap;
-        align-content: flex-start;
         gap: 8px;
-        padding: 5px;
+        padding: 15px;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .tag-item {
+        display: inline-block;
+        padding: 6px 12px;
+        margin: 3px;
+        background: rgba(33, 41, 70, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        color: #ffffff !important;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .tag-item .fas {
+        color: #ffffff; 
+        margin-right: 5px;
+    }
+    
+    .tag-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        background: rgba(102, 126, 234, 0.7);
+        color: #ffffff !important;
+        text-decoration: none;
+    }
+    
+    .tag-item.active {
+        background: rgba(102, 126, 234, 0.9);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6);
+        transform: translateY(-1px);
+        color: #ffffff !important;
+    }
+    
+    /* Dashboard Header Styles */
+    .dashboard-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(30, 41, 59, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-container {
+        width: 100%;
+        max-width: 1400px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .header-left .dashboard-title {
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        white-space: nowrap;
+    }
+    
+    .header-nav {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        align-items: center;
+        margin: 0 20px;
+    }
+    
+    .header-nav .nav-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 5px 0;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .header-nav .nav-link:hover {
+        color: #ffffff;
+    }
+    
+    .header-nav .nav-link.active {
+        color: #ffffff;
+    }
+    
+    .header-nav .nav-link.active:after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 2px;
+    }
+    
+    .filter-controls {
+        display: flex;
+        align-items: center;
     }
     
     /* Sidebar toggle button for mobile */
@@ -539,22 +653,29 @@
     }
     
     /* Responsive adjustments */
-    @media (max-width: 992px) {
-        .glass-sidebar {
-            transform: translateX(-100%);
+    @media (max-width: 768px) {
+        .header-center {
+            display: none;
         }
         
-        .glass-sidebar.show-sidebar {
-            transform: translateX(0);
+        .header-container {
+            padding: 0 15px;
         }
         
-        .main-content-with-sidebar {
-            margin-left: 0;
-            width: 100%;
+        .dashboard-header {
+            height: 60px;
         }
         
-        .sidebar-toggle {
-            display: block;
+        .main-content {
+            margin-top: 60px;
+        }
+        
+        .mobile-filters-panel {
+            top: 60px;
+        }
+        
+        .content-container {
+            padding: 0 15px;
         }
     }
     
@@ -728,43 +849,8 @@
         margin-bottom: 20px;
         scrollbar-width: thin;
     }
-
-    /* Complete Metric Card Styling */
-    .metric-card {
-        background: rgba(30, 41, 59, 0.75);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 20px 15px;
-        width: 170px;
-        min-height: 220px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        margin-right: 15px;
-    }
     
-    /* Metric Values */
-    .metric-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 5px 0;
-        color: #fff;
-    }
-    
-    /* Metric Labels */
-    .metric-label {
-        font-size: 1rem;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.7);
-        margin: 0 0 15px;
-    }
-    
-    /* Metric Footer with Progress Bar */
+    /* Metric Card Footer */
     .metric-footer {
         width: 100%;
         margin-top: auto;
@@ -831,216 +917,31 @@
         align-items: center;
         border-radius: 50%;
         margin: 0 auto 15px;
-        font-size: 24px;
-    }
-
-    .blue-glow .metric-icon {
-        background: rgba(79, 172, 254, 0.2);
-        box-shadow: 0 0 15px rgba(79, 172, 254, 0.5);
-        color: #4facfe;
-    }
-
-    .orange-glow .metric-icon {
-        background: rgba(255, 153, 0, 0.2);
-        box-shadow: 0 0 15px rgba(255, 153, 0, 0.5);
-        color: #ff9900;
-    }
-
-    .purple-glow .metric-icon {
-        background: rgba(153, 102, 255, 0.2);
-        box-shadow: 0 0 15px rgba(153, 102, 255, 0.5);
-        color: #9966ff;
-    }
-
-    .teal-glow .metric-icon {
-        background: rgba(20, 184, 166, 0.2);
-        box-shadow: 0 0 15px rgba(20, 184, 166, 0.5);
-        color: #14b8a6;
-    }
-
-    .green-glow .metric-icon {
-        background: rgba(0, 230, 118, 0.2);
-        box-shadow: 0 0 15px rgba(0, 230, 118, 0.5);
-        color: #00e676;
-    }
-
-    .red-glow .metric-icon {
-        background: rgba(244, 67, 54, 0.2);
-        box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
-        color: #f44336;
-    }
-
-    .metric-progress-value {
-        height: 100%;
-        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
-        border-radius: 2px;
-        transition: width 1s ease-in-out;
-        width: 0%;
-    }
-
-    /* Fixed Header Navigation Styles */
-    .dashboard-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        background: rgba(30, 41, 59, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        height: 70px;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    }
-    
-    .header-container {
-        width: 100%;
-        max-width: 100%;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .header-left .dashboard-title {
-        color: #ffffff;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 0;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    
-    .header-nav {
-        display: flex;
-        gap: 30px;
-        align-items: center;
-    }
-    
-    .header-nav .nav-link {
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        font-weight: 500;
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
+        font-size: 28px !important;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid currentColor;
         position: relative;
     }
     
-    .header-nav .nav-link:hover {
-        color: #ffffff;
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-1px);
+    .metric-icon i {
+        font-size: 28px !important;
+        display: block !important;
+        line-height: 1 !important;
+        font-family: "Font Awesome 5 Free" !important;
+        font-weight: 900 !important;
     }
     
-    .header-nav .nav-link.active {
-        color: #ffffff;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .filter-controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .filter-controls .form-select {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #ffffff;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 0.875rem;
-        min-width: 120px;
-    }
-    
-    .filter-controls .form-select:focus {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-    }
-    
-    .filter-controls .form-select option {
-        background: #1e293b;
-        color: #ffffff;
-    }
-    
-    .filter-controls .btn {
-        padding: 6px 16px;
-        font-size: 0.875rem;
-        border-radius: 6px;
-        font-weight: 600;
-    }
-    
-    /* Mobile Filters Panel */
-    .mobile-filters-panel {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        right: 0;
-        z-index: 999;
-        background: rgba(30, 41, 59, 0.95);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 15px 20px;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    }
-    
-    .mobile-filters-content .form-select {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #ffffff;
-        border-radius: 6px;
-        font-size: 0.875rem;
-    }
-    
-    .mobile-filters-content .form-select:focus {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-    }
-    
-    .mobile-filters-content .form-select option {
-        background: #1e293b;
-        color: #ffffff;
-    }
-    
-    /* Main Content Spacing */
-    .main-content {
-        margin-top: 70px;
-        padding: 20px;
-        min-height: calc(100vh - 70px);
-        width: 100%;
-        position: relative;
-        z-index: 1;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .header-center {
-            display: none;
-        }
-        
-        .header-container {
-            padding: 0 15px;
-        }
-        
-        .dashboard-header {
-            height: 60px;
-        }
-        
-        .main-content {
-            margin-top: 60px;
-        }
-        
-        .mobile-filters-panel {
-            top: 60px;
-        }
+    /* Ensure Font Awesome icons are properly loaded */
+    .fas {
+        font-family: "Font Awesome 5 Free" !important;
+        font-weight: 900 !important;
+        display: inline-block !important;
+        font-style: normal !important;
+        font-variant: normal !important;
+        text-rendering: auto !important;
+        line-height: 1 !important;
     }
 </style>
 
@@ -1863,21 +1764,27 @@ function updateProgressBarsWithFilters(tag, minRating) {
 
 // Function to handle filter form reset
 function resetFilters() {
-    document.getElementById('tagFilter').value = 'all';
-    document.getElementById('ratingFilter').value = '0';
-    document.getElementById('sortFilter').value = 'rating-high';
+    // Reset all filter selects to default values
+    const filterSelects = [
+        'headerTagFilter', 'headerRatingFilter', 'headerSortFilter',
+        'mobileTagFilter', 'mobileRatingFilter', 'mobileSortFilter'
+    ];
     
-    document.querySelectorAll('.glass-panel').forEach(panel => {
-        panel.classList.remove('filtered');
+    filterSelects.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Tag')) {
+                element.value = 'all';
+            } else if (id.includes('Rating')) {
+                element.value = '0';
+            } else if (id.includes('Sort')) {
+                element.value = 'rating-high';
+            }
+        }
     });
     
-    initializeCharts();
-    
-    var counter = document.getElementById('productsCounter');
-    if (counter) {
-        var totalRows = document.querySelectorAll('#productsTable tbody tr').length;
-        counter.textContent = totalRows + ' products';
-    }
+    // Apply the reset filters
+    applyFilters();
 }
 
 // Master initialization function for all charts
@@ -1915,62 +1822,68 @@ function filterByTag(tagName) {
 <!-- Fixed Header Navigation -->
 <header class="dashboard-header">
     <div class="header-container">
-        <div class="header-left">
-            <h1 class="dashboard-title">
-                <i class="fas fa-chart-bar me-2"></i>
-                Analytical
-            </h1>
-        </div>
-        <div class="header-center">
-            <nav class="header-nav">
-                <a href="/" class="nav-link">
-                    <i class="fas fa-home me-1"></i>
-                    Home
-                </a>
-                <a href="/dashboard/strategic" class="nav-link">
-                    <i class="fas fa-chess me-1"></i>
-                    Strategic
-                </a>
-                <a href="/dashboard/tactical" class="nav-link">
-                    <i class="fas fa-tasks me-1"></i>
-                    Tactical
-                </a>
-                <a href="/dashboard/analytical" class="nav-link active">
-                    <i class="fas fa-chart-bar me-1"></i>
+        <div class="d-flex flex-row align-items-center justify-content-between w-100">
+            <div class="header-left">
+                <h1 class="dashboard-title">
+                    <i class="fas fa-chart-bar me-2"></i>
                     Analytical
-                </a>
-            </nav>
-        </div>
-        <div class="header-right d-none d-md-flex">
-            <div class="filter-controls">
-                <select id="headerTagFilter" class="form-select form-select-sm me-2">
-                    <option value="all">All Tags</option>
-                    {% for tag in tags %}
-                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
-                    {% endfor %}
-                </select>
-                <select id="headerRatingFilter" class="form-select form-select-sm me-2">
-                    <option value="0">All Ratings</option>
-                    <option value="1">1+ Stars</option>
-                    <option value="2">2+ Stars</option>
-                    <option value="3">3+ Stars</option>
-                    <option value="4">4+ Stars</option>
-                    <option value="4.5">4.5+ Stars</option>
-                </select>
-                <select id="headerSortFilter" class="form-select form-select-sm me-2">
-                    <option value="rating-high">Rating ↓</option>
-                    <option value="rating-low">Rating ↑</option>
-                    <option value="count-high">Count ↓</option>
-                    <option value="count-low">Count ↑</option>
-                </select>
-                <button onclick="applyFilters()" class="btn btn-primary btn-sm me-1">Apply</button>
-                <button onclick="resetFilters()" class="btn btn-outline-light btn-sm">Reset</button>
+                </h1>
             </div>
-        </div>
-        <div class="header-right d-md-none">
-            <button id="toggleFilters" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-filter"></i> Filters
-            </button>
+            <div class="header-center">
+                <nav class="header-nav d-flex flex-row">
+                    <a href="/" class="nav-link">
+                        <i class="fas fa-home me-1"></i>
+                        Home
+                    </a>
+                    <a href="/dashboard/overview" class="nav-link">
+                        <i class="fas fa-tachometer-alt me-1"></i>
+                        Overview
+                    </a>
+                    <a href="/dashboard/tactical" class="nav-link">
+                        <i class="fas fa-tasks me-1"></i>
+                        Tactical
+                    </a>
+                    <a href="/dashboard/analytical" class="nav-link active">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Analytical
+                    </a>
+                    <a href="/dashboard/strategic" class="nav-link">
+                        <i class="fas fa-chess me-1"></i>
+                        Strategic
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right d-none d-md-flex">
+                <div class="filter-controls">
+                    <select id="headerTagFilter" class="form-select form-select-sm me-2">
+                        <option value="all">All Tags</option>
+                        {% for tag in tags %}
+                        <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="headerRatingFilter" class="form-select form-select-sm me-2">
+                        <option value="0">All Ratings</option>
+                        <option value="1">1+ Stars</option>
+                        <option value="2">2+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="4.5">4.5+ Stars</option>
+                    </select>
+                    <select id="headerSortFilter" class="form-select form-select-sm me-2">
+                        <option value="rating-high">Rating ↓</option>
+                        <option value="rating-low">Rating ↑</option>
+                        <option value="count-high">Count ↓</option>
+                        <option value="count-low">Count ↑</option>
+                    </select>
+                    <button onclick="applyFilters()" class="btn btn-primary btn-sm me-1">Apply</button>
+                    <button onclick="resetFilters()" class="btn btn-outline-light btn-sm">Reset</button>
+                </div>
+            </div>
+            <div class="header-right d-md-none">
+                <button id="toggleFilters" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-filter"></i> Filters
+                </button>
+            </div>
         </div>
     </div>
 </header>
@@ -2014,12 +1927,13 @@ function filterByTag(tagName) {
 
 <!-- Main Content Container -->
 <div id="mainContent" class="main-content">
+<div class="content-container">
 
 <!-- Top metrics cards - vertically-oriented rectangles with horizontal scrolling -->
 <div class="d-flex overflow-auto mb-4" style="padding: 10px 0; gap: 15px; position: relative; z-index: 1; border-radius: 8px;">
     <!-- Metric Card 1: Total Products -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(33, 150, 243, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);">
-        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #2196F3;">
+        <div class="metric-icon" style="color: #2196F3;">
             <i class="fas fa-box"></i>
         </div>
         <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ total_products }}</div>
@@ -2033,7 +1947,7 @@ function filterByTag(tagName) {
     
     <!-- Metric Card 2: Average Rating -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(255, 152, 0, 0.2);">
-        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #FF9800;">
+        <div class="metric-icon" style="color: #FF9800;">
             <i class="fas fa-star"></i>
         </div>
         <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ "%.1f"|format(avg_rating|float) }}</div>
@@ -2047,7 +1961,7 @@ function filterByTag(tagName) {
     
     <!-- Metric Card 3: Total Tags -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(156, 39, 176, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(156, 39, 176, 0.2);">
-        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #9C27B0;">
+        <div class="metric-icon" style="color: #9C27B0;">
             <i class="fas fa-tags"></i>
         </div>
         <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ total_tags }}</div>
@@ -2061,7 +1975,7 @@ function filterByTag(tagName) {
     
     <!-- Metric Card 4: Lowest Rated Tag -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(0, 150, 136, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(0, 150, 136, 0.2);">
-        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #009688;">
+        <div class="metric-icon" style="color: #009688;">
             <i class="fas fa-chart-line"></i>
         </div>
         <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ lowest_rated_tag.AvgRating|float|round(1) }}</div>
@@ -2075,7 +1989,7 @@ function filterByTag(tagName) {
     
     <!-- Metric Card 5: Most Tagged Product -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);">
-        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #4CAF50;">
+        <div class="metric-icon" style="color: #4CAF50;">
             <i class="fas fa-thumbs-up"></i>
         </div>
         <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ most_tags_count }}</div>
@@ -2089,7 +2003,7 @@ function filterByTag(tagName) {
     
     <!-- Metric Card 6: Top Tag (replacing Recommendation Strength) -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(244, 67, 54, 0.2);">
-        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #F44336;">
+        <div class="metric-icon" style="color: #F44336;">
             <i class="fas fa-tag"></i>
         </div>
         <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ popular_tags[0]['TagName'] if popular_tags else 'N/A' }}</div>
@@ -2117,7 +2031,7 @@ function filterByTag(tagName) {
                 <div class="card-body">
                     <div class="tag-cloud" id="tagCloud" style="height: 300px; overflow-y: auto;">
                         {% for tag in popular_tags[:30] %}
-                        <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
+                        <span class="tag-item" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
                             <i class="fas fa-tag me-1"></i>{{ tag.TagName }}
                         </span>
                         {% endfor %}
@@ -2251,6 +2165,7 @@ function filterByTag(tagName) {
     </div>
 </div>
 
+</div> <!-- End of content-container -->
 </div> <!-- End of main-content container -->
 
 <script>
@@ -2301,78 +2216,95 @@ function toggleSidebar() {
 
 // Function to apply sidebar filters
 function applySidebarFilters() {
-    // Sync sidebar filters with top filters
-    document.getElementById('tagFilter').value = document.getElementById('sideTagFilter').value;
-    document.getElementById('ratingFilter').value = document.getElementById('sideRatingFilter').value;
-    document.getElementById('sortFilter').value = document.getElementById('sideSortFilter').value;
+    // Get filter values from header (desktop) or mobile panel
+    const tagFilter = document.getElementById('headerTagFilter') ? 
+        document.getElementById('headerTagFilter').value : 
+        document.getElementById('mobileTagFilter').value;
+    const ratingFilter = document.getElementById('headerRatingFilter') ? 
+        parseFloat(document.getElementById('headerRatingFilter').value) : 
+        parseFloat(document.getElementById('mobileRatingFilter').value);
+    const sortFilter = document.getElementById('headerSortFilter') ? 
+        document.getElementById('headerSortFilter').value : 
+        document.getElementById('mobileSortFilter').value;
     
-    // Apply filters
-    filterDashboard();
+    // Sync filter values between desktop and mobile
+    syncFilterValues(tagFilter, ratingFilter, sortFilter);
+    
+    // Apply filters to charts and tables
+    filterCharts(tagFilter, ratingFilter, sortFilter);
+    filterTable(tagFilter, ratingFilter, sortFilter);
+    
+    // Hide mobile filters panel after applying
+    const mobilePanel = document.getElementById('mobileFiltersPanel');
+    if (mobilePanel && mobilePanel.style.display !== 'none') {
+        mobilePanel.style.display = 'none';
+    }
 }
 
-// Function to sync top filters with sidebar filters
-function syncFiltersToSidebar() {
-    document.getElementById('sideTagFilter').value = document.getElementById('tagFilter').value;
-    document.getElementById('sideRatingFilter').value = document.getElementById('ratingFilter').value;
-    document.getElementById('sideSortFilter').value = document.getElementById('sortFilter').value;
-}
-
-// Add syncFiltersToSidebar to the existing resetFilters and filterDashboard functions
-const originalResetFilters = resetFilters;
-resetFilters = function() {
-    originalResetFilters();
-    syncFiltersToSidebar();
-};
-
-const originalFilterDashboard = filterDashboard;
-filterDashboard = function() {
-    originalFilterDashboard();
-    syncFiltersToSidebar();
-};
-
-// Initialize progress bars immediately with forced inline styles for maximum compatibility
-document.addEventListener('DOMContentLoaded', function() {
-    // Force CSS to be applied to Font Awesome icons
-    document.querySelectorAll('.fas').forEach(function(icon) {
-        icon.style.display = 'inline-block';
-        icon.style.fontSize = '24px';
-    });
-    
-    // Set up mobile filter toggle
-    const toggleFiltersBtn = document.getElementById('toggleFilters');
-    if (toggleFiltersBtn) {
-        toggleFiltersBtn.addEventListener('click', toggleMobileFilters);
+function syncFilterValues(tag, rating, sort) {
+    // Sync header filters
+    if (document.getElementById('headerTagFilter')) {
+        document.getElementById('headerTagFilter').value = tag;
+    }
+    if (document.getElementById('headerRatingFilter')) {
+        document.getElementById('headerRatingFilter').value = rating;
+    }
+    if (document.getElementById('headerSortFilter')) {
+        document.getElementById('headerSortFilter').value = sort;
     }
     
-    // Set initial widths for progress bars
-    var progressBars = document.querySelectorAll('.metric-progress-value');
-    console.log('Found ' + progressBars.length + ' progress bars to update');
+    // Sync mobile filters
+    if (document.getElementById('mobileTagFilter')) {
+        document.getElementById('mobileTagFilter').value = tag;
+    }
+    if (document.getElementById('mobileRatingFilter')) {
+        document.getElementById('mobileRatingFilter').value = rating;
+    }
+    if (document.getElementById('mobileSortFilter')) {
+        document.getElementById('mobileSortFilter').value = sort;
+    }
+}
+
+function resetFilters() {
+    // Reset all filter selects to default values
+    const filterSelects = [
+        'headerTagFilter', 'headerRatingFilter', 'headerSortFilter',
+        'mobileTagFilter', 'mobileRatingFilter', 'mobileSortFilter'
+    ];
     
-    // First make sure all bars exist and are visible
-    progressBars.forEach(function(bar) {
-        // Ensure basic styling is applied
-        bar.style.height = '6px';
-        bar.style.borderRadius = '3px';
-        bar.style.transition = 'width 1s ease-in-out';
+    filterSelects.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Tag')) {
+                element.value = 'all';
+            } else if (id.includes('Rating')) {
+                element.value = '0';
+            } else if (id.includes('Sort')) {
+                element.value = 'rating-high';
+            }
+        }
     });
     
-    // Then apply the width with a delay to allow transition animation
-    setTimeout(function() {
-        progressBars.forEach(function(bar) {
-            var value = parseFloat(bar.getAttribute('data-value') || bar.style.width);
-            var max = parseFloat(bar.getAttribute('data-max') || 100);
-            var percent = (value / max) * 100;
-            
-            // Ensure at least a small visible portion
-            percent = Math.max(percent, 5);
-            // Cap at 100%
-            percent = Math.min(percent, 100);
-            
-            console.log('Setting bar width to: ' + percent + '%', bar);
-            bar.style.width = percent + '%';
-        });
-    }, 300);
-});
+    // Apply the reset filters
+    applyFilters();
+}
+
+// Filter implementation functions
+function filterCharts(tagFilter, ratingFilter, sortFilter) {
+    // This function would contain the logic to filter chart data
+    console.log('Applying filters:', { tagFilter, ratingFilter, sortFilter });
+    
+    // You can add specific chart filtering logic here
+    // For example, updating chart data based on filters
+}
+
+function filterTable(tagFilter, ratingFilter, sortFilter) {
+    // This function would contain the logic to filter table data
+    console.log('Filtering table with:', { tagFilter, ratingFilter, sortFilter });
+    
+    // You can add specific table filtering logic here
+    // For example, showing/hiding table rows based on filters
+}
 </script>
 
 <script>
