@@ -463,6 +463,58 @@
             <option value="{{ category.CategoryName }}">{{ category.CategoryName }}</option>
             {% endfor %}
         </select>
+        
+        <div class="mt-3">
+            <label for="dateRangeFilter" class="form-label">Date Range</label>
+            <select class="form-select" id="dateRangeFilter">
+                <option value="3">Last 3 Months</option>
+                <option value="6" selected>Last 6 Months</option>
+                <option value="12">Last 12 Months</option>
+                <option value="24">Last 24 Months</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+        
+        <div class="mt-3">
+            <label for="yearFilter" class="form-label">Year</label>
+            <select class="form-select" id="yearFilter">
+                <option value="all" selected>All Years</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+            </select>
+        </div>
+        
+        <div class="mt-3">
+            <label for="stockLevelFilter" class="form-label">Stock Level</label>
+            <select class="form-select" id="stockLevelFilter">
+                <option value="all" selected>All Levels</option>
+                <option value="critical">Critical</option>
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+        
+        <div class="mt-3">
+            <label for="supplierFilter" class="form-label">Supplier</label>
+            <select class="form-select" id="supplierFilter">
+                <option value="all" selected>All Suppliers</option>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier.SupplierName }}">{{ supplier.SupplierName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mt-4">
+            <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">
+                <i class="fas fa-check me-2"></i>Apply Filters
+            </button>
+            <button type="button" class="btn btn-outline-light w-100 mt-2" onclick="resetFilters()">
+                <i class="fas fa-sync-alt me-2"></i>Reset Filters
+            </button>
+        </div>
     </div>
 </div>
 
@@ -2072,19 +2124,54 @@ function createStockUtilizationChart(apiData) {
     }
 
     // Filter application function
-    function applyFilters() {
-        const category = document.getElementById('categoryFilter').value;
-        const stockLevel = document.getElementById('stockLevelFilter').value;
-        const expiryRange = document.getElementById('expiryRangeFilter').value;
-        const tag = document.getElementById('tagFilter').value;
-        
-        console.log('Applying filters:', { category, stockLevel, expiryRange, tag });
-        
-        // Fetch filtered data
-        fetchLowStockProducts(category, stockLevel, tag);
-        fetchExpiryProducts(category, expiryRange);
-        fetchRestockRecommendations(category, stockLevel);
+function applyFilters() {
+    // Get values from sidebar filters
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const dateRangeFilter = document.getElementById('dateRangeFilter').value;
+    const yearFilter = document.getElementById('yearFilter').value;
+    const stockLevelFilter = document.getElementById('stockLevelFilter').value;
+    const supplierFilter = document.getElementById('supplierFilter').value;
+    
+    // Get values from deep-dive section filters if they exist
+    const deepDiveCategory = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : 'all';
+    const deepDiveStockLevel = document.getElementById('stockLevelFilter') ? document.getElementById('stockLevelFilter').value : 'all';
+    const expiryRangeFilter = document.getElementById('expiryRangeFilter') ? document.getElementById('expiryRangeFilter').value : 'all';
+    
+    // Apply filters to charts and data visualizations
+    // Replace these with actual function calls to update your charts
+    updateChartsWithFilters(categoryFilter, dateRangeFilter, yearFilter, stockLevelFilter, supplierFilter);
+    
+    // Apply filters to low stock products table
+    fetchLowStockProducts(categoryFilter, stockLevelFilter, supplierFilter);
+    
+    // Apply filters to expiry timeline
+    fetchExpiryProducts(categoryFilter, expiryRangeFilter, dateRangeFilter);
+    
+    // Apply filters to restock recommendations
+    fetchRestockRecommendations(categoryFilter, stockLevelFilter, supplierFilter);
+    
+    console.log(`Filters applied: Category=${categoryFilter}, DateRange=${dateRangeFilter}, Year=${yearFilter}, Stock=${stockLevelFilter}, Supplier=${supplierFilter}`);
+}
+
+// Reset all filters to default values
+function resetFilters() {
+    // Reset sidebar filters
+    document.getElementById('categoryFilter').value = 'all';
+    document.getElementById('dateRangeFilter').value = '6'; // Default to last 6 months
+    document.getElementById('yearFilter').value = 'all';
+    document.getElementById('stockLevelFilter').value = 'all';
+    document.getElementById('supplierFilter').value = 'all';
+    
+    // Reset deep-dive section filters if they exist
+    if (document.getElementById('expiryRangeFilter')) {
+        document.getElementById('expiryRangeFilter').value = 'all';
     }
+    
+    // Apply the reset filters
+    applyFilters();
+    
+    console.log('All filters have been reset to default values');
+}
 
     // Fetch low stock products
     function fetchLowStockProducts(category = 'all', stockLevel = 'all', tag = 'all') {
@@ -2403,5 +2490,46 @@ function createStockUtilizationChart(apiData) {
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(initDeepDiveSection, 1000); // Slight delay to ensure all other scripts have run
     });
+    
+    // Function to update all charts based on filter selections
+    function updateChartsWithFilters(category, dateRange, year, stockLevel, supplier) {
+        // Re-fetch data for each chart with the new filters applied
+        console.log('Updating charts with filters:', { category, dateRange, year, stockLevel, supplier });
+        
+        // Update each chart with filtered data
+        // The exact implementation will depend on your API structure
+        // These are placeholder functions - adjust according to your actual implementation
+        
+        // 1. Stock Availability Matrix
+        fetchStockMatrixData({
+            category: category,
+            dateRange: dateRange,
+            year: year,
+            stockLevel: stockLevel,
+            supplier: supplier
+        });
+        
+        // 2. Expiring Products Chart
+        fetchExpiringProductsData({
+            category: category,
+            dateRange: dateRange,
+            year: year,
+            supplier: supplier
+        });
+        
+        // 3. Low Stock Bubble Chart
+        fetchLowStockData({
+            category: category,
+            stockLevel: stockLevel,
+            supplier: supplier
+        });
+        
+        // 4. Stock Utilization Chart
+        fetchStockUtilizationData({
+            category: category,
+            dateRange: dateRange,
+            year: year
+        });
+    }
 </script>
 {% endblock %}
