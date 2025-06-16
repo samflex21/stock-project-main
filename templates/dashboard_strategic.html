@@ -207,6 +207,25 @@
 
 {% block head %}
 <!-- Complete override of base template styles -->
+<style>
+    /* Force white text in category summary table */
+    .category-summary-table,
+    .category-summary-table thead,
+    .category-summary-table tbody,
+    .category-summary-table tr,
+    .category-summary-table th,
+    .category-summary-table td {
+        color: #ffffff !important;
+    }
+    
+    /* Ensure that any other elements don't override our text color */
+    .modern-table table,
+    .modern-table thead th,
+    .modern-table tbody td,
+    .table-responsive .table {
+        color: #ffffff !important;
+    }
+</style>
 <style id="video-background-overrides">
     /* Highest specificity overrides */
     html[lang="en"] body, 
