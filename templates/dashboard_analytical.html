@@ -341,7 +341,7 @@
     .metric-progress {
         width: 100%;
         height: 4px;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 2px;
         overflow: hidden;
         margin-top: 5px;
@@ -394,7 +394,7 @@
     .progress-red {
         background: linear-gradient(90deg, #f44336 0%, #ff7961 100%);
     }
-    
+
     /* Main content styles - full width now */
     .analytical-content {
         width: 100%;
@@ -869,6 +869,179 @@
         box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
         color: #f44336;
     }
+
+    .metric-progress-value {
+        height: 100%;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        border-radius: 2px;
+        transition: width 1s ease-in-out;
+        width: 0%;
+    }
+
+    /* Fixed Header Navigation Styles */
+    .dashboard-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(30, 41, 59, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        height: 70px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .header-left .dashboard-title {
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-nav {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+    }
+    
+    .header-nav .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .header-nav .nav-link:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .header-nav .nav-link.active {
+        color: #ffffff;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .filter-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .filter-controls .form-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        min-width: 120px;
+    }
+    
+    .filter-controls .form-select:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+    
+    .filter-controls .form-select option {
+        background: #1e293b;
+        color: #ffffff;
+    }
+    
+    .filter-controls .btn {
+        padding: 6px 16px;
+        font-size: 0.875rem;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+    
+    /* Mobile Filters Panel */
+    .mobile-filters-panel {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background: rgba(30, 41, 59, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px 20px;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .mobile-filters-content .form-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border-radius: 6px;
+        font-size: 0.875rem;
+    }
+    
+    .mobile-filters-content .form-select:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+    
+    .mobile-filters-content .form-select option {
+        background: #1e293b;
+        color: #ffffff;
+    }
+    
+    /* Main Content Spacing */
+    .main-content {
+        margin-top: 70px;
+        padding: 20px;
+        min-height: calc(100vh - 70px);
+        width: 100%;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-center {
+            display: none;
+        }
+        
+        .header-container {
+            padding: 0 15px;
+        }
+        
+        .dashboard-header {
+            height: 60px;
+        }
+        
+        .main-content {
+            margin-top: 60px;
+        }
+        
+        .mobile-filters-panel {
+            top: 60px;
+        }
+    }
 </style>
 
 <script>
@@ -990,6 +1163,50 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Initialize progress bars and set up event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Force CSS to be applied to Font Awesome icons
+        document.querySelectorAll('.fas').forEach(function(icon) {
+            icon.style.display = 'inline-block';
+            icon.style.fontSize = '24px';
+        });
+        
+        // Set up mobile filter toggle
+        const toggleFiltersBtn = document.getElementById('toggleFilters');
+        if (toggleFiltersBtn) {
+            toggleFiltersBtn.addEventListener('click', toggleMobileFilters);
+        }
+        
+        // Set initial widths for progress bars
+        var progressBars = document.querySelectorAll('.metric-progress-value');
+        console.log('Found ' + progressBars.length + ' progress bars to update');
+        
+        // First make sure all bars exist and are visible
+        progressBars.forEach(function(bar) {
+            // Ensure basic styling is applied
+            bar.style.height = '6px';
+            bar.style.borderRadius = '3px';
+            bar.style.transition = 'width 1s ease-in-out';
+        });
+        
+        // Then apply the width with a delay to allow transition animation
+        setTimeout(function() {
+            progressBars.forEach(function(bar) {
+                var value = parseFloat(bar.getAttribute('data-value') || bar.style.width);
+                var max = parseFloat(bar.getAttribute('data-max') || 100);
+                var percent = (value / max) * 100;
+                
+                // Ensure at least a small visible portion
+                percent = Math.max(percent, 5);
+                // Cap at 100%
+                percent = Math.min(percent, 100);
+                
+                console.log('Setting bar width to: ' + percent + '%', bar);
+                bar.style.width = percent + '%';
+            });
+        }, 300);
+    });
 });
 
 // All JavaScript functions defined outside of any event listeners
@@ -1695,65 +1912,83 @@ function filterByTag(tagName) {
     <video data-src="/static/videos/statistical-graph-with-business-finance-concept-3d-rendering-video (2).mp4" muted loop playsinline autoplay preload="auto"></video>
 </div>
 
-<!-- Sidebar with navigation and filters -->
-<div id="sidebar" style="position: fixed; width: 250px; height: 100vh; top: 0; left: 0; background: linear-gradient(135deg, rgba(21, 21, 40, 0.8), rgba(31, 31, 60, 0.85)); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px; overflow-y: auto; z-index: 1000; transition: width 0.3s ease;">
-    <div class="mb-4 d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-chart-line fa-lg text-white me-2"></i>
-            <span class="text-white fw-bold">Analytical</span>
+<!-- Fixed Header Navigation -->
+<header class="dashboard-header">
+    <div class="header-container">
+        <div class="header-left">
+            <h1 class="dashboard-title">
+                <i class="fas fa-chart-bar me-2"></i>
+                Analytical
+            </h1>
         </div>
-        <button id="toggleSidebar" class="btn btn-sm text-white border-0" style="background: transparent;" onclick="toggleSidebar()">
-            <i class="fas fa-chevron-left"></i>
-        </button>
+        <div class="header-center">
+            <nav class="header-nav">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home me-1"></i>
+                    Home
+                </a>
+                <a href="/dashboard/strategic" class="nav-link">
+                    <i class="fas fa-chess me-1"></i>
+                    Strategic
+                </a>
+                <a href="/dashboard/tactical" class="nav-link">
+                    <i class="fas fa-tasks me-1"></i>
+                    Tactical
+                </a>
+                <a href="/dashboard/analytical" class="nav-link active">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Analytical
+                </a>
+            </nav>
+        </div>
+        <div class="header-right d-none d-md-flex">
+            <div class="filter-controls">
+                <select id="headerTagFilter" class="form-select form-select-sm me-2">
+                    <option value="all">All Tags</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
+                    {% endfor %}
+                </select>
+                <select id="headerRatingFilter" class="form-select form-select-sm me-2">
+                    <option value="0">All Ratings</option>
+                    <option value="1">1+ Stars</option>
+                    <option value="2">2+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="4.5">4.5+ Stars</option>
+                </select>
+                <select id="headerSortFilter" class="form-select form-select-sm me-2">
+                    <option value="rating-high">Rating ↓</option>
+                    <option value="rating-low">Rating ↑</option>
+                    <option value="count-high">Count ↓</option>
+                    <option value="count-low">Count ↑</option>
+                </select>
+                <button onclick="applyFilters()" class="btn btn-primary btn-sm me-1">Apply</button>
+                <button onclick="resetFilters()" class="btn btn-outline-light btn-sm">Reset</button>
+            </div>
+        </div>
+        <div class="header-right d-md-none">
+            <button id="toggleFilters" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-filter"></i> Filters
+            </button>
+        </div>
     </div>
-    
-    <!-- Navigation Links -->
-    <div class="mb-4">
-        <ul class="nav flex-column">
-            <li class="nav-item mb-3">
-                <a class="nav-link px-2 py-1 text-white" href="/" title="Home">
-                    <i class="fas fa-home fa-fw me-2"></i>
-                    <span>Home</span>
-                </a>
-            </li>
-            <li class="nav-item mb-3">
-                <a class="nav-link px-2 py-1 text-white" href="/dashboard/strategic" title="Strategic">
-                    <i class="fas fa-chess fa-fw me-2"></i>
-                    <span>Strategic</span>
-                </a>
-            </li>
-            <li class="nav-item mb-3">
-                <a class="nav-link px-2 py-1 text-white" href="/dashboard/tactical" title="Tactical">
-                    <i class="fas fa-tasks fa-fw me-2"></i>
-                    <span>Tactical</span>
-                </a>
-            </li>
-            <li class="nav-item mb-3">
-                <a class="nav-link px-2 py-1 text-white-50 active" href="/dashboard/analytical" title="Analytical">
-                    <i class="fas fa-chart-bar fa-fw me-2"></i>
-                    <span>Analytical</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-    
-    <!-- Sidebar Filters -->
-    <div class="sidebar-filters mt-4">
-        <h6 class="text-white mb-3 border-bottom pb-2"><i class="fas fa-filter me-2"></i>Quick Filters</h6>
-        
-        <form id="sidebarFilters">
-            <div class="mb-3">
-                <label for="sideTagFilter" class="form-label small text-white-50 mb-1">Tag</label>
-                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="sideTagFilter">
+</header>
+
+<!-- Mobile Filters Panel -->
+<div id="mobileFiltersPanel" class="mobile-filters-panel" style="display: none;">
+    <div class="mobile-filters-content">
+        <div class="row g-2">
+            <div class="col-3">
+                <select id="mobileTagFilter" class="form-select form-select-sm">
                     <option value="all">All Tags</option>
                     {% for tag in tags %}
                     <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="mb-3">
-                <label for="sideRatingFilter" class="form-label small text-white-50 mb-1">Minimum Rating</label>
-                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="sideRatingFilter">
+            <div class="col-3">
+                <select id="mobileRatingFilter" class="form-select form-select-sm">
                     <option value="0">All Ratings</option>
                     <option value="1">1+ Stars</option>
                     <option value="2">2+ Stars</option>
@@ -1762,68 +1997,25 @@ function filterByTag(tagName) {
                     <option value="4.5">4.5+ Stars</option>
                 </select>
             </div>
-            <div class="mb-3">
-                <label for="sideSortFilter" class="form-label small text-white-50 mb-1">Sort By</label>
-                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="sideSortFilter">
-                    <option value="rating-high">Rating (High to Low)</option>
-                    <option value="rating-low">Rating (Low to High)</option>
-                    <option value="count-high">Review Count (High to Low)</option>
-                    <option value="count-low">Review Count (Low to High)</option>
+            <div class="col-3">
+                <select id="mobileSortFilter" class="form-select form-select-sm">
+                    <option value="rating-high">Rating ↓</option>
+                    <option value="rating-low">Rating ↑</option>
+                    <option value="count-high">Count ↓</option>
+                    <option value="count-low">Count ↑</option>
                 </select>
             </div>
-            <div class="d-grid gap-2">
-                <button type="button" class="btn btn-primary btn-sm" onclick="applySidebarFilters()">Apply Filters</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm text-white" onclick="resetFilters()">Reset</button>
+            <div class="col-3">
+                <button onclick="applyFilters()" class="btn btn-primary btn-sm w-100">Apply</button>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<!-- Main Content Container with proper spacing -->
-<div id="mainContent" class="main-content" style="margin-left: 270px; padding: 20px; width: calc(100% - 290px); position: relative; z-index: 1; transition: margin-left 0.3s ease, width 0.3s ease;">
+<!-- Main Content Container -->
+<div id="mainContent" class="main-content">
 
-<!-- Filter Section -->
-<div class="filter-section glass-panel p-3 mb-4" style="padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
-    <h6 class="text-white mb-1"><i class="fas fa-filter me-2"></i>Filters</h6>
-    
-    <form class="row g-1 mb-0">
-        <div class="col-md-3 mb-0">
-            <label for="tagFilter" class="form-label small text-white-50 mb-0 py-0">Tag</label>
-            <select class="form-select form-select-sm" id="tagFilter">
-                <option value="all">All Tags</option>
-                {% for tag in tags %}
-                <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-3 mb-0">
-            <label for="ratingFilter" class="form-label small text-white-50 mb-0 py-0">Minimum Rating</label>
-            <select class="form-select form-select-sm" id="ratingFilter">
-                <option value="0">All Ratings</option>
-                <option value="1">1+ Stars</option>
-                <option value="2">2+ Stars</option>
-                <option value="3">3+ Stars</option>
-                <option value="4">4+ Stars</option>
-                <option value="4.5">4.5+ Stars</option>
-            </select>
-        </div>
-        <div class="col-md-3 mb-0">
-            <label for="sortFilter" class="form-label small text-white-50 mb-0 py-0">Sort By</label>
-            <select class="form-select form-select-sm" id="sortFilter">
-                <option value="rating-high">Rating (High to Low)</option>
-                <option value="rating-low">Rating (Low to High)</option>
-                <option value="count-high">Review Count (High to Low)</option>
-                <option value="count-low">Review Count (Low to High)</option>
-            </select>
-        </div>
-        <div class="col-12 d-flex gap-1">
-            <button type="button" class="btn btn-primary btn-sm flex-grow-1" onclick="filterDashboard()">Apply Filters</button>
-            <button type="button" class="btn btn-secondary btn-sm flex-grow-1" onclick="resetFilters()">Reset</button>
-        </div>
-    </form>
-</div>
-
-<!-- Top metrics cards - vertically-oriented rectangles with horizontal scrolling --> 
+<!-- Top metrics cards - vertically-oriented rectangles with horizontal scrolling -->
 <div class="d-flex overflow-auto mb-4" style="padding: 10px 0; gap: 15px; position: relative; z-index: 1; border-radius: 8px;">
     <!-- Metric Card 1: Total Products -->
     <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(33, 150, 243, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);">
@@ -2146,6 +2338,12 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.style.fontSize = '24px';
     });
     
+    // Set up mobile filter toggle
+    const toggleFiltersBtn = document.getElementById('toggleFilters');
+    if (toggleFiltersBtn) {
+        toggleFiltersBtn.addEventListener('click', toggleMobileFilters);
+    }
+    
     // Set initial widths for progress bars
     var progressBars = document.querySelectorAll('.metric-progress-value');
     console.log('Found ' + progressBars.length + ' progress bars to update');
@@ -2161,8 +2359,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Then apply the width with a delay to allow transition animation
     setTimeout(function() {
         progressBars.forEach(function(bar) {
-            var value = parseFloat(bar.getAttribute('data-value') || '0');
-            var max = parseFloat(bar.getAttribute('data-max') || '100');
+            var value = parseFloat(bar.getAttribute('data-value') || bar.style.width);
+            var max = parseFloat(bar.getAttribute('data-max') || 100);
             var percent = (value / max) * 100;
             
             // Ensure at least a small visible portion
@@ -2175,6 +2373,112 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 300);
 });
+</script>
+
+<script>
+// Mobile filter toggle functionality
+function toggleMobileFilters() {
+    const mobilePanel = document.getElementById('mobileFiltersPanel');
+    if (mobilePanel) {
+        if (mobilePanel.style.display === 'none' || !mobilePanel.style.display) {
+            mobilePanel.style.display = 'block';
+        } else {
+            mobilePanel.style.display = 'none';
+        }
+    }
+}
+
+// Filter functions
+function applyFilters() {
+    // Get filter values from header (desktop) or mobile panel
+    const tagFilter = document.getElementById('headerTagFilter') ? 
+        document.getElementById('headerTagFilter').value : 
+        document.getElementById('mobileTagFilter').value;
+    const ratingFilter = document.getElementById('headerRatingFilter') ? 
+        parseFloat(document.getElementById('headerRatingFilter').value) : 
+        parseFloat(document.getElementById('mobileRatingFilter').value);
+    const sortFilter = document.getElementById('headerSortFilter') ? 
+        document.getElementById('headerSortFilter').value : 
+        document.getElementById('mobileSortFilter').value;
+    
+    // Sync filter values between desktop and mobile
+    syncFilterValues(tagFilter, ratingFilter, sortFilter);
+    
+    // Apply filters to charts and tables
+    filterCharts(tagFilter, ratingFilter, sortFilter);
+    filterTable(tagFilter, ratingFilter, sortFilter);
+    
+    // Hide mobile filters panel after applying
+    const mobilePanel = document.getElementById('mobileFiltersPanel');
+    if (mobilePanel && mobilePanel.style.display !== 'none') {
+        mobilePanel.style.display = 'none';
+    }
+}
+
+function syncFilterValues(tag, rating, sort) {
+    // Sync header filters
+    if (document.getElementById('headerTagFilter')) {
+        document.getElementById('headerTagFilter').value = tag;
+    }
+    if (document.getElementById('headerRatingFilter')) {
+        document.getElementById('headerRatingFilter').value = rating;
+    }
+    if (document.getElementById('headerSortFilter')) {
+        document.getElementById('headerSortFilter').value = sort;
+    }
+    
+    // Sync mobile filters
+    if (document.getElementById('mobileTagFilter')) {
+        document.getElementById('mobileTagFilter').value = tag;
+    }
+    if (document.getElementById('mobileRatingFilter')) {
+        document.getElementById('mobileRatingFilter').value = rating;
+    }
+    if (document.getElementById('mobileSortFilter')) {
+        document.getElementById('mobileSortFilter').value = sort;
+    }
+}
+
+function resetFilters() {
+    // Reset all filter selects to default values
+    const filterSelects = [
+        'headerTagFilter', 'headerRatingFilter', 'headerSortFilter',
+        'mobileTagFilter', 'mobileRatingFilter', 'mobileSortFilter'
+    ];
+    
+    filterSelects.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (id.includes('Tag')) {
+                element.value = 'all';
+            } else if (id.includes('Rating')) {
+                element.value = '0';
+            } else if (id.includes('Sort')) {
+                element.value = 'rating-high';
+            }
+        }
+    });
+    
+    // Apply the reset filters
+    applyFilters();
+}
+
+// Filter implementation functions
+function filterCharts(tagFilter, ratingFilter, sortFilter) {
+    // This function would contain the logic to filter chart data
+    console.log('Applying filters:', { tagFilter, ratingFilter, sortFilter });
+    
+    // You can add specific chart filtering logic here
+    // For example, updating chart data based on filters
+}
+
+function filterTable(tagFilter, ratingFilter, sortFilter) {
+    // This function would contain the logic to filter table data
+    console.log('Filtering table with:', { tagFilter, ratingFilter, sortFilter });
+    
+    // You can add specific table filtering logic here
+    // For example, showing/hiding table rows based on filters
+}
 </script>
 
 {% endblock content %}
