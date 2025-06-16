@@ -1695,41 +1695,92 @@ function filterByTag(tagName) {
     <video data-src="/static/videos/statistical-graph-with-business-finance-concept-3d-rendering-video (2).mp4" muted loop playsinline autoplay preload="auto"></video>
 </div>
 
-<!-- Sidebar with navigation -->
-<div style="position: fixed; width: 80px; height: 100vh; top: 0; left: 0; background: linear-gradient(135deg, rgba(21, 21, 40, 0.8), rgba(31, 31, 60, 0.85)); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px; overflow-y: auto; z-index: 1000;">
-    <div class="mb-4 d-flex align-items-center justify-content-center">
-        <i class="fas fa-chart-line fa-lg text-white"></i>
+<!-- Sidebar with navigation and filters -->
+<div id="sidebar" style="position: fixed; width: 250px; height: 100vh; top: 0; left: 0; background: linear-gradient(135deg, rgba(21, 21, 40, 0.8), rgba(31, 31, 60, 0.85)); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px; overflow-y: auto; z-index: 1000; transition: width 0.3s ease;">
+    <div class="mb-4 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-chart-line fa-lg text-white me-2"></i>
+            <span class="text-white fw-bold">Analytical</span>
+        </div>
+        <button id="toggleSidebar" class="btn btn-sm text-white border-0" style="background: transparent;" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
     </div>
     
     <!-- Navigation Links -->
-    <div class="mb-5">
-        <ul class="nav flex-column align-items-center">
-            <li class="nav-item mb-4">
-                <a class="nav-link px-0 py-1 text-white text-center" href="/" title="Home">
-                    <i class="fas fa-home fa-fw fa-lg"></i>
+    <div class="mb-4">
+        <ul class="nav flex-column">
+            <li class="nav-item mb-3">
+                <a class="nav-link px-2 py-1 text-white" href="/" title="Home">
+                    <i class="fas fa-home fa-fw me-2"></i>
+                    <span>Home</span>
                 </a>
             </li>
-            <li class="nav-item mb-4">
-                <a class="nav-link px-0 py-1 text-white text-center" href="/dashboard/strategic" title="Strategic">
-                    <i class="fas fa-chess fa-fw fa-lg"></i>
+            <li class="nav-item mb-3">
+                <a class="nav-link px-2 py-1 text-white" href="/dashboard/strategic" title="Strategic">
+                    <i class="fas fa-chess fa-fw me-2"></i>
+                    <span>Strategic</span>
                 </a>
             </li>
-            <li class="nav-item mb-4">
-                <a class="nav-link px-0 py-1 text-white text-center" href="/dashboard/tactical" title="Tactical">
-                    <i class="fas fa-tasks fa-fw fa-lg"></i>
+            <li class="nav-item mb-3">
+                <a class="nav-link px-2 py-1 text-white" href="/dashboard/tactical" title="Tactical">
+                    <i class="fas fa-tasks fa-fw me-2"></i>
+                    <span>Tactical</span>
                 </a>
             </li>
-            <li class="nav-item mb-4">
-                <a class="nav-link px-0 py-1 text-white-50 active text-center" href="/dashboard/analytical" title="Analytical">
-                    <i class="fas fa-chart-bar fa-fw fa-lg"></i>
+            <li class="nav-item mb-3">
+                <a class="nav-link px-2 py-1 text-white-50 active" href="/dashboard/analytical" title="Analytical">
+                    <i class="fas fa-chart-bar fa-fw me-2"></i>
+                    <span>Analytical</span>
                 </a>
             </li>
         </ul>
     </div>
+    
+    <!-- Sidebar Filters -->
+    <div class="sidebar-filters mt-4">
+        <h6 class="text-white mb-3 border-bottom pb-2"><i class="fas fa-filter me-2"></i>Quick Filters</h6>
+        
+        <form id="sidebarFilters">
+            <div class="mb-3">
+                <label for="sideTagFilter" class="form-label small text-white-50 mb-1">Tag</label>
+                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="sideTagFilter">
+                    <option value="all">All Tags</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="sideRatingFilter" class="form-label small text-white-50 mb-1">Minimum Rating</label>
+                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="sideRatingFilter">
+                    <option value="0">All Ratings</option>
+                    <option value="1">1+ Stars</option>
+                    <option value="2">2+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="4.5">4.5+ Stars</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="sideSortFilter" class="form-label small text-white-50 mb-1">Sort By</label>
+                <select class="form-select form-select-sm bg-dark text-white border-secondary" id="sideSortFilter">
+                    <option value="rating-high">Rating (High to Low)</option>
+                    <option value="rating-low">Rating (Low to High)</option>
+                    <option value="count-high">Review Count (High to Low)</option>
+                    <option value="count-low">Review Count (Low to High)</option>
+                </select>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary btn-sm" onclick="applySidebarFilters()">Apply Filters</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm text-white" onclick="resetFilters()">Reset</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Main Content Container with proper spacing -->
-<div class="main-content" style="margin-left: 100px; padding: 20px; width: calc(100% - 120px); position: relative; z-index: 1;">
+<div id="mainContent" class="main-content" style="margin-left: 270px; padding: 20px; width: calc(100% - 290px); position: relative; z-index: 1; transition: margin-left 0.3s ease, width 0.3s ease;">
 
 <!-- Filter Section -->
 <div class="filter-section glass-panel p-3 mb-4" style="padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
@@ -2011,6 +2062,82 @@ function filterByTag(tagName) {
 </div> <!-- End of main-content container -->
 
 <script>
+// Toggle sidebar width function
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('toggleSidebar');
+    
+    if (sidebar.style.width === '250px') {
+        // Collapse sidebar
+        sidebar.style.width = '80px';
+        mainContent.style.marginLeft = '100px';
+        mainContent.style.width = 'calc(100% - 120px)';
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        
+        // Hide text in sidebar
+        document.querySelectorAll('#sidebar span, #sidebar .sidebar-filters, #sidebar label, #sidebar select, #sidebar button:not(#toggleSidebar)').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Center icons
+        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
+            link.classList.add('text-center');
+            link.style.paddingLeft = '0';
+            link.style.paddingRight = '0';
+        });
+    } else {
+        // Expand sidebar
+        sidebar.style.width = '250px';
+        mainContent.style.marginLeft = '270px';
+        mainContent.style.width = 'calc(100% - 290px)';
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        
+        // Show text in sidebar
+        document.querySelectorAll('#sidebar span, #sidebar .sidebar-filters, #sidebar label, #sidebar select, #sidebar button:not(#toggleSidebar)').forEach(el => {
+            el.style.display = '';
+        });
+        
+        // Restore link alignment
+        document.querySelectorAll('#sidebar .nav-link').forEach(link => {
+            link.classList.remove('text-center');
+            link.style.paddingLeft = '';
+            link.style.paddingRight = '';
+        });
+    }
+}
+
+// Function to apply sidebar filters
+function applySidebarFilters() {
+    // Sync sidebar filters with top filters
+    document.getElementById('tagFilter').value = document.getElementById('sideTagFilter').value;
+    document.getElementById('ratingFilter').value = document.getElementById('sideRatingFilter').value;
+    document.getElementById('sortFilter').value = document.getElementById('sideSortFilter').value;
+    
+    // Apply filters
+    filterDashboard();
+}
+
+// Function to sync top filters with sidebar filters
+function syncFiltersToSidebar() {
+    document.getElementById('sideTagFilter').value = document.getElementById('tagFilter').value;
+    document.getElementById('sideRatingFilter').value = document.getElementById('ratingFilter').value;
+    document.getElementById('sideSortFilter').value = document.getElementById('sortFilter').value;
+}
+
+// Add syncFiltersToSidebar to the existing resetFilters and filterDashboard functions
+const originalResetFilters = resetFilters;
+resetFilters = function() {
+    originalResetFilters();
+    syncFiltersToSidebar();
+};
+
+const originalFilterDashboard = filterDashboard;
+filterDashboard = function() {
+    originalFilterDashboard();
+    syncFiltersToSidebar();
+};
+
 // Initialize progress bars immediately with forced inline styles for maximum compatibility
 document.addEventListener('DOMContentLoaded', function() {
     // Force CSS to be applied to Font Awesome icons
