@@ -74,15 +74,16 @@
         position: fixed;
         left: 0;
         top: 0;
-        width: 280px;
+        width: 290px;
         height: 100vh;
-        background: linear-gradient(135deg, rgba(40, 60, 100, 0.35), rgba(50, 70, 120, 0.4)) !important;
+        background: linear-gradient(135deg, rgba(21, 21, 40, 0.7), rgba(31, 31, 60, 0.75)) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
         border: none;
-        box-shadow: none;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
         z-index: 1000;
-        padding: 20px;
+        padding: 25px;
         overflow-y: auto;
         margin: 0;
     }
@@ -198,18 +199,18 @@
         border-radius: 10px;
     }
     
-    /* Content wrapper adjusted for sidebar - fully transparent */
+    /* Content wrapper adjusted for sidebar - fully transparent - exactly like strategic */
     .content-wrapper {
-        margin: 0;
-        padding: 0;
-        width: calc(100% - 280px);
+        margin-left: 290px; 
+        width: calc(100% - 290px); 
+        background: transparent !important; 
+        padding: 20px 20px 20px 40px; 
+        position: absolute; 
+        top: 0; 
+        right: 0; 
+        z-index: 1;
+        overflow-x: hidden;
         min-height: 100vh;
-        position: absolute;
-        left: 280px;
-        top: 0;
-        background-color: transparent !important;
-        box-sizing: border-box;
-        border: none;
     }
     
     /* Make text dark for better readability in cards */
@@ -465,8 +466,8 @@
     </div>
 </div>
 
-<!-- Main Content - completely transparent -->
-<div class="content-wrapper" style="background: transparent !important; background-color: transparent !important;">
+<!-- Main Content - using Strategic dashboard's inline styling approach -->
+<div style="margin-left: 290px; width: calc(100% - 290px); background: transparent !important; padding: 0; position: relative; z-index: 1;">
     <h1 class="mb-4">Tactical Dashboard — Shipment Optimization</h1>
 
 

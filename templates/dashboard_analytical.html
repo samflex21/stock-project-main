@@ -5,7 +5,12 @@
 {% block body_attributes %}class="analytical-page"{% endblock %}
 {% block html_attributes %}class="analytical-page"{% endblock %}
 
+{# Override and completely remove the navbar #}
+{% block navbar %}{% endblock %}
+
 {% block head %}
+<!-- Load Font Awesome in the head to ensure icons are available when content renders -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <!-- Chart.js for data visualization -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -18,9 +23,34 @@
         height: 100%;
         overflow-x: hidden;
         font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: transparent;
+        background-color: transparent !important;
         color: #ffffff;
         scroll-behavior: smooth;
+    }
+    
+    /* Override base.html gray background for analytical dashboard */
+    html.analytical-page, body.analytical-page, 
+    .analytical-page .container, .analytical-page .container-fluid, 
+    .analytical-page main, .analytical-page .content, 
+    .analytical-page .content-wrapper, .analytical-page .dashboard-wrapper,
+    .analytical-page .row, .analytical-page .col, 
+    .analytical-page div[class^="col-"], .analytical-page .card-body, 
+    .analytical-page .card-footer, .analytical-page #main-content, 
+    .analytical-page .page-content, .analytical-page .dashboard, 
+    .analytical-page section, .analytical-page .tab-content, 
+    .analytical-page .tab-pane {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Remove the gray overlay pseudo-element from base.html */
+    body.analytical-page::before {
+        display: none !important;
+    }
+    
+    /* Hide the default navigation header for analytical dashboard */
+    body.analytical-page nav.navbar {
+        display: none !important;
     }
 
     /* Video background for analytical dashboard */
@@ -207,232 +237,22 @@
     
     /* Metric cards styles - modern vertical design */
     .metric-card {
-        padding: 1.25rem;
-        border-radius: 16px;
-        position: relative;
-        overflow: hidden;
-        width: 170px;
-        min-height: 220px;
-        margin-right: 15px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        background: rgba(30, 41, 59, 0.75);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(78, 152, 227, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    /* Modern tag cloud styling */
-    .tag-cloud {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 15px;
-    }
-    
-    .tag-cloud span {
-        padding: 8px 18px;
-        border-radius: 20px;
-        background: rgba(30, 41, 59, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(78, 152, 227, 0.2);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: white;
-        display: inline-block;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .tag-cloud span:hover {
-        background: rgba(79, 172, 254, 0.2);
-        border-color: rgba(79, 172, 254, 0.4);
-        transform: translateY(-3px);
-        box-shadow: 0 6px 15px rgba(79, 172, 254, 0.2);
-    }
-    
-    /* Tag size variants with gradient backgrounds */
-    .tag-size-1 { 
-        font-size: 0.8rem; 
-    }
-    .tag-size-1 {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(30, 41, 59, 0.6));
-    }
-    
-    .tag-size-2 { 
-        font-size: 0.9rem; 
-    }
-    .tag-size-2 {
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(44, 82, 130, 0.5));
-    }
-    
-    .tag-size-3 { 
-        font-size: 1rem; 
-    }
-    .tag-size-3 {
-        background: linear-gradient(135deg, rgba(44, 82, 130, 0.6), rgba(78, 152, 227, 0.4));
-    }
-    
-    .tag-size-4 { 
-        font-size: 1.1rem; 
-    }
-    .tag-size-4 {
-        background: linear-gradient(135deg, rgba(78, 152, 227, 0.5), rgba(79, 172, 254, 0.4));
-    }
-    
-    .tag-size-5 { 
-        font-size: 1.2rem; 
-    }
-    .tag-size-5 {
-        background: linear-gradient(135deg, rgba(79, 172, 254, 0.6), rgba(0, 242, 254, 0.4));
-    }
-    /* Tag size classes with modern sizing */
-    .tag-size-1 { font-size: 0.9rem; opacity: 0.8; }
-    .tag-size-2 { font-size: 1.1rem; opacity: 0.85; }
-    .tag-size-3 { font-size: 1.3rem; opacity: 0.9; }
-    .tag-size-4 { font-size: 1.5rem; opacity: 0.95; }
-    .tag-size-5 { font-size: 1.7rem; opacity: 1; }
-    
-    /* Modern rating progress bar */
-    .rating-progress {
-        height: 10px;
-        width: 100%;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.2);
-        overflow: hidden;
-    }
-    
-    .rating-bar {
-        border-radius: 10px;
-        background: linear-gradient(to right, #4facfe, #00f2fe) !important;
-        transition: width 1s ease-in-out;
-    }
-
-    /* Modern section header styling */
-    .section-header {
-        background: linear-gradient(135deg, rgba(16, 57, 144, 0.2), rgba(24, 119, 242, 0.2));
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-left: 4px solid #4facfe;
-        padding: 20px;
-        margin-bottom: 25px;
+        padding: 20px 15px;
         border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(31, 38, 135, 0.2);
-        transition: all 0.3s ease;
-    }
-    
-    .section-header h2 {
-        margin-bottom: 8px;
-        color: #ffffff;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    
-    .section-header p {
-        margin-bottom: 0;
-        color: rgba(255, 255, 255, 0.85);
-        font-weight: 300;
-        letter-spacing: 0.5px;
-    }
-    
-    /* Table styling */
-    .table {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
+        position: relative;
         overflow: hidden;
-    }
-    
-    .table thead th {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        padding: 15px;
-    }
-    
-    .table td {
-        border-color: rgba(255, 255, 255, 0.1);
-        padding: 12px 15px;
-        vertical-align: middle;
-    }
-    
-    .table tbody tr:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-    
-    /* Badge styling */
-    .badge {
-        padding: 6px 10px;
-        border-radius: 30px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    
-    .badge.bg-info {
-        background: linear-gradient(135deg, #0093E9, #80D0C7) !important;
-    }
-    
-    /* Star rating styling */
-    .fa-star.text-warning {
-        color: #FFD700 !important;
-        filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
-    }
-    
-    .fa-star-half-alt.text-warning {
-        color: #FFD700 !important;
-        filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
-    }
-    
-    .fa-star.text-muted {
-        color: rgba(255, 255, 255, 0.3) !important;
-    }
-    
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.5);
-    }
-    
-    /* Metrics card styling - vertical design as per user preference */
-    .metric-card {
         width: 170px;
         min-height: 220px;
-        padding: 1.25rem;
         margin-right: 15px;
-        border-radius: 16px;
-        background: rgba(30, 41, 59, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        position: relative;
-        overflow: hidden;
+        background: rgba(30, 41, 59, 0.75);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(78, 152, 227, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         transition: all 0.3s ease;
     }
     
@@ -440,7 +260,7 @@
         transform: translateY(-5px);
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     }
-    
+
     .metric-icon {
         position: relative;
         width: 60px;
@@ -575,30 +395,15 @@
         background: linear-gradient(90deg, #f44336 0%, #ff7961 100%);
     }
     
-    /* Sidebar styles */
-    .glass-sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 300px;
-        height: 100vh;
-        background: linear-gradient(135deg, rgba(40, 60, 100, 0.6), rgba(50, 70, 120, 0.7));
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.15);
+    /* Main content styles - full width now */
+    .analytical-content {
+        width: 100%;
+        background: transparent !important;
         padding: 20px;
-        z-index: 100;
-        overflow-y: auto;
-        transition: transform 0.3s ease;
-    }
-    
-    /* Main content adjustment for sidebar */
-    .main-content-with-sidebar {
-        margin-left: 300px;
-        width: calc(100% - 300px);
-        transition: margin-left 0.3s ease, width 0.3s ease;
-        padding: 15px;
+        position: relative;
+        z-index: 1;
+        overflow-x: hidden;
+        min-height: 100vh;
     }
     
     /* Improved glass panel styling */
@@ -652,7 +457,7 @@
         position: fixed;
         top: 15px;
         left: 15px;
-        z-index: 101;
+        z-index: 1001;
         background: rgba(40, 60, 100, 0.8);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 5px;
@@ -752,339 +557,441 @@
             display: block;
         }
     }
+    
+    /* Metric card container - eliminate vertical spacing */
+    .metric-card-container {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* CRITICAL: Override base template gray backgrounds for analytical dashboard */
+    .analytical-page html, 
+    .analytical-page body, 
+    .analytical-page .container, 
+    .analytical-page .container-fluid, 
+    .analytical-page main, 
+    .analytical-page .content, 
+    .analytical-page .content-wrapper, 
+    .analytical-page .dashboard-wrapper,
+    .analytical-page .row, 
+    .analytical-page .col, 
+    .analytical-page div[class^="col-"], 
+    .analytical-page .card-body, 
+    .analytical-page .card-footer, 
+    .analytical-page #main-content, 
+    .analytical-page .page-content,
+    .analytical-page .dashboard, 
+    .analytical-page section, 
+    .analytical-page .tab-content, 
+    .analytical-page .tab-pane {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Hide the gray overlay pseudo-element from base template */
+    .analytical-page body::before {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    
+    /* Ensure all divs and containers are transparent */
+    .analytical-page div:not(.glass-panel):not(.metric-card):not(.sidebar) {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Ensure all divs and containers are transparent */
+    .analytical-page div:not(.glass-panel):not(.metric-card):not(.sidebar) {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Additional overrides for any remaining gray backgrounds */
+    html, body {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Force hide any pseudo-elements that might create gray overlays */
+    body::before, html::before, *::before {
+        background-color: transparent !important;
+        background: transparent !important;
+        display: none !important;
+    }
+
+    /* Metric card content styles */
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 10px 0;
+        background: linear-gradient(90deg, #ffffff 0%, #e0e0e0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .metric-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+
+    .metric-footer {
+        margin-top: auto;
+        width: 100%;
+    }
+
+    .metric-progress {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.6s ease;
+    }
+
+    .progress-blue {
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .progress-orange {
+        background: linear-gradient(90deg, #ff9900 0%, #ffb347 100%);
+    }
+
+    .progress-purple {
+        background: linear-gradient(90deg, #9966ff 0%, #cc99ff 100%);
+    }
+
+    .progress-teal {
+        background: linear-gradient(90deg, #14b8a6 0%, #5eead4 100%);
+    }
+
+    .progress-green {
+        background: linear-gradient(90deg, #00e676 0%, #69f0ae 100%);
+    }
+
+    .progress-red {
+        background: linear-gradient(90deg, #f44336 0%, #ff8a80 100%);
+    }
+
+    /* Glow effects for metric cards */
+    .blue-glow {
+        border-color: rgba(33, 150, 243, 0.3);
+        box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);
+    }
+    
+    /* Orange glow effect */
+    .orange-glow {
+        border-color: rgba(255, 152, 0, 0.3);
+        box-shadow: 0 8px 32px rgba(255, 152, 0, 0.2);
+    }
+    
+    /* Purple glow effect */
+    .purple-glow {
+        border-color: rgba(156, 39, 176, 0.3);
+        box-shadow: 0 8px 32px rgba(156, 39, 176, 0.2);
+    }
+    
+    /* Teal glow effect */
+    .teal-glow {
+        border-color: rgba(0, 150, 136, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 150, 136, 0.2);
+    }
+    
+    /* Green glow effect */
+    .green-glow {
+        border-color: rgba(76, 175, 80, 0.3);
+        box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);
+    }
+    
+    /* Red glow effect */
+    .red-glow {
+        border-color: rgba(244, 67, 54, 0.3);
+        box-shadow: 0 8px 32px rgba(244, 67, 54, 0.2);
+    }
+
+    /* Metric Card Container */
+    .metric-card-container {
+        display: flex;
+        overflow-x: auto;
+        padding: 20px 0;
+        gap: 15px;
+        margin-bottom: 20px;
+        scrollbar-width: thin;
+    }
+
+    /* Complete Metric Card Styling */
+    .metric-card {
+        background: rgba(30, 41, 59, 0.75);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px 15px;
+        width: 170px;
+        min-height: 220px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        margin-right: 15px;
+    }
+    
+    /* Metric Values */
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 5px 0;
+        color: #fff;
+    }
+    
+    /* Metric Labels */
+    .metric-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0 0 15px;
+    }
+    
+    /* Metric Footer with Progress Bar */
+    .metric-footer {
+        width: 100%;
+        margin-top: auto;
+    }
+    
+    .metric-progress {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    
+    /* Progress Bar Colors */
+    .progress-blue {
+        background: linear-gradient(90deg, #2196F3, #03A9F4);
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-orange {
+        background: linear-gradient(90deg, #FF9800, #FF5722);
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-purple {
+        background: linear-gradient(90deg, #9C27B0, #673AB7);
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-teal {
+        background: linear-gradient(90deg, #009688, #4DB6AC);
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-green {
+        background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-red {
+        background: linear-gradient(90deg, #F44336, #E91E63);
+        height: 6px;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+    }
+
+    /* Metric icon styles */
+    .metric-icon {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+        font-size: 24px;
+    }
+
+    .blue-glow .metric-icon {
+        background: rgba(79, 172, 254, 0.2);
+        box-shadow: 0 0 15px rgba(79, 172, 254, 0.5);
+        color: #4facfe;
+    }
+
+    .orange-glow .metric-icon {
+        background: rgba(255, 153, 0, 0.2);
+        box-shadow: 0 0 15px rgba(255, 153, 0, 0.5);
+        color: #ff9900;
+    }
+
+    .purple-glow .metric-icon {
+        background: rgba(153, 102, 255, 0.2);
+        box-shadow: 0 0 15px rgba(153, 102, 255, 0.5);
+        color: #9966ff;
+    }
+
+    .teal-glow .metric-icon {
+        background: rgba(20, 184, 166, 0.2);
+        box-shadow: 0 0 15px rgba(20, 184, 166, 0.5);
+        color: #14b8a6;
+    }
+
+    .green-glow .metric-icon {
+        background: rgba(0, 230, 118, 0.2);
+        box-shadow: 0 0 15px rgba(0, 230, 118, 0.5);
+        color: #00e676;
+    }
+
+    .red-glow .metric-icon {
+        background: rgba(244, 67, 54, 0.2);
+        box-shadow: 0 0 15px rgba(244, 67, 54, 0.5);
+        color: #f44336;
+    }
 </style>
-{% endblock %}
-
-{% block content %}
-<!-- Video Background -->
-<div class="video-background">
-    <video data-src="/static/videos/Financial Background Video Data Visuals - High Resolution.mp4" muted loop playsinline autoplay preload="auto"></video>
-</div>
-
-<!-- Mobile sidebar toggle button -->
-<button class="sidebar-toggle" id="sidebarToggle">
-    <i class="fas fa-bars"></i>
-</button>
-
-<!-- Glass Sidebar -->
-<div class="glass-sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <i class="fas fa-chart-line fa-2x text-white"></i>
-        <div class="sidebar-title">Analytical Dashboard</div>
-    </div>
-    
-    <div class="sidebar-nav">
-        <h3 class="sidebar-section-title">Navigation</h3>
-        <a href="/dashboard" class="sidebar-nav-item">
-            <i class="fas fa-home"></i> Overview
-        </a>
-        <a href="/dashboard_tactical" class="sidebar-nav-item">
-            <i class="fas fa-chess"></i> Tactical Dashboard
-        </a>
-        <a href="/dashboard_analytical" class="sidebar-nav-item active">
-            <i class="fas fa-chart-bar"></i> Analytical Dashboard
-        </a>
-        <a href="/dashboard_strategic" class="sidebar-nav-item">
-            <i class="fas fa-chess-queen"></i> Strategic Dashboard
-        </a>
-    </div>
-    
-    <!-- Filters moved to sidebar -->
-    <div class="sidebar-filters">
-        <h3 class="sidebar-section-title">Filters</h3>
-        <form id="filterForm">
-            <div class="mb-3">
-                <label for="tagFilter" class="form-label text-white">Tag</label>
-                <select class="form-select modern-select" id="tagFilter">
-                    <option value="all">All Tags</option>
-                    {% for tag in tags %}
-                    <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="ratingFilter" class="form-label text-white">Minimum Rating</label>
-                <select class="form-select modern-select" id="ratingFilter">
-                    <option value="0">All Ratings</option>
-                    <option value="1">1+ Stars</option>
-                    <option value="2">2+ Stars</option>
-                    <option value="3">3+ Stars</option>
-                    <option value="4">4+ Stars</option>
-                    <option value="4.5">4.5+ Stars</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="sortFilter" class="form-label text-white">Sort By</label>
-                <select class="form-select modern-select" id="sortFilter">
-                    <option value="rating-high">Rating (High to Low)</option>
-                    <option value="rating-low">Rating (Low to High)</option>
-                    <option value="count-high">Review Count (High to Low)</option>
-                    <option value="count-low">Review Count (Low to High)</option>
-                </select>
-            </div>
-            <div>
-                <button type="button" class="btn btn-primary modern-btn w-100 mb-2" onclick="filterDashboard()">Apply Filters</button>
-                <button type="button" class="btn btn-secondary modern-btn-secondary w-100" onclick="resetFilters()">Reset</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Main Content Area with Sidebar Adjustment -->
-<div class="main-content-with-sidebar">
-    <h1 class="mb-4 text-white dashboard-title">Analytical Dashboard <span class="dashboard-subtitle">— Recommendation System</span></h1>
-    
-    <!-- Top metrics cards - vertically-oriented rectangles with horizontal scrolling --> 
-    <div class="d-flex overflow-auto pb-3 mb-4">
-        <!-- Metric Card 1: Total Products -->
-        <div class="metric-card blue-glow">
-            <div class="metric-icon">
-                <i class="fas fa-box"></i>
-            </div>
-            <div class="metric-value">{{ total_products }}</div>
-            <p class="metric-label">Total Products</p>
-            <div class="metric-footer">
-                <div class="metric-progress">
-                    <div class="progress-bar progress-blue w-100"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Metric Card 2: Average Rating -->
-        <div class="metric-card orange-glow">
-            <div class="metric-icon">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="metric-value">{{ "%.1f"|format(avg_rating|float) }}</div>
-            <p class="metric-label">Average Rating</p>
-            <div class="metric-footer">
-                <div class="metric-progress">
-                    <div class="progress-bar progress-orange metric-progress-value" data-value="{{ avg_rating }}" data-max="5"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Metric Card 3: Total Tags -->
-        <div class="metric-card purple-glow">
-            <div class="metric-icon">
-                <i class="fas fa-tags"></i>
-            </div>
-            <div class="metric-value">{{ total_tags }}</div>
-            <p class="metric-label">Product Tags</p>
-            <div class="metric-footer">
-                <div class="metric-progress">
-                    <div class="progress-bar progress-purple w-100"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Metric Card 4: Lowest Rated Tag -->
-        <div class="metric-card teal-glow">
-            <div class="metric-icon">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="metric-value">{{ lowest_rated_tag.AvgRating|float|round(1) }}</div>
-            <p class="metric-label">Lowest: {{ lowest_rated_tag.TagName }}</p>
-            <div class="metric-footer">
-                <div class="metric-progress">
-                    <div class="progress-bar progress-teal metric-progress-value" data-value="{{ lowest_rated_tag.AvgRating }}" data-max="5"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Metric Card 5: Most Tagged Product -->
-        <div class="metric-card green-glow">
-            <div class="metric-icon">
-                <i class="fas fa-thumbs-up"></i>
-            </div>
-            <div class="metric-value">{{ most_tags_count }}</div>
-            <p class="metric-label">Most Tagged</p>
-            <div class="metric-footer">
-                <div class="metric-progress">
-                    <div class="progress-bar progress-green w-100"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Metric Card 6: Top Tag (replacing Recommendation Strength) -->
-        <div class="metric-card red-glow">
-            <div class="metric-icon">
-                <i class="fas fa-tag"></i>
-            </div>
-            <div class="metric-value">{{ popular_tags[0]['TagName'] if popular_tags else 'N/A' }}</div>
-            <p class="metric-label">Most Popular Tag</p>
-            <div class="metric-footer">
-                <div class="metric-progress">
-                    <div class="progress-bar progress-red metric-progress-value" data-value="{{ popular_tags[0]['TagUsage'] if popular_tags else 0 }}" data-max="{{ popular_tags[0]['TagUsage'] * 1.5 if popular_tags else 100 }}"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-</div>
-
-<!-- Tag Cloud and Rating Distribution Row -->
-<div class="row">
-    <!-- Section 2: Tag Cloud -->
-    <div class="col-lg-6 mb-4">
-        <div class="glass-panel h-100">
-            <h2 class="text-white mb-3">Tag Cloud</h2>
-            <p class="text-white-50 mb-3">Popular tags sized by frequency. Click on a tag to filter.</p>
-            
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-tags me-2"></i>Product Tags</h5>
-                </div>
-                <div class="card-body">
-                    <div class="tag-cloud" id="tagCloud" style="height: 300px; overflow-y: auto;">
-                        {% for tag in popular_tags[:30] %}
-                        <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
-                            <i class="fas fa-tag me-1"></i>{{ tag.TagName }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section 3: Rating Analysis -->
-    <div class="col-lg-6 mb-4">
-        <div class="glass-panel h-100">
-            <h2 class="text-white mb-3">Rating Distribution</h2>
-            <p class="text-white-50 mb-3">Analysis of product rating distribution.</p>
-            
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Rating Distribution</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="height: 300px;">
-                        <canvas id="ratingDistributionChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Charts Section - Row with Two Charts -->
-<div class="row">
-    <!-- Top Rated Products by Category -->
-    <div class="col-lg-6 mb-4">
-        <div class="glass-panel h-100">
-            <h2 class="text-white mb-3">Top Products by Category</h2>
-            <p class="text-white-50 mb-3">Analysis of highest rated products across categories.</p>
-            
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Products by Category</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="height: 300px;">
-                        <canvas id="topRatedProductsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tag Usage Trends -->
-    <div class="col-lg-6 mb-4">
-        <div class="glass-panel h-100">
-            <h2 class="text-white mb-3">Tag Usage Trends</h2>
-            <p class="text-white-50 mb-3">Analysis of tag usage trends over time.</p>
-            
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" style="height: 300px;">
-                        <canvas id="tagActivityChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Section: Category Analysis removed - was duplicate of Top Rated Products by Category -->
-
-<!-- Section 6: Deep Dive Analysis -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="glass-panel">
-            <h2 class="text-white mb-3">Deep Dive Analysis</h2>
-            <p class="text-white-50 mb-4">Detailed product rating analysis and top performers.</p>
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Top Rated Products</h5>
-                </div>
-                <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Rating</th>
-                    <th>Tags</th>
-                    <th>Review Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in top_products %}
-                <tr>
-                    <td>{{ product.ProductName }}</td>
-                    <td>
-                        {% set rating = product.Rating|float %}
-                        {% set full_stars = (rating|int) %}
-                        {% set half_star = rating - full_stars >= 0.5 %}
-                        {% set empty_stars = 5 - full_stars - (1 if half_star else 0) %}
-                        
-                        {% for i in range(full_stars) %}
-                        <i class="fas fa-star text-warning"></i>
-                        {% endfor %}
-                        
-                        {% if half_star %}
-                        <i class="fas fa-star-half-alt text-warning"></i>
-                        {% endif %}
-                        
-                        {% for i in range(empty_stars) %}
-                        <i class="far fa-star text-muted"></i>
-                        {% endfor %}
-                        
-                        {{ rating }}
-                    </td>
-                    <td>
-                        {% for tag in product.Tags.split(',') %}
-                        <span class="badge bg-info">{{ tag }}</span>
-                        {% endfor %}
-                    </td>
-                    <td>{{ product.ReviewCount }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Tag Correlation Network removed to match required specification -->
-
-</div> <!-- Close container-fluid -->
-
-<!-- Section 5: Top Charts and Trends -->
-<!-- Removed duplicate Trends & Analysis section to match the required specification -->
-
-    <!-- All extra charts removed to match required specification -->
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js" integrity="sha512-Tn2m0TIpgVyTzzvmxLNuqbSJH3JP8jm+Cy3hvHrW7ndTDcJ1w5mBiksqDBb8GpE2ksktFvDB/ykZ0mDpsZj20w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
+// Wait for DOM to be ready before applying classes and initializing video
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply analytical-page class and remove gray backgrounds
+    document.documentElement.classList.add('analytical-page');
+    document.body.classList.add('analytical-page');
+    document.documentElement.style.backgroundColor = 'transparent';
+    document.body.style.backgroundColor = 'transparent';
+    
+    // Function to update the progress bars based on data-value and data-max attributes
+    function updateBarIndicators() {
+        var progressBars = document.querySelectorAll('.metric-progress-value');
+        for (var i = 0; i < progressBars.length; i++) {
+            var bar = progressBars[i];
+            var value = parseFloat(bar.getAttribute('data-value') || '0');
+            var max = parseFloat(bar.getAttribute('data-max') || '100');
+            var percent = (value / max) * 100;
+            
+            // Ensure at least a small visible portion of the progress bar
+            percent = Math.max(percent, 2);
+            // Cap at 100%
+            percent = Math.min(percent, 100);
+            
+            bar.style.width = percent + '%';
+        }
+    }
+
+    // Initialize all progress bars
+    updateBarIndicators();
+    
+    // Initialize video background
+    const video = document.querySelector('.video-background video');
+    
+    // Disable video for performance improvement if causing errors
+    if (video) {
+        video.addEventListener('error', function(e) {
+            console.log('Video error detected, disabling video for performance');
+            var vidContainer = document.querySelector('.video-background');
+            if (vidContainer) {
+                // Replace video with a static gradient background for better performance
+                vidContainer.innerHTML = '';
+                vidContainer.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+            }
+        });
+    }
+    if (video && video.dataset.src) {
+        try {
+            video.src = video.dataset.src;
+            video.load();
+            
+            // Ensure video plays
+            video.play().catch(function(error) {
+                console.log('Video autoplay failed:', error);
+            });
+        } catch(e) {
+            console.error('Video initialization error:', e);
+            // Add fallback styling
+            document.querySelector('.video-background').style.backgroundColor = 'rgba(8, 23, 54, 0.9)';
+        }
+    }
+    
+    // Update progress bars when page loads
+    updateBarIndicators();
+    
+    // Initialize charts
+    initializeCharts();
+    
+    // Set up filter handlers for dropdown controls
+    var filters = document.querySelectorAll('.filter-control');
+    filters.forEach(function(filter) {
+        filter.addEventListener('change', filterDashboard);
+    });
+    
+    // Initialize filter button functionality 
+    var applyFilterBtn = document.getElementById('applyFilter');
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', function(){
+            filterDashboard();
+        });
+    }
+    
+    // Add tag filter functionality for clickable tags
+    var tags = document.querySelectorAll('.tag');
+    if (tags && tags.length > 0) {
+        for (var i = 0; i < tags.length; i++) {
+            tags[i].addEventListener('click', function() {
+                filterByTag(this.textContent.trim());
+            });
+        }
+    }
+    
+    // Reset filters button handler
+    var resetBtn = document.getElementById('resetFiltersBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            resetFilters();
+        });
+    }
+    
+    // Sidebar toggle functionality for mobile responsive design
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content-with-sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show-sidebar');
+            
+            // Add a click handler to close sidebar when clicking outside on mobile
+            if (sidebar.classList.contains('show-sidebar')) {
+                document.addEventListener('click', function closeSidebar(e) {
+                    if (!sidebar.contains(e.target) && e.target !== sidebarToggle) {
+                        sidebar.classList.remove('show-sidebar');
+                        document.removeEventListener('click', closeSidebar);
+                    }
+                });
+            }
+        });
+    }
+});
+
 // All JavaScript functions defined outside of any event listeners
 
 // Function to update progress bar indicators
@@ -1092,11 +999,10 @@ function updateBarIndicators() {
     var progressBars = document.querySelectorAll('.metric-progress-value');
     for (var i = 0; i < progressBars.length; i++) {
         var bar = progressBars[i];
-        var value = parseFloat(bar.getAttribute('data-value') || 0);
-        var maxValue = parseFloat(bar.getAttribute('data-max') || 5);
-        var percent = Math.min(100, Math.max(0, Math.floor((value / maxValue) * 100)));
-        
-        // Set the width directly with inline style for visibility
+        var value = parseFloat(bar.getAttribute('data-value') || bar.style.width);
+        var max = parseFloat(bar.getAttribute('data-max') || 100);
+        var percent = (value / max) * 100;
+        percent = Math.max(percent, 3);
         bar.style.width = percent + '%';
     }
 }
@@ -1191,8 +1097,6 @@ function initCategoryChart() {
     
     // Function to fetch category data from API endpoint
     function fetchCategoryData() {
-        console.log('Fetching category data from API...');
-        
         fetch('/api/category-chart-data')
             .then(response => {
                 if (!response.ok) {
@@ -1201,29 +1105,18 @@ function initCategoryChart() {
                 return response.json();
             })
             .then(data => {
-                console.log('API response:', data);
-                
                 if (data.success && data.category_names && data.category_names.length > 0) {
                     // Successfully got data from the API
                     const categoryNames = data.category_names;
                     const categoryRatings = data.category_ratings;
                     productCounts = data.product_counts || [];
                     
-                    console.log('✓ Successfully loaded category data from API');
-                    console.log('Category names:', categoryNames);
-                    console.log('Category ratings:', categoryRatings);
-                    
-                    // Update chart with the API data
                     updateCategoryChart(categoryNames, categoryRatings);
                 } else {
-                    console.warn('⚠️ API returned no valid category data');
-                    // Use fallback data
                     useFallbackCategoryData();
                 }
             })
             .catch(error => {
-                console.error('Error fetching category data:', error);
-                // Use fallback data on error
                 useFallbackCategoryData();
             });
     }
@@ -1231,7 +1124,6 @@ function initCategoryChart() {
     // Function to update chart with the data
     function updateCategoryChart(names, ratings) {
         if (!names || !ratings || names.length === 0 || ratings.length === 0) {
-            console.error('Invalid data for category chart update');
             return;
         }
         
@@ -1274,12 +1166,10 @@ function initCategoryChart() {
         
         // Update chart
         window.categoryChart.update();
-        console.log('✓ Chart updated with new data');
     }
     
     // Function to use fallback sample data
     function useFallbackCategoryData() {
-        console.warn('⚠️ Using fallback sample data for chart');
         const fallbackNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books', 'Beauty', 'Toys', 'Automotive', 'Health', 'Garden'];
         const fallbackRatings = [4.7, 4.3, 4.1, 3.9, 4.5, 4.2, 3.8, 3.5, 4.0, 3.7];
         updateCategoryChart(fallbackNames, fallbackRatings);
@@ -1288,184 +1178,128 @@ function initCategoryChart() {
 
 // Initialize the Rating Distribution Chart
 function initRatingDistributionChart() {
-    // Get chart element and exit if not found
     var chartElement = document.getElementById('ratingDistributionChart');
     if (!chartElement) {
-        console.error('Rating distribution chart container not found');
         return;
     }
     
-
+    var ctx = chartElement.getContext('2d');
+    var parsedData;
     try {
-        var ctx = chartElement.getContext('2d');
-        var parsedData;
-        try {
-            // Get rating distribution data from Flask
-            var ratingStr = '{{ rating_distribution|safe }}';
-            console.log('Raw rating distribution JSON:', ratingStr);
-            
-            if (ratingStr && ratingStr !== '[]' && ratingStr !== 'null') {
-                parsedData = JSON.parse(ratingStr);
-                console.log('Parsed rating distribution data:', parsedData);
-                
-                // Store the original data for filtering
-                originalRatingDistribution = [...parsedData];
-            } else {
-                throw new Error('Invalid rating distribution data');
-            }
-        } catch (e) {
-            console.error('Error parsing rating distribution data:', e);
-            // Sample data as fallback
-            parsedData = [150, 230, 180, 320, 240];
-            originalRatingDistribution = [...parsedData];
+        var ratingStr = '{{ rating_distribution|safe }}';
+        if (ratingStr && ratingStr !== '[]' && ratingStr !== 'null') {
+            parsedData = JSON.parse(ratingStr);
+        } else {
+            throw new Error('Invalid rating distribution data');
         }
-        
-        // Create the chart
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
-                datasets: [{
-                    label: 'Rating Distribution',
-                    data: parsedData,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(255, 159, 64, 0.7)',
-                        'rgba(255, 205, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(54, 162, 235, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(255, 159, 64)',
-                        'rgb(255, 205, 86)',
-                        'rgb(75, 192, 192)',
-                        'rgb(54, 162, 235)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            size: 14
-                        },
-                        bodyFont: {
-                            size: 13
-                        },
-                        callbacks: {
-                            label: function(context) {
-                                return ' Products: ' + context.raw;
-                            }
-                        }
-                    }
+    } catch (e) {
+        parsedData = [];
+    }
+    
+    if (!parsedData || !Array.isArray(parsedData) || parsedData.length === 0) {
+        parsedData = [150, 230, 180, 320, 240];
+    }
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+            datasets: [{
+                label: 'Rating Distribution',
+                data: parsedData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(54, 162, 235, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 159, 64)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)',
+                    'rgb(54, 162, 235)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
                 },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false,
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#f1f5f9'
-                        }
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        size: 14
                     },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#f1f5f9'
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return ' Products: ' + context.raw;
                         }
                     }
                 }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#f1f5f9'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#f1f5f9'
+                    }
+                }
             }
-        });
-    } catch (error) {
-        console.error('Error initializing Rating Distribution chart:', error);
-    }
+        }
+    });
 }
 
 // Initialize the Tag Activity Chart
 function initTagActivityChart() {
     var ctx = document.getElementById('tagActivityChart');
     if (!ctx) {
-        console.error('Tag activity chart container not found');
         return;
     }
     ctx = ctx.getContext('2d');
 
-    
-    // Variables to hold our chart data
     var tagActivity = [];
     var activityTagNames = [];
     
     try {
-        // Get tag activity data from Flask
         var tagActivityStr = '{{ tag_activity|safe }}';
         var activityTagNamesStr = '{{ tag_names|safe }}';
         
-        console.log('Raw tag activity JSON: ' + tagActivityStr);
-        console.log('Raw activity tag names JSON: ' + activityTagNamesStr);
-        
-        // Handle potential JSON parsing errors safely
         if (tagActivityStr && tagActivityStr !== '[]' && tagActivityStr !== 'null') {
             tagActivity = JSON.parse(tagActivityStr);
-            
-            // Handle both 1D and 2D arrays
-            if (Array.isArray(tagActivity)) {
-                // If first element isn't an array, we have a 1D array
-                if (tagActivity.length > 0 && !Array.isArray(tagActivity[0])) {
-                    console.log('Detected 1D array, converting to 2D format');
-                    // Generate a simulated 6-month history for each tag
-                    var tempActivity = [];
-                    for (var i = 0; i < Math.min(tagActivity.length, 5); i++) {
-                        var baseValue = parseInt(tagActivity[i]) || 1;
-                        var monthlyData = [];
-                        for (var j = 0; j < 6; j++) {
-                            // Create a realistic trend with slight variations
-                            var variation = Math.floor(baseValue * 0.2 * (Math.random() - 0.5));
-                            monthlyData.push(Math.max(1, baseValue + variation));
-                        }
-                        tempActivity.push(monthlyData);
-                    }
-                    tagActivity = tempActivity;
-                }
-            } else {
-                // Not an array at all, create sample data
-                tagActivity = []; // Will be filled with sample data below
-            }
+        } else {
+            throw new Error('Invalid tag activity data');
         }
         
-        // Parse tag names
         if (activityTagNamesStr && activityTagNamesStr !== '[]' && activityTagNamesStr !== 'null') {
             activityTagNames = JSON.parse(activityTagNamesStr);
-            
-            // Make tag names more user-friendly if they're just codes
-            activityTagNames = activityTagNames.map(function(tag) {
-                // If the tag is just a code (like '006'), make it more readable
-                if (/^\d{3}$|^\d[A-Z]{2}$/.test(tag)) {
-                    return 'Tag ' + tag; 
-                }
-                return tag;
-            });
         }
     } catch (parseError) {
-        console.error('Error parsing tag activity data:', parseError);
+        tagActivity = [];
+        activityTagNames = [];
     }
     
-    // If we still have no data, use sample data
     if (!tagActivity || !Array.isArray(tagActivity) || tagActivity.length === 0) {
-        console.warn('No tag activity data found or invalid format, using sample data');
-        // Sample data for 5 tags over 6 months
         tagActivity = [
             [12, 15, 18, 22, 25, 30],  // Tag 1
             [8, 10, 12, 15, 18, 20],   // Tag 2
@@ -1479,19 +1313,9 @@ function initTagActivityChart() {
         activityTagNames = ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'];
     }
     
-    // Limit to 5 tags for readability
     activityTagNames = activityTagNames.slice(0, 5);
     tagActivity = tagActivity.slice(0, Math.min(5, tagActivity.length));
     
-    // Make sure we have data for each tag (in case lengths don't match)
-    while (activityTagNames.length > tagActivity.length) {
-        tagActivity.push([5, 6, 8, 7, 9, 10]); // Default values
-    }
-    
-    console.log('Tag activity data:', tagActivity);
-    console.log('Activity tag names:', activityTagNames);
-    
-    // Generate month labels for the x-axis (last 6 months)
     var monthLabels = [];
     var today = new Date();
     for (var i = 5; i >= 0; i--) {
@@ -1500,7 +1324,6 @@ function initTagActivityChart() {
         monthLabels.push(d.toLocaleDateString('default', { month: 'short' }));
     }
     
-    // Generate dataset colors for each tag
     var colors = [
         'rgba(75, 192, 192, 0.7)',    // Teal
         'rgba(153, 102, 255, 0.7)',   // Purple
@@ -1517,7 +1340,6 @@ function initTagActivityChart() {
         'rgba(255, 99, 132, 1)'      // Red
     ];
     
-    // Create datasets for each tag
     var datasets = [];
     for (var i = 0; i < tagActivity.length && i < activityTagNames.length; i++) {
         datasets.push({
@@ -1533,7 +1355,6 @@ function initTagActivityChart() {
         });
     }
     
-    // Create the chart
     var tagActivityChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1611,50 +1432,19 @@ function initTagActivityChart() {
 
 // Function to update all progress bars with smooth animations
 function updateProgressBars() {
-    // Get all progress bars
-    var progressBars = document.querySelectorAll('.progress-bar');
-    
-    // Update each progress bar with smooth animation
+    var progressBars = document.querySelectorAll('.metric-progress-value');
     for (var i = 0; i < progressBars.length; i++) {
         var bar = progressBars[i];
-        var value = parseFloat(bar.getAttribute('data-value')) || 0;
-        var max = parseFloat(bar.getAttribute('data-max')) || 100;
-        
-        // Calculate percentage (0-100)
+        var value = parseFloat(bar.getAttribute('data-value') || bar.style.width);
+        var max = parseFloat(bar.getAttribute('data-max') || 100);
         var percent = (value / max) * 100;
-        
-        // Ensure a minimum width for visibility
         percent = Math.max(percent, 3);
-        
-        // Set width with smooth transition
-        (function(bar, percent) {
-            setTimeout(function() {
-                bar.style.width = percent + '%';
-            }, 100);
-        })(bar, percent);
-    }
-    
-    // Update circular indicators if any exist
-    var indicators = document.querySelectorAll('.circular-indicator');
-    for (var j = 0; j < indicators.length; j++) {
-        var indicator = indicators[j];
-        var value = parseFloat(indicator.getAttribute('data-value')) || 0;
-        var max = parseFloat(indicator.getAttribute('data-max')) || 100;
-        
-        // Calculate percentage for the indicator
-        var pct = Math.min((value / max) * 100, 100);
-        
-        // Update indicator display
-        var displayElement = indicator.querySelector('.indicator-value');
-        if (displayElement) {
-            displayElement.textContent = Math.round(pct) + '%';
-        }
+        bar.style.width = percent + '%';
     }
 }
 
 // Master filter function that affects all dashboard elements
 function filterDashboard() {
-    // Get filter values
     var tagFilter = document.getElementById('tagFilter');
     var tag = tagFilter && tagFilter.value ? tagFilter.value : 'all';
     
@@ -1664,32 +1454,12 @@ function filterDashboard() {
     var sortFilter = document.getElementById('sortFilter');
     var sortBy = sortFilter && sortFilter.value ? sortFilter.value : 'rating-high';
     
-    // Track filtered data for charts
-    var filteredTagRatings = [];
-    var filteredRatingDistribution = [0, 0, 0, 0, 0]; // For 1-5 stars
-    var filteredTagActivity = [];
-    var filteredCategoryData = {
-        categories: [],
-        ratings: [],
-        counts: []
-    };
-    
-    // 1. Filter the products table in Deep Dive Analysis
     filterProductsTable(tag, minRating, sortBy);
-    
-    // 2. Filter and update the Rating Distribution Chart
     updateRatingDistributionChart(tag, minRating);
-    
-    // 3. Filter and update the Tag Activity Chart
     updateTagActivityChart(tag, minRating);
-    
-    // 4. Filter and update the Category Chart
     updateCategoryChart(tag, minRating);
-    
-    // 5. Update progress bars with filtered data
     updateProgressBarsWithFilters(tag, minRating);
     
-    // Apply visual indication that filters are active
     document.querySelectorAll('.glass-panel').forEach(panel => {
         if (tag !== 'all' || minRating > 0) {
             panel.classList.add('filtered');
@@ -1717,99 +1487,76 @@ function filterProductsTable(tag, minRating, sortBy) {
         
         var visible = true;
         
-        // Filter by tag
         if (tag !== 'all' && rowTags.indexOf(tag) === -1) {
             visible = false;
         }
         
-        // Filter by rating
         if (visible && rating < minRating) {
             visible = false;
         }
         
-        // Display or hide based on filters
         row.style.display = visible ? '' : 'none';
         if (visible) visibleCount++;
     }
     
-    // Update the counter
     var counter = document.getElementById('productsCounter');
     if (counter) {
         counter.textContent = visibleCount + ' products';
     }
     
-    // Sort the visible rows
     var tbody = document.querySelector('#productsTable tbody');
     if (tbody) {
         var visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
         
-        // Sort based on selected criteria
         visibleRows.sort(function(a, b) {
             if (sortBy === 'rating-high') {
                 var ratingA = parseFloat(a.getAttribute('data-rating') || '0');
                 var ratingB = parseFloat(b.getAttribute('data-rating') || '0');
-                return ratingB - ratingA; // High to Low
+                return ratingB - ratingA; 
             } 
             else if (sortBy === 'rating-low') {
                 var ratingA = parseFloat(a.getAttribute('data-rating') || '0');
                 var ratingB = parseFloat(b.getAttribute('data-rating') || '0');
-                return ratingA - ratingB; // Low to High
+                return ratingA - ratingB; 
             }
             else if (sortBy === 'count-high') {
                 var countA = parseInt(a.getAttribute('data-reviews') || '0');
                 var countB = parseInt(b.getAttribute('data-reviews') || '0');
-                return countB - countA; // High to Low
+                return countB - countA; 
             }
             else if (sortBy === 'count-low') {
                 var countA = parseInt(a.getAttribute('data-reviews') || '0');
                 var countB = parseInt(b.getAttribute('data-reviews') || '0');
-                return countA - countB; // Low to High
+                return countA - countB; 
             }
             return 0;
         });
         
-        // Re-append in sorted order
         visibleRows.forEach(row => tbody.appendChild(row));
     }
 }
 
 // Update Rating Distribution Chart based on filters
-// Global variables to store original chart data for filtering
 var originalRatingDistribution;
-
-// Initialize global rating distribution data when chart is created
-function storeRatingDistribution(data) {
-    originalRatingDistribution = [...data]; // Create a copy of the array
-    console.log('Stored original rating distribution:', originalRatingDistribution);
-}
 
 function updateRatingDistributionChart(tag, minRating) {
     var chart = Chart.getChart('ratingDistributionChart');
     if (!chart) return;
     
-    // Use stored original data
     if (!originalRatingDistribution) {
         originalRatingDistribution = [...chart.data.datasets[0].data];
-        console.log('Captured rating distribution from chart:', originalRatingDistribution);
     }
     
-    // If no filters applied, restore original data
     if (tag === 'all' && minRating === 0) {
         chart.data.datasets[0].data = [...originalRatingDistribution];
         chart.update();
         return;
     }
     
-    // Apply tag filter to rating data if needed
-    // This is a simplified example - in a real implementation, you would need 
-    // actual tag-to-rating data from backend to do this properly
     var filteredData = originalRatingDistribution.map(function(value, index) {
-        // Apply minimum rating filter (index + 1 is the star rating)
         if (index + 1 < minRating) {
             return 0;
         }
-        // We're using a simple approximation for tag filtering
-        // In a real implementation, the backend would provide more accurate data
         return tag !== 'all' ? Math.floor(value * 0.7) : value;
     });
     
@@ -1822,18 +1569,14 @@ function updateTagActivityChart(tag, minRating) {
     var chart = Chart.getChart('tagActivityChart');
     if (!chart) return;
     
-    // If no filters or filtering by the specific tag, show that tag only
     if (tag !== 'all') {
-        // Find the tag index
         var tagIndex = activityTagNames.indexOf(tag);
         if (tagIndex !== -1) {
-            // Hide all other datasets
             chart.data.datasets.forEach(function(dataset, i) {
                 dataset.hidden = (dataset.label !== tag);
             });
         }
     } else {
-        // Show all datasets
         chart.data.datasets.forEach(function(dataset) {
             dataset.hidden = false;
         });
@@ -1847,9 +1590,7 @@ function updateCategoryChart(tag, minRating) {
     var chart = Chart.getChart('topRatedProductsChart');
     if (!chart) return;
     
-    // If no filters applied, refresh data from API
     if (tag === 'all' && minRating === 0) {
-        // Re-fetch data from API if available, otherwise use cached data
         fetch('/api/category-chart-data')
             .then(response => response.json())
             .then(data => {
@@ -1866,16 +1607,12 @@ function updateCategoryChart(tag, minRating) {
         return;
     }
     
-    // Apply simple filtering for demonstration
-    // In a real implementation, you'd fetch filtered data from the backend
-    var reduction = minRating > 0 ? (minRating / 5) : 0;
-    
     chart.data.datasets[0].data = chart.data.datasets[0].data.map(function(value) {
-        return Math.max(value - reduction, 0);
+        return Math.max(value - (minRating / 5), 0);
     });
     
     chart.data.datasets[1].data = chart.data.datasets[1].data.map(function(value) {
-        return Math.floor(value * (1 - reduction * 0.2));
+        return Math.floor(value * (1 - (minRating / 10) * 0.2));
     });
     
     chart.update();
@@ -1883,9 +1620,7 @@ function updateCategoryChart(tag, minRating) {
 
 // Update progress bars with filtered data
 function updateProgressBarsWithFilters(tag, minRating) {
-    // Only adjust progress if filters are applied
     if (tag !== 'all' || minRating > 0) {
-        // Apply a simple reduction factor based on filters
         var reduction = minRating > 0 ? (minRating / 10) : 0;
         reduction += (tag !== 'all' ? 0.1 : 0);
         
@@ -1895,14 +1630,11 @@ function updateProgressBarsWithFilters(tag, minRating) {
                 bar.setAttribute('data-original', bar.style.width);
             }
             
-            // Calculate filtered width
             var newWidth = Math.max(originalValue * (1 - reduction), 0) + '%';
             
-            // Animate the change
             bar.style.width = newWidth;
         });
     } else {
-        // Restore original values
         document.querySelectorAll('.progress-bar').forEach(function(bar) {
             var originalValue = bar.getAttribute('data-original');
             if (originalValue) {
@@ -1918,15 +1650,12 @@ function resetFilters() {
     document.getElementById('ratingFilter').value = '0';
     document.getElementById('sortFilter').value = 'rating-high';
     
-    // Remove filtered class from panels
     document.querySelectorAll('.glass-panel').forEach(panel => {
         panel.classList.remove('filtered');
     });
     
-    // Reinitialize all charts with original data
     initializeCharts();
     
-    // Update counter
     var counter = document.getElementById('productsCounter');
     if (counter) {
         var totalRows = document.querySelectorAll('#productsTable tbody tr').length;
@@ -1936,12 +1665,10 @@ function resetFilters() {
 
 // Master initialization function for all charts
 function initializeCharts() {
-    // Initialize each chart
-    initCategoryChart(); // Re-enabled as we kept the first chart container
+    initCategoryChart();
     initRatingDistributionChart();
     initTagActivityChart();
     
-    // Update progress bars and indicators
     updateProgressBars();
 }
 
@@ -1958,104 +1685,369 @@ function filterByTag(tagName) {
     }
 }
 
-// Master document ready event handler - consolidate all initialization code here
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing Analytical Dashboard...');
-    
-    // Initialize video background with improved error handling
-    var videoElement = document.querySelector('.video-background video');
-    
-    // Disable video for performance improvement if causing errors
-    if (videoElement) {
-        videoElement.addEventListener('error', function(e) {
-            console.log('Video error detected, disabling video for performance');
-            var vidContainer = document.querySelector('.video-background');
-            if (vidContainer) {
-                // Replace video with a static gradient background for better performance
-                vidContainer.innerHTML = '';
-                vidContainer.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
-            }
-        });
-    }
-    if (videoElement && videoElement.getAttribute('data-src')) {
-        try {
-            videoElement.src = videoElement.getAttribute('data-src');
-            videoElement.addEventListener('error', function(e) {
-                console.error('Error loading video:', e);
-                // Add a fallback background if video fails to load
-                document.querySelector('.video-background').style.backgroundColor = 'rgba(8, 23, 54, 0.9)';
-            });
-            videoElement.addEventListener('loadeddata', function() {
-                console.log('Video loaded successfully');
-            });
-        } catch(e) {
-            console.error('Video initialization error:', e);
-            // Add fallback styling
-            document.querySelector('.video-background').style.backgroundColor = 'rgba(8, 23, 54, 0.9)';
-        }
-    }
-    
-    // Update progress bars when page loads
-    updateBarIndicators();
-    
-    // Initialize charts
-    initializeCharts();
-    
-    // Set up filter handlers for dropdown controls
-    var filters = document.querySelectorAll('.filter-control');
-    filters.forEach(function(filter) {
-        filter.addEventListener('change', filterDashboard);
-    });
-    
-    // Initialize filter button functionality 
-    var applyFilterBtn = document.getElementById('applyFilter');
-    if (applyFilterBtn) {
-        applyFilterBtn.addEventListener('click', function(){
-            filterDashboard();
-        });
-    }
-    
-    // Add tag filter functionality for clickable tags
-    var tags = document.querySelectorAll('.tag');
-    if (tags && tags.length > 0) {
-        for (var i = 0; i < tags.length; i++) {
-            tags[i].addEventListener('click', function() {
-                filterByTag(this.textContent.trim());
-            });
-        }
-    }
-    
-    // Reset filters button handler
-    var resetBtn = document.getElementById('resetFiltersBtn');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            resetFilters();
-        });
-    }
-    
-    // Sidebar toggle functionality for mobile responsive design
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.querySelector('.main-content-with-sidebar');
-    
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('show-sidebar');
-            
-            // Add a click handler to close sidebar when clicking outside on mobile
-            if (sidebar.classList.contains('show-sidebar')) {
-                document.addEventListener('click', function closeSidebar(e) {
-                    if (!sidebar.contains(e.target) && e.target !== sidebarToggle) {
-                        sidebar.classList.remove('show-sidebar');
-                        document.removeEventListener('click', closeSidebar);
-                    }
-                });
-            }
-        });
-    }
-});
 </script>
 
-</div> <!-- Closing main-content-with-sidebar -->
+{% endblock head %}
+
+{% block content %}
+<!-- Video Background -->
+<div class="video-background">
+    <video data-src="/static/videos/statistical-graph-with-business-finance-concept-3d-rendering-video (2).mp4" muted loop playsinline autoplay preload="auto"></video>
+</div>
+
+<!-- Sidebar with navigation -->
+<div style="position: fixed; width: 80px; height: 100vh; top: 0; left: 0; background: linear-gradient(135deg, rgba(21, 21, 40, 0.8), rgba(31, 31, 60, 0.85)); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 20px; overflow-y: auto; z-index: 1000;">
+    <div class="mb-4 d-flex align-items-center justify-content-center">
+        <i class="fas fa-chart-line fa-lg text-white"></i>
+    </div>
+    
+    <!-- Navigation Links -->
+    <div class="mb-5">
+        <ul class="nav flex-column align-items-center">
+            <li class="nav-item mb-4">
+                <a class="nav-link px-0 py-1 text-white text-center" href="/" title="Home">
+                    <i class="fas fa-home fa-fw fa-lg"></i>
+                </a>
+            </li>
+            <li class="nav-item mb-4">
+                <a class="nav-link px-0 py-1 text-white text-center" href="/dashboard/strategic" title="Strategic">
+                    <i class="fas fa-chess fa-fw fa-lg"></i>
+                </a>
+            </li>
+            <li class="nav-item mb-4">
+                <a class="nav-link px-0 py-1 text-white text-center" href="/dashboard/tactical" title="Tactical">
+                    <i class="fas fa-tasks fa-fw fa-lg"></i>
+                </a>
+            </li>
+            <li class="nav-item mb-4">
+                <a class="nav-link px-0 py-1 text-white-50 active text-center" href="/dashboard/analytical" title="Analytical">
+                    <i class="fas fa-chart-bar fa-fw fa-lg"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Main Content Container with proper spacing -->
+<div class="main-content" style="margin-left: 100px; padding: 20px; width: calc(100% - 120px); position: relative; z-index: 1;">
+
+<!-- Filter Section -->
+<div class="filter-section glass-panel p-3 mb-4" style="padding: 20px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
+    <h6 class="text-white mb-1"><i class="fas fa-filter me-2"></i>Filters</h6>
+    
+    <form class="row g-1 mb-0">
+        <div class="col-md-3 mb-0">
+            <label for="tagFilter" class="form-label small text-white-50 mb-0 py-0">Tag</label>
+            <select class="form-select form-select-sm" id="tagFilter">
+                <option value="all">All Tags</option>
+                {% for tag in tags %}
+                <option value="{{ tag.TagName }}">{{ tag.TagName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 mb-0">
+            <label for="ratingFilter" class="form-label small text-white-50 mb-0 py-0">Minimum Rating</label>
+            <select class="form-select form-select-sm" id="ratingFilter">
+                <option value="0">All Ratings</option>
+                <option value="1">1+ Stars</option>
+                <option value="2">2+ Stars</option>
+                <option value="3">3+ Stars</option>
+                <option value="4">4+ Stars</option>
+                <option value="4.5">4.5+ Stars</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-0">
+            <label for="sortFilter" class="form-label small text-white-50 mb-0 py-0">Sort By</label>
+            <select class="form-select form-select-sm" id="sortFilter">
+                <option value="rating-high">Rating (High to Low)</option>
+                <option value="rating-low">Rating (Low to High)</option>
+                <option value="count-high">Review Count (High to Low)</option>
+                <option value="count-low">Review Count (Low to High)</option>
+            </select>
+        </div>
+        <div class="col-12 d-flex gap-1">
+            <button type="button" class="btn btn-primary btn-sm flex-grow-1" onclick="filterDashboard()">Apply Filters</button>
+            <button type="button" class="btn btn-secondary btn-sm flex-grow-1" onclick="resetFilters()">Reset</button>
+        </div>
+    </form>
+</div>
+
+<!-- Top metrics cards - vertically-oriented rectangles with horizontal scrolling --> 
+<div class="d-flex overflow-auto mb-4" style="padding: 10px 0; gap: 15px; position: relative; z-index: 1; border-radius: 8px;">
+    <!-- Metric Card 1: Total Products -->
+    <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(33, 150, 243, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(33, 150, 243, 0.2);">
+        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #2196F3;">
+            <i class="fas fa-box"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ total_products }}</div>
+        <p style="font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin: 0 0 15px;">Total Products</p>
+        <div style="width: 100%; margin-top: auto;">
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="metric-progress-value" data-value="{{ total_products }}" data-max="15000" style="background: linear-gradient(90deg, #2196F3, #03A9F4); height: 6px; width: 0;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metric Card 2: Average Rating -->
+    <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(255, 152, 0, 0.2);">
+        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #FF9800;">
+            <i class="fas fa-star"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ "%.1f"|format(avg_rating|float) }}</div>
+        <p style="font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin: 0 0 15px;">Average Rating</p>
+        <div style="width: 100%; margin-top: auto;">
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="metric-progress-value" data-value="{{ avg_rating }}" data-max="5" style="background: linear-gradient(90deg, #FF9800, #FF5722); height: 6px; width: 0;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metric Card 3: Total Tags -->
+    <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(156, 39, 176, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(156, 39, 176, 0.2);">
+        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #9C27B0;">
+            <i class="fas fa-tags"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ total_tags }}</div>
+        <p style="font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin: 0 0 15px;">Product Tags</p>
+        <div style="width: 100%; margin-top: auto;">
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="metric-progress-value" data-value="{{ total_tags }}" data-max="20000" style="background: linear-gradient(90deg, #9C27B0, #673AB7); height: 6px; width: 0;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metric Card 4: Lowest Rated Tag -->
+    <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(0, 150, 136, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(0, 150, 136, 0.2);">
+        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #009688;">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ lowest_rated_tag.AvgRating|float|round(1) }}</div>
+        <p style="font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin: 0 0 15px;">Lowest: {{ lowest_rated_tag.TagName }}</p>
+        <div style="width: 100%; margin-top: auto;">
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="metric-progress-value" data-value="{{ lowest_rated_tag.AvgRating }}" data-max="5" style="background: linear-gradient(90deg, #009688, #4DB6AC); height: 6px; width: 0;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metric Card 5: Most Tagged Product -->
+    <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(76, 175, 80, 0.2);">
+        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #4CAF50;">
+            <i class="fas fa-thumbs-up"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ most_tags_count }}</div>
+        <p style="font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin: 0 0 15px;">Most Tagged</p>
+        <div style="width: 100%; margin-top: auto;">
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="metric-progress-value" data-value="{{ most_tags_count }}" data-max="10" style="background: linear-gradient(90deg, #4CAF50, #8BC34A); height: 6px; width: 0;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metric Card 6: Top Tag (replacing Recommendation Strength) -->
+    <div style="background: rgba(30, 41, 59, 0.75); backdrop-filter: blur(10px); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 16px; padding: 20px 15px; width: 170px; min-height: 220px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 8px 32px rgba(244, 67, 54, 0.2);">
+        <div style="position: relative; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; font-size: 24px; color: #F44336;">
+            <i class="fas fa-tag"></i>
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; margin: 5px 0; color: #fff;">{{ popular_tags[0]['TagName'] if popular_tags else 'N/A' }}</div>
+        <p style="font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin: 0 0 15px;">Most Popular Tag</p>
+        <div style="width: 100%; margin-top: auto;">
+            <div style="width: 100%; background: rgba(255, 255, 255, 0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="metric-progress-value" data-value="{{ popular_tags[0]['TagUsage'] if popular_tags else 0 }}" data-max="{{ (popular_tags[0]['TagUsage'] * 1.2)|round|int if popular_tags else 100 }}" style="background: linear-gradient(90deg, #F44336, #E91E63); height: 6px; width: 0;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tag Cloud and Rating Distribution Row -->
+<div class="row mb-4" style="position: relative; z-index: 1;">
+    <!-- Section 2: Tag Cloud -->
+    <div class="col-lg-6 mb-2">
+        <div class="glass-panel h-100 pt-2 pb-2">
+            <h2 class="text-white mb-1">Tag Cloud</h2>
+            <p class="text-white-50 mb-1 small">Popular tags sized by frequency. Click on a tag to filter.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-tags me-2"></i>Product Tags</h5>
+                </div>
+                <div class="card-body">
+                    <div class="tag-cloud" id="tagCloud" style="height: 300px; overflow-y: auto;">
+                        {% for tag in popular_tags[:30] %}
+                        <span class="tag-size-{{ tag.size }}" data-tag="{{ tag.TagName }}" onclick="filterByTag('{{ tag.TagName }}')">
+                            <i class="fas fa-tag me-1"></i>{{ tag.TagName }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Rating Analysis -->
+    <div class="col-lg-6 mb-2">
+        <div class="glass-panel h-100 pt-2 pb-2">
+            <h2 class="text-white mb-1">Rating Distribution</h2>
+            <p class="text-white-50 mb-1 small">Analysis of product rating distribution.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i>Rating Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 240px; width: 100%; max-width: 100%;">
+                        <canvas id="ratingDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section - Row with Two Charts -->
+<div class="row" style="width: 100%; margin-right: 0; margin-left: 0;">
+    <!-- Top Rated Products by Category -->
+    <div class="col-lg-6 mb-4">
+        <div class="glass-panel h-100">
+            <h2 class="text-white mb-3">Top Products by Category</h2>
+            <p class="text-white-50 mb-3">Analysis of highest rated products across categories.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-trophy me-2"></i>Products by Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px; width: 100%; max-width: 100%;">
+                        <canvas id="topRatedProductsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tag Usage Trends -->
+    <div class="col-lg-6 mb-4">
+        <div class="glass-panel h-100">
+            <h2 class="text-white mb-3">Tag Usage Trends</h2>
+            <p class="text-white-50 mb-3">Analysis of tag usage trends over time.</p>
+            
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Tag Usage Trends</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px; width: 100%; max-width: 100%;">
+                        <canvas id="tagActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section: Category Analysis removed - was duplicate of Top Rated Products by Category -->
+
+<!-- Deep Dive Analysis -->
+<div class="row mb-4" style="position: relative; z-index: 1;">
+    <div class="col-12 mb-2">
+        <div class="glass-panel pt-2 pb-2">
+            <h2 class="text-white mb-1">Deep Dive Analysis</h2>
+            <p class="text-white-50 mb-2 small">Detailed product rating analysis and top performers.</p>
+            
+            <div class="card mb-2">
+                <div class="card-header py-1">
+                    <h5 class="card-title mb-0"><i class="fas fa-trophy me-2"></i>Top Rated Products</h5>
+                </div>
+                <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Rating</th>
+                    <th>Tags</th>
+                    <th>Review Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in top_products %}
+                <tr>
+                    <td>{{ product.ProductName }}</td>
+                    <td>
+                        {% set rating = product.Rating|float %}
+                        {% set full_stars = (rating|int) %}
+                        {% set half_star = rating - full_stars >= 0.5 %}
+                        {% set empty_stars = 5 - full_stars - (1 if half_star else 0) %}
+                        
+                        {% for i in range(full_stars) %}
+                        <i class="fas fa-star text-warning"></i>
+                        {% endfor %}
+                        
+                        {% if half_star %}
+                        <i class="fas fa-star-half-alt text-warning"></i>
+                        {% endif %}
+                        
+                        {% for i in range(empty_stars) %}
+                        <i class="far fa-star text-muted"></i>
+                        {% endfor %}
+                        
+                        {{ rating }}
+                    </td>
+                    <td>
+                        {% for tag in product.Tags.split(',') %}
+                        <span class="badge bg-info">{{ tag }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ product.ReviewCount }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div> <!-- End of main-content container -->
+
+<script>
+// Initialize progress bars immediately with forced inline styles for maximum compatibility
+document.addEventListener('DOMContentLoaded', function() {
+    // Force CSS to be applied to Font Awesome icons
+    document.querySelectorAll('.fas').forEach(function(icon) {
+        icon.style.display = 'inline-block';
+        icon.style.fontSize = '24px';
+    });
+    
+    // Set initial widths for progress bars
+    var progressBars = document.querySelectorAll('.metric-progress-value');
+    console.log('Found ' + progressBars.length + ' progress bars to update');
+    
+    // First make sure all bars exist and are visible
+    progressBars.forEach(function(bar) {
+        // Ensure basic styling is applied
+        bar.style.height = '6px';
+        bar.style.borderRadius = '3px';
+        bar.style.transition = 'width 1s ease-in-out';
+    });
+    
+    // Then apply the width with a delay to allow transition animation
+    setTimeout(function() {
+        progressBars.forEach(function(bar) {
+            var value = parseFloat(bar.getAttribute('data-value') || '0');
+            var max = parseFloat(bar.getAttribute('data-max') || '100');
+            var percent = (value / max) * 100;
+            
+            // Ensure at least a small visible portion
+            percent = Math.max(percent, 5);
+            // Cap at 100%
+            percent = Math.min(percent, 100);
+            
+            console.log('Setting bar width to: ' + percent + '%', bar);
+            bar.style.width = percent + '%';
+        });
+    }, 300);
+});
+</script>
 
 {% endblock content %}

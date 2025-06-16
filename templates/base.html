@@ -54,7 +54,9 @@
             // Don't force gray background on home page with video or tactical dashboard
             if (window.location.pathname === '/' || 
                 window.location.pathname === '/dashboard/tactical' || 
-                window.location.pathname === '/dashboard_tactical') {
+                window.location.pathname === '/dashboard_tactical' ||
+                window.location.pathname === '/dashboard/analytical' || 
+                window.location.pathname === '/dashboard_analytical') {
                 document.body.style.backgroundColor = 'transparent';
                 document.documentElement.style.backgroundColor = 'transparent';
                 return;
@@ -113,6 +115,7 @@
     </script>
 </head>
 <body{% if request.path == '/' %} class="home-page"{% endif %} style="background-color: {% if request.path == '/' %}transparent{% elif request.path == '/dashboard/tactical' or request.path == '/dashboard_tactical' %}#ffffff{% else %}#303030{% endif %} !important;">
+    {% block navbar %}
     <nav class="navbar navbar-expand-lg {% if request.path == '/dashboard/tactical' or request.path == '/dashboard_tactical' %}navbar-light bg-white{% else %}navbar-dark{% endif %}" {% if request.path == '/' %}style="background-color: rgba(0,0,0,0.4) !important; backdrop-filter: blur(5px);"{% endif %}>
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
@@ -140,6 +143,7 @@
             </div>
         </div>
     </nav>
+    {% endblock %}
 
     <div class="container mt-4">
         {% block content %}{% endblock %}
