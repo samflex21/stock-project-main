@@ -208,22 +208,51 @@
 {% block head %}
 <!-- Complete override of base template styles -->
 <style>
-    /* Force white text in category summary table */
+    /* Force white text in category summary table and remove all gray backgrounds */
     .category-summary-table,
     .category-summary-table thead,
     .category-summary-table tbody,
     .category-summary-table tr,
     .category-summary-table th,
-    .category-summary-table td {
+    .category-summary-table td,
+    .table-responsive table,
+    .table-responsive thead,
+    .table-responsive tbody,
+    .table-responsive tr,
+    .table-responsive th,
+    .table-responsive td {
+        color: #ffffff !important;
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Additional specific overrides for Bootstrap table classes */
+    .table, .table-dark, .table-striped, .table-hover,
+    .table > thead, .table > tbody,
+    .table > thead > tr, .table > tbody > tr,
+    .table > thead > tr > th, .table > tbody > tr > td,
+    .table-striped > tbody > tr:nth-of-type(odd),
+    .table-striped > tbody > tr:nth-of-type(even) {
+        background-color: transparent !important;
+        background-image: none !important;
+        background: transparent !important;
         color: #ffffff !important;
     }
     
-    /* Ensure that any other elements don't override our text color */
-    .modern-table table,
-    .modern-table thead th,
-    .modern-table tbody td,
-    .table-responsive .table {
-        color: #ffffff !important;
+    /* Override any Bootstrap background utility classes */
+    .bg-light, .bg-white, .bg-secondary, .bg-dark, .bg-gray, .bg-grey {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* Target any container that might wrap the table */
+    .modern-table, .table-container, .chart-container, .glass-panel {
+        background: rgba(21, 21, 40, 0.7) !important;
+    }
+    
+    /* Override any inline styles with !important */
+    [style*="background"] {
+        background: transparent !important;
     }
 </style>
 <style id="video-background-overrides">
